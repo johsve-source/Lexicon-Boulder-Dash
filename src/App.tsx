@@ -1,5 +1,5 @@
 import { SoundManagerProvider } from './SoundManagerProvider';
-import TestSound from './TestSound.tsx';
+import TestSound from './TestSound';
 
 function App() {
   return (
