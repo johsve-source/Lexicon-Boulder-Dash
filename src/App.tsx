@@ -1,9 +1,12 @@
-import SoundHandler from './SoundHandler';
+import { SoundManagerProvider } from './SoundManagerProvider';
+import TestSound from './TestSound.tsx';
 
 function App() {
   return (
     <>
-      <SoundHandler />
+      <SoundManagerProvider>
+        <TestSound />
+      </SoundManagerProvider>
     </>
   );
 }
