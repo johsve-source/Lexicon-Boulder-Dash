@@ -2,7 +2,7 @@ import "./Game.css";
 import Player from "./components/Player";
 import { createContext, useEffect, useState } from "react";
 
-export const PlayerContext = createContext<number[]>([1, 1]);
+export const PlayerContext = createContext<number[]>([]);
 
 export function Game() {
     const [coordinate, setCoordinate] = useState([1, 1]);

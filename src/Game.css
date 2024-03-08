@@ -1,13 +1,14 @@
 :root {
-    --game-block-size: 256px
+    --game-block-size: 64px;
+    --game-grid-x: 10;
+    --game-grid-y: 10;
 }
 
 .Game {
     background-color: gray;
-    height: calc(var(--game-block-size) * 3);
-    width: calc(var(--game-block-size) * 3);
+    height: calc(var(--game-block-size) * var(--game-grid-x));
+    width: calc(var(--game-block-size) * var(--game-grid-x));
     margin: auto;
     display: grid;
-    gap: 1px;
-    grid-template: repeat(3, var(--game-block-size)) / repeat(3, var(--game-block-size));
+    grid-template: repeat(var(--game-grid-x), var(--game-block-size)) / repeat(var(--game-grid-y), var(--game-block-size));
 }
