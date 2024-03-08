@@ -7,6 +7,7 @@
   color: rgba(255, 255, 255, 0.87);
   background-color: #242424;
 
+  image-rendering: pixelated;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -24,10 +25,11 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
+  display: grid;
   place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  min-width: 100svw;
+  min-height: 100svh;
+  background-color: rgb(255, 255, 201);
 }
 
 h1 {
