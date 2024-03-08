@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { determineSoundFile } from './soundUtil.ts';
-import { DEFAULT_DURATION } from './soundConstants.ts';
+import * as SoundConstants from './soundConstants';
 
 interface SoundOptions {
   loop?: boolean;
@@ -15,13 +15,28 @@ export const useSoundManagerLogic = () => {
     loop: boolean;
   }>({ playing: false, soundFile: '', loop: false });
 
-  /**
-   * A function that plays a specific interaction sound based on the given type and options.
-   *
-   * @param {string} interactionType - the type of interaction sound to be played
-   * @param {SoundOptions} options - (Optional) options for playing the sound
-   * @return {void}
-   */
+  useEffect(() => {
+    const audio = new Audio(state.soundFile);
+    audio.loop = state.loop;
+
+    if (state.playing) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+
+    if (!state.playing && state.soundFile) {
+      setTimeout(() => {
+        setState({ playing: false, soundFile: '', loop: false });
+      }, SoundConstants.DEFAULT_DURATION);
+    }
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+    };
+  }, [state]);
+
   const playInteraction = (
     interactionType: string,
     options: SoundOptions = {}
@@ -37,7 +52,7 @@ export const useSoundManagerLogic = () => {
     if (!options.playOnce) {
       setTimeout(() => {
         setState({ playing: false, soundFile: '', loop: false });
-      }, options.duration || DEFAULT_DURATION);
+      }, options.duration || SoundConstants.DEFAULT_DURATION);
     }
   };
 
