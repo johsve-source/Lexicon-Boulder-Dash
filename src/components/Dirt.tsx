@@ -2,13 +2,13 @@ import { useContext } from "react";
 import "./Block.css";
 import { PlayerContext } from "../Game";
 
-function Player() {
+function Dirt() {
     const coordinate = useContext(PlayerContext);
     return (
         <>
-            <img src="/player.png" alt="The Player" className="Block" style={{ gridArea: `${coordinate[0]} / ${coordinate[1]}` }} />
+            <img src="/dirt.png" alt="A pile of dirt, or maybe mud?" className="Block" style={{ gridArea: `${coordinate[0]} / ${coordinate[1]}` }} />
         </>
     );
 }
 
-export default Player;
+export default Dirt;

@@ -1,6 +1,7 @@
 import "./Game.css";
 import Player from "./components/Player";
 import { createContext, useEffect, useState } from "react";
+import Stone from "./components/Stone";
 
 export const PlayerContext = createContext<number[]>([]);
 
@@ -46,7 +47,7 @@ export function Game() {
     return (
         <PlayerContext.Provider value={coordinate}>
             <div className="Game">
-                <Player />
+                <Stone />
             </div>
         </PlayerContext.Provider>
     );
