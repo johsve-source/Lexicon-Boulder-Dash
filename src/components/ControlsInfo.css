@@ -1,0 +1,35 @@
+.controls-info {
+	position: relative;
+}
+
+.controls-info .info {
+	display: none;
+
+	position: absolute;
+	top: calc(100% + 0.25em);
+	left: 0;
+	width: max-content;
+
+	text-align: left;
+
+	border-radius: 8px;
+	border: 1px solid transparent;
+
+	padding: 0.6em 1.2em;
+	font-size: 1em;
+	font-weight: 500;
+	font-family: inherit;
+	background-color: #1a1a1a;
+}
+
+.controls-info .info td {
+	text-align: center;
+}
+
+.controls-info .info td:first-child {
+	text-align: right;
+}
+
+.controls-info.visible .info {
+	display: block;
+}
