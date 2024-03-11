@@ -2,6 +2,7 @@ import "./Game.css";
 import Player from "./components/Player";
 import { createContext, useEffect, useState } from "react";
 import Stone from "./components/Stone";
+import Bedrock from "./components/Bedrock";
 
 export const PlayerContext = createContext<number[]>([]);
 
@@ -44,10 +45,23 @@ export function Game() {
         };
     }, [coordinate]);
 
+    const blocks = [
+        "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
+        "b", "p", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "d", "d", "s", "s", "s", "d", "d", "d", "b",
+        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "s", "s", "s", "d", "d", "d", "d", "d", "b",
+        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+    ]
+
     return (
         <PlayerContext.Provider value={coordinate}>
             <div className="Game">
-                <Stone />
+
             </div>
         </PlayerContext.Provider>
     );

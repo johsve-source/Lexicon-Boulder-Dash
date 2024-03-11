@@ -1,12 +1,10 @@
-import { useContext } from "react";
 import "./Block.css";
-import { PlayerContext } from "../Game";
+import IBlockProps from "../interfaces/IBlockProps";
 
-function Diamond() {
-    const coordinate = useContext(PlayerContext);
+function Diamond({x, y}: IBlockProps) {
     return (
         <>
-            <img src="/diamond.png" alt="A diamond" className="Block" style={{ gridArea: `${coordinate[0]} / ${coordinate[1]}` }} />
+            <img src="/diamond.png" alt="Wow, a diamond." className="Block" style={{ gridArea: `${x} / ${y}` }} />
         </>
     );
 }

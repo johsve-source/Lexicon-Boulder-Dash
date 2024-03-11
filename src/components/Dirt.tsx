@@ -1,12 +1,10 @@
-import { useContext } from "react";
 import "./Block.css";
-import { PlayerContext } from "../Game";
+import IBlockProps from "../interfaces/IBlockProps";
 
-function Dirt() {
-    const coordinate = useContext(PlayerContext);
+function Dirt({x, y}: IBlockProps) {
     return (
         <>
-            <img src="/dirt.png" alt="A pile of dirt, or maybe mud?" className="Block" style={{ gridArea: `${coordinate[0]} / ${coordinate[1]}` }} />
+            <img src="/dirt.png" alt="Dirty dirt." className="Block" style={{ gridArea: `${x} / ${y}` }} />
         </>
     );
 }
