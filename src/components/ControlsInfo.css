@@ -1,14 +1,7 @@
-.controls-info {
-	position: relative;
-}
-
-.controls-info .info {
-	display: none;
-
-	position: absolute;
-	top: calc(100% + 0.25em);
-	left: 0;
+dialog.controls-info {
+	position: fixed;
 	width: max-content;
+	margin: 0;
 
 	text-align: left;
 
@@ -22,14 +15,14 @@
 	background-color: #1a1a1a;
 }
 
-.controls-info .info td {
+dialog.controls-info[open]::backdrop {
+	background-color: transparent;
+}
+
+dialog.controls-info td {
 	text-align: center;
 }
 
-.controls-info .info td:first-child {
+dialog.controls-info td:first-child {
 	text-align: right;
-}
-
-.controls-info.visible .info {
-	display: block;
 }
