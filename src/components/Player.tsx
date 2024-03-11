@@ -1,12 +1,10 @@
-import { useContext } from "react";
 import "./Block.css";
-import { PlayerContext } from "../Game";
+import IBlockProps from "../interfaces/IBlockProps";
 
-function Player() {
-    const coordinate = useContext(PlayerContext);
+function Player({x, y}: IBlockProps) {
     return (
         <>
-            <img src="/player.png" alt="The Player" className="Block" style={{ gridArea: `${coordinate[0]} / ${coordinate[1]}` }} />
+            <img src="/player.png" alt="The player, you." className="Block" style={{ gridArea: `${x} / ${y}` }} />
         </>
     );
 }

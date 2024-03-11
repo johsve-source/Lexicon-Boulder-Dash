@@ -1,12 +1,10 @@
-import { useContext } from "react";
 import "./Block.css";
-import { PlayerContext } from "../Game";
+import IBlockProps from "../interfaces/IBlockProps";
 
-function Bedrock() {
-    const coordinate = useContext(PlayerContext);
+function Bedrock({x, y}: IBlockProps) {
     return (
         <>
-            <img src="/bedrock.png" alt="The bedrock, cannot be mined." className="Block" style={{ gridArea: `${coordinate[0]} / ${coordinate[1]}` }} />
+            <img src="/Bedrock.png" alt="Bedrock, unbreakable." className="Block" style={{ gridArea: `${x} / ${y}` }} />
         </>
     );
 }
