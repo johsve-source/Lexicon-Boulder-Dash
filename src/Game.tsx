@@ -55,7 +55,7 @@ export function Game() {
     'b',
     'b',
     'b',
-    'p',
+    'd',
     'd',
     'd',
     'd',
@@ -165,6 +165,7 @@ export function Game() {
   return (
     <PlayerContext.Provider value={coordinate}>
       <div className="Game">
+        <Block image={toImagePath('p')} x={coordinate[0]} y={coordinate[1]} />
         {blocks.map((key, index) => (
           <Block
             key={index}
