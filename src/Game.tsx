@@ -45,7 +45,7 @@ export function Game() {
 
     const blocks = [
         "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
-        "b", "p", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "s", "s", "s", "d", "i", "d", "b",
         "b", "d", "i", "d", "d", "d", "d", "d", "d", "b",
@@ -82,6 +82,7 @@ export function Game() {
     return (
         <PlayerContext.Provider value={coordinate}>
             <div className="Game">
+                <Block image={toImagePath("p")} x={coordinate[0]} y={coordinate[1]} />
                 {blocks.map((key, index) => <Block key={index} x={((index + 1) % 10)} y={(index + 1) / 10} image={toImagePath(key)} />)}
             </div>
         </PlayerContext.Provider>
