@@ -29,7 +29,7 @@ function ControlsInfo() {
 					}px + 0.25em)`
 				}}
 			>
-				Controls
+				?
 			</button>
 
 			<dialog
@@ -48,6 +48,7 @@ function ControlsInfo() {
 					if (!clickedInDialog) dialogRef.current.close()
 				}}
 			>
+				<b>Controls: </b>
 				<table>
 					<tbody>
 						{Object.entries(controls).map(

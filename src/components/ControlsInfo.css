@@ -1,3 +1,14 @@
+button.controls-info {
+	position: absolute;
+	width: 1.75em;
+	height: 1.75em;
+	padding: 0;
+	top: 0.5em;
+	left: 0.5em;
+
+	background-color: #0008;
+}
+
 dialog.controls-info {
 	position: fixed;
 	width: max-content;
@@ -12,7 +23,7 @@ dialog.controls-info {
 	font-size: 1em;
 	font-weight: 500;
 	font-family: inherit;
-	background-color: #1a1a1a;
+	background-color: #0008;
 }
 
 dialog.controls-info[open]::backdrop {
