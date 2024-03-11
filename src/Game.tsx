@@ -1,8 +1,6 @@
 import './Game.css';
-import Player from './components/Player';
 import { createContext, useEffect, useState } from 'react';
-import Stone from './components/Stone';
-import Bedrock from './components/Bedrock';
+import Block from './components/Generic';
 
 export const PlayerContext = createContext<number[]>([]);
 
@@ -83,6 +81,16 @@ export function Game() {
     's',
     's',
     'd',
+    'i',
+    'd',
+    'b',
+    'b',
+    'd',
+    'i',
+    'd',
+    'd',
+    'd',
+    'd',
     'd',
     'd',
     'b',
@@ -92,17 +100,7 @@ export function Game() {
     'd',
     'd',
     'd',
-    'd',
-    'd',
-    'd',
-    'b',
-    'b',
-    'd',
-    'd',
-    'd',
-    'd',
-    'd',
-    'd',
+    'i',
     'd',
     'd',
     'b',
@@ -137,20 +135,45 @@ export function Game() {
     'd',
     'b',
     'b',
-    'd',
-    'd',
-    'd',
-    'd',
-    'd',
-    'd',
-    'd',
-    'd',
+    'b',
+    'b',
+    'b',
+    'b',
+    'b',
+    'b',
+    'b',
+    'b',
     'b',
   ];
 
+  function toImagePath(type: string) {
+    if (type === 'b') {
+      return '/bedrock.png';
+    } else if (type === 'd') {
+      return '/dirt.png';
+    } else if (type === 's') {
+      return '/stone.png';
+    } else if (type === 'i') {
+      return '/diamond.png';
+    } else if (type === 'p') {
+      return '/player.png';
+    } else {
+      return '/player.png';
+    }
+  }
+
   return (
     <PlayerContext.Provider value={coordinate}>
-      <div className="Game"></div>
+      <div className="Game">
+        {blocks.map((key, index) => (
+          <Block
+            key={index}
+            x={(index + 1) % 10}
+            y={(index + 1) / 10}
+            image={toImagePath(key)}
+          />
+        ))}
+      </div>
     </PlayerContext.Provider>
   );
 }
