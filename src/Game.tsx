@@ -1,9 +1,10 @@
+
 import "./Game.css";
 import { createContext, useEffect, useRef, useState } from "react";
 import Block from "./components/Generic";
 import ControlsInfo from "./components/ControlsInfo";
 
-export const PlayerContext = createContext<number[]>([])
+export const PlayerContext = createContext<number[]>([]);
 
 export function Game() {
   // prettier-ignore
@@ -83,11 +84,13 @@ export function Game() {
     return (
         <div className="Game">
 			<ControlsInfo />
+			<ControlsInfo />
             {blocks.map((key, index) => (
                 <Block key={index} x={(index + 1) % 10} y={(index + 1) / 10} image={toImagePath(key)} />
             ))}
         </div>
     );
+
 }
 
-export default Game
+export default Game;
