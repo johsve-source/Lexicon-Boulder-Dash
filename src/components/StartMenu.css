@@ -1,0 +1,39 @@
+.startMenu {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background-color: #444444;
+
+  height: calc(var(--game-block-size) * var(--game-grid-x));
+  width: calc(var(--game-block-size) * var(--game-grid-x));
+}
+
+.startMenu h1 {
+  font-size: 36px;
+  margin: 50px 0;
+}
+
+.startMenu button {
+  font-size: 24px;
+}
+
+.startMenu h2 {
+  margin-top: 50px;
+}
+
+.startMenu ul {
+  justify-self: center;
+  list-style: none;
+  overflow-y: auto;
+  max-height: 300px;
+  max-width: 200px;
+  margin: 0 190px;
+}
+
+.startMenu li {
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
