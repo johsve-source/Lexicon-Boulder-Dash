@@ -1,77 +1,105 @@
 import "./Game.css";
-import Player from "./components/Player";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useRef, useState } from "react";
+import Block from "./components/Generic";
 import { StartMenu } from "./components/StartMenu";
+// remove import after highscore caching is finished
+import { highscoreTestData } from "./assets/highscoreData";
 
 export const PlayerContext = createContext<number[]>([]);
 
 export function Game() {
-  // starting player coordinates
-  const [coordinate, setCoordinate] = useState([1, 1]);
-  const [isStartMenuVisible, setStartMenuVisible] = useState(true);
+  const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true);
+  
+  // prettier-ignore
+  const [blocks, setBlocks] = useState([
+      "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
+      "b", "p", "d", "d", "d", "d", "d", "d", "d", "b",
+      "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+      "b", "d", "d", "s", "s", "s", "d", "i", "d", "b",
+      "b", "d", "i", "d", "d", "d", "d", "d", "d", "b",
+      "b", "d", "d", "d", "d", "d", "i", "d", "d", "b",
+      "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+      "b", "s", "s", "s", "d", "d", "d", "d", "d", "b",
+      "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+      "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
+  ]);
 
-  const highscoreTest = [
-    {
-      username: "Jonatan",
-      score: 1234,
-      id: 90932819,
-    },
-    {
-      username: "User",
-      score: 13,
-      id: 909328612,
-    },
-  ];
+  // starting player coordinates
+  const position = useRef(11);
 
   function handlePlayClick() {
     setStartMenuVisible(false);
   }
 
-  // updates player coordinates on keypress, eventListener is added and removed on render
-  useEffect(() => {
-    const calculateCoordinate = (x: number, y: number) => {
-      if (x) {
-        x = Math.min(Math.max(coordinate[1] + x, 1), 10);
-      } else {
-        x = coordinate[1];
-      }
-      if (y) {
-        y = Math.min(Math.max(coordinate[0] + y, 1), 10);
-      } else {
-        y = coordinate[0];
-      }
-      console.log(x, y);
-      return [y, x];
-    };
-    const keyPress = (e: KeyboardEvent) => {
-      console.log(e.code);
-      if (e.code === "ArrowUp" || e.code === "KeyW") {
-        setCoordinate(calculateCoordinate(0, -1));
-      } else if (e.code === "ArrowDown" || e.code === "KeyS") {
-        setCoordinate(calculateCoordinate(0, 1));
-      } else if (e.code === "ArrowRight" || e.code === "KeyD") {
-        setCoordinate(calculateCoordinate(1, 0));
-      } else if (e.code === "ArrowLeft" || e.code === "KeyA") {
-        setCoordinate(calculateCoordinate(-1, 0));
-      }
-    };
-    window.addEventListener("keydown", keyPress);
+    // updates player coordinates on keypress, eventListener is added and removed on render
+    useEffect(() => {
+        const keyPress = (e: KeyboardEvent) => {
+            console.log(e.code);
+            if (e.code === "ArrowUp" || e.code === "KeyW") {
+                const newBlocks = [...blocks];
+                const copy = newBlocks[position.current - 10];
+                newBlocks[position.current - 10] = newBlocks[position.current];
+                newBlocks[position.current] = copy;
+                position.current -= 10;
+                setBlocks(newBlocks);
+            } else if (e.code === "ArrowDown" || e.code === "KeyS") {
+                const newBlocks = [...blocks];
+                const copy = newBlocks[position.current + 10];
+                newBlocks[position.current + 10] = newBlocks[position.current];
+                newBlocks[position.current] = copy;
+                position.current += 10;
+                setBlocks(newBlocks);
+            } else if (e.code === "ArrowRight" || e.code === "KeyD") {
+                const newBlocks = [...blocks];
+                const copy = newBlocks[position.current + 1];
+                newBlocks[position.current + 1] = newBlocks[position.current];
+                newBlocks[position.current] = copy;
+                position.current += 1;
+                setBlocks(newBlocks);
+            } else if (e.code === "ArrowLeft" || e.code === "KeyA") {
+                const newBlocks = [...blocks];
+                const copy = newBlocks[position.current - 1];
+                newBlocks[position.current - 1] = newBlocks[position.current];
+                newBlocks[position.current] = copy;
+                position.current -= 1;
+                setBlocks(newBlocks);
+            }
+        };
+        window.addEventListener("keydown", keyPress);
 
-    return () => {
-      window.removeEventListener("keydown", keyPress);
-    };
-  }, [coordinate]);
+        return () => {
+            window.removeEventListener("keydown", keyPress);
+        };
+    }, [blocks]);
 
-  return (
-    <PlayerContext.Provider value={coordinate}>
-      {isStartMenuVisible && (
-        <StartMenu onPlayClick={handlePlayClick} highscores={highscoreTest} />
-      )}
-      <div className="Game">
-        <Player />
-      </div>
-    </PlayerContext.Provider>
-  );
+    function toImagePath(type: string) {
+        if (type === "b") {
+            return "/bedrock.png";
+        } else if (type === "d") {
+            return "/dirt.png";
+        } else if (type === "s") {
+            return "/stone.png";
+        } else if (type === "i") {
+            return "/diamond.png";
+        } else if (type === "p") {
+            return "/player.png";
+        } else {
+            return "/player.png";
+        }
+    }
+
+    return (
+      <>
+        {isStartMenuVisible && (
+          <StartMenu onPlayClick={handlePlayClick} highscores={highscoreTestData} />    
+        )}
+        <div className="Game">
+            {blocks.map((key, index) => (
+                <Block key={index} x={(index + 1) % 10} y={(index + 1) / 10} image={toImagePath(key)} />
+            ))}
+        </div>
+      </>
+    );
 }
 
 export default Game;

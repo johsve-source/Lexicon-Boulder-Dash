@@ -1,17 +1,7 @@
+import { IStartMenuProps } from "../interfaces/IStartMenuProps";
 import "./StartMenu.css";
 
-interface Highscores {
-  username: string;
-  score: number;
-  id: number;
-}
-
-interface StartMenuProps {
-  onPlayClick: () => void;
-  highscores: Highscores[];
-}
-
-export function StartMenu({ onPlayClick, highscores }: StartMenuProps) {
+export function StartMenu({ onPlayClick, highscores }: IStartMenuProps) {
   function calculateDotAmount(
     username: string,
     score: number,
