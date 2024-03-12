@@ -43,9 +43,9 @@ export function Game() {
         };
     }, [coordinate]);
 
-    const blocks = [
+    const [blocks, setBlocks] = useState([
         "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
-        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "p", "d", "d", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "s", "s", "s", "d", "i", "d", "b",
         "b", "d", "i", "d", "d", "d", "d", "d", "d", "b",
@@ -54,7 +54,7 @@ export function Game() {
         "b", "s", "s", "s", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
         "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
-    ]
+    ]);
 
     function toImagePath(type: string) {
         if (type === "b") {
@@ -82,7 +82,6 @@ export function Game() {
     return (
         <PlayerContext.Provider value={coordinate}>
             <div className="Game">
-                <Block image={toImagePath("p")} x={coordinate[0]} y={coordinate[1]} />
                 {blocks.map((key, index) => <Block key={index} x={((index + 1) % 10)} y={(index + 1) / 10} image={toImagePath(key)} />)}
             </div>
         </PlayerContext.Provider>
