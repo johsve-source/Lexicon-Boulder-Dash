@@ -1,6 +1,7 @@
 import './Game.css'
 import { createContext, useEffect, useRef, useState } from 'react'
 import Block from './components/Generic'
+import ControlsInfo from './components/ControlsInfo'
 
 export const PlayerContext = createContext<number[]>([])
 
@@ -132,6 +133,7 @@ export function Game() {
 
   return (
     <div className="Game">
+      <ControlsInfo />
       {blocks.map((key: string, index: number) => (
         <Block
           key={index}
