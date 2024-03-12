@@ -43,7 +43,7 @@ export function Game() {
     };
   }, [coordinate]);
 
-  const blocks = [
+  const [blocks, setBlocks] = useState([
     'b',
     'b',
     'b',
@@ -55,7 +55,7 @@ export function Game() {
     'b',
     'b',
     'b',
-    'd',
+    'p',
     'd',
     'd',
     'd',
@@ -144,7 +144,7 @@ export function Game() {
     'b',
     'b',
     'b',
-  ];
+  ]);
 
   function toImagePath(type: string) {
     if (type === 'b') {
@@ -165,7 +165,6 @@ export function Game() {
   return (
     <PlayerContext.Provider value={coordinate}>
       <div className="Game">
-        <Block image={toImagePath('p')} x={coordinate[0]} y={coordinate[1]} />
         {blocks.map((key, index) => (
           <Block
             key={index}
