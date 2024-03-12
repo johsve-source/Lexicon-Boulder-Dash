@@ -1,16 +1,16 @@
-import { useRef } from 'react';
-import './ControlsInfo.css';
+import { useRef } from 'react'
+import './ControlsInfo.css'
 
 const controls = {
   Upp: ['W', '🠉'],
   Down: ['S', '🠋'],
   Left: ['A', '🠈'],
   Right: ['D', '🠊'],
-};
+}
 
 function ControlsInfo() {
-  const buttonRef = useRef<HTMLButtonElement>(null);
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const dialogRef = useRef<HTMLDialogElement>(null)
 
   return (
     <>
@@ -18,15 +18,15 @@ function ControlsInfo() {
         ref={buttonRef}
         className="controls-info"
         onClick={() => {
-          if (!dialogRef.current) return;
-          dialogRef.current.showModal();
-          if (!buttonRef.current) return;
+          if (!dialogRef.current) return
+          dialogRef.current.showModal()
+          if (!buttonRef.current) return
 
-          const rect = buttonRef.current.getBoundingClientRect();
-          dialogRef.current.style.left = rect.x + 'px';
+          const rect = buttonRef.current.getBoundingClientRect()
+          dialogRef.current.style.left = rect.x + 'px'
           dialogRef.current.style.top = `calc(${
             rect.y + rect.height
-          }px + 0.25em)`;
+          }px + 0.25em)`
         }}
       >
         ?
@@ -36,16 +36,16 @@ function ControlsInfo() {
         ref={dialogRef}
         className="controls-info"
         onClick={(e) => {
-          if (!dialogRef.current) return;
+          if (!dialogRef.current) return
 
-          const rect = dialogRef.current.getBoundingClientRect();
+          const rect = dialogRef.current.getBoundingClientRect()
           const clickedInDialog =
             rect.top <= e.clientY &&
             e.clientY <= rect.top + rect.height &&
             rect.left <= e.clientX &&
-            e.clientX <= rect.left + rect.width;
+            e.clientX <= rect.left + rect.width
 
-          if (!clickedInDialog) dialogRef.current.close();
+          if (!clickedInDialog) dialogRef.current.close()
         }}
       >
         <b>Controls: </b>
@@ -65,7 +65,7 @@ function ControlsInfo() {
         </table>
       </dialog>
     </>
-  );
+  )
 }
 
-export default ControlsInfo;
+export default ControlsInfo
