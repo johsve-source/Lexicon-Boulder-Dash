@@ -84,7 +84,6 @@ export function Game() {
     return (
         <div className="Game">
 			<ControlsInfo />
-			<ControlsInfo />
             {blocks.map((key, index) => (
                 <Block key={index} x={(index + 1) % 10} y={(index + 1) / 10} image={toImagePath(key)} />
             ))}
