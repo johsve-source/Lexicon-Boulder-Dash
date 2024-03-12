@@ -8,7 +8,7 @@ export function Game() {
   // prettier-ignore
   const [blocks, setBlocks] = useState([
         "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
-        "b", "p", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "p", "s", "n", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "s", "s", "s", "d", "i", "d", "b",
         "b", "d", "i", "d", "d", "d", "d", "d", "d", "b",
@@ -22,11 +22,30 @@ export function Game() {
   // starting player coordinates
   const position = useRef(11)
 
+  function gravity() {
+    setBlocks((prevBlocks: string[]) => {
+      const newBlocks = [...prevBlocks]
+
+      for (let i = newBlocks.length - 1; i >= 0; i--) {
+        if (
+          newBlocks[i] === 's' &&
+          i + 10 < newBlocks.length &&
+          newBlocks[i + 10] === 'n'
+        ) {
+          newBlocks[i + 10] = 's'
+          newBlocks[i] = 'n'
+        }
+      }
+
+      return newBlocks
+    })
+  }
+
   // updates player coordinates on keypress, eventListener is added and removed on render
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
-      function handleMove(delta: number) {
+      function handleMove(delta: number, direction: number) {
         const newBlocks = [...blocks]
         const copy = newBlocks[position.current + delta]
         if (copy === 'b') {
@@ -35,19 +54,43 @@ export function Game() {
           newBlocks[position.current + delta] = newBlocks[position.current]
           newBlocks[position.current] = 'n'
           position.current += delta
-          setBlocks(newBlocks)
+        } else if (copy === 'i') {
+          newBlocks[position.current + delta] = newBlocks[position.current]
+          newBlocks[position.current] = 'n'
+          position.current += delta
         } else if (copy === 'f') {
           alert('WE HAVE A WINNER!')
+        } else if (
+          copy === 's' &&
+          direction === 1 &&
+          newBlocks[position.current + delta + 1] === 'n'
+        ) {
+          // right
+          newBlocks[position.current + delta] = newBlocks[position.current]
+          newBlocks[position.current + delta + 1] = 's'
+          newBlocks[position.current] = 'n'
+          position.current += delta
+        } else if (
+          copy === 's' &&
+          direction === 2 &&
+          newBlocks[position.current + delta - 1] === 'n'
+        ) {
+          // left
+          newBlocks[position.current + delta] = newBlocks[position.current]
+          newBlocks[position.current + delta - 1] = 's'
+          newBlocks[position.current] = 'n'
+          position.current += delta
         }
+        setBlocks(newBlocks)
       }
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-        handleMove(-10)
+        handleMove(-10, 0)
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-        handleMove(10)
+        handleMove(10, 0)
       } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-        handleMove(1)
+        handleMove(1, 1)
       } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
-        handleMove(-1)
+        handleMove(-1, 2)
       }
     }
     window.addEventListener('keydown', keyPress)
@@ -57,19 +100,29 @@ export function Game() {
     }
   }, [blocks])
 
+  useEffect(() => {
+    const gravityInterval = setInterval(() => {
+      gravity()
+    }, 50)
+
+    return () => {
+      clearInterval(gravityInterval)
+    }
+  }, [blocks])
+
   function toImagePath(type: string) {
     if (type === 'b') {
-      return '/bedrock.png'
+      return '/textures/bedrock/bedrock.png'
     } else if (type === 'd') {
-      return '/dirt.png'
+      return '/textures/dirt/dirt.png'
     } else if (type === 's') {
-      return '/stone.png'
+      return '/textures/boulders/boulder.png'
     } else if (type === 'i') {
-      return '/diamond.png'
+      return '/sprites/gems/sapphire.png'
     } else if (type === 'p') {
-      return '/player.png'
+      return '/sprites/player/player.png'
     } else if (type === 'n') {
-      return '/none.png'
+      return '/textures/bedrock/bedrock-2.png'
     } else if (type === 'f') {
       return '/finish.png'
     } else {
@@ -79,7 +132,7 @@ export function Game() {
 
   return (
     <div className="Game">
-      {blocks.map((key, index) => (
+      {blocks.map((key: string, index: number) => (
         <Block
           key={index}
           x={(index + 1) % 10}
