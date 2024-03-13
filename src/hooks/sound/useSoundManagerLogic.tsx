@@ -3,6 +3,7 @@ import { determineSoundFile } from './utils/soundUtils'
 import * as SoundConstants from './constants/soundConstants.ts'
 
 interface SoundState {
+  duration: number
   id: number
   playing: boolean
   soundFile: string
@@ -27,6 +28,12 @@ export const useSoundManagerLogic = () => {
         .catch((error) => console.error('Error playing audio:', error))
     }
 
+    const clearSound = (soundId: number) => {
+      setSounds((prevSounds) =>
+        prevSounds.filter((sound) => sound.id !== soundId),
+      )
+    }
+
     sounds.forEach((sound) => {
       const audio = new Audio(sound.soundFile)
       audio.loop = sound.loop
@@ -42,6 +49,18 @@ export const useSoundManagerLogic = () => {
               once: true,
             })
           })
+      }
+
+      if (!sound.loop) {
+        const timeoutId = setTimeout(() => {
+          clearSound(sound.id)
+        }, sound.duration || SoundConstants.DEFAULT_DURATION)
+
+        return () => {
+          clearTimeout(timeoutId)
+          audio.pause()
+          audio.src = ''
+        }
       }
 
       return () => {
@@ -69,16 +88,9 @@ export const useSoundManagerLogic = () => {
         playing: true,
         soundFile: calculatedSoundFile,
         loop: !!options.loop,
+        duration: options.duration || SoundConstants.DEFAULT_DURATION,
       },
     ])
-
-    if (!options.playOnce) {
-      setTimeout(() => {
-        setSounds((prevSounds) =>
-          prevSounds.filter((sound) => sound.id !== soundId),
-        )
-      }, options.duration || SoundConstants.DEFAULT_DURATION)
-    }
   }
 
   const clearSounds = () => {
