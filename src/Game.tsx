@@ -113,21 +113,21 @@ export function Game() {
 
   function toImagePath(type: string) {
     if (type === 'b') {
-      return '/textures/bedrock/bedrock.png'
+      return '/textures/pixel/bedrock-2.png'
     } else if (type === 'd') {
-      return '/textures/dirt/dirt.png'
+      return '/textures/pixel/dirt.png'
     } else if (type === 's') {
-      return '/textures/boulders/boulder.png'
+      return '/textures/pixel/bedrock-boulder.png'
     } else if (type === 'i') {
-      return '/sprites/gems/sapphire.png'
+      return '/textures/pixel/dirt-diamond.png'
     } else if (type === 'p') {
-      return '/sprites/player/player.png'
+      return '/textures/pixel/player.gif'
     } else if (type === 'n') {
-      return '/textures/bedrock/bedrock-2.png'
+      return '/textures/pixel/bedrock.png'
     } else if (type === 'f') {
-      return '/finish.png'
+      return '/textures/pixel/finish.gif'
     } else {
-      return '/player.png'
+      return '/textures/pixel/player.gif'
     }
   }
 
