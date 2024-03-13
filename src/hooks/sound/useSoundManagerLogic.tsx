@@ -1,66 +1,89 @@
-import { useState, useEffect } from 'react';
-import { determineSoundFile } from './utils/soundUtils';
-import * as SoundConstants from './constants/soundConstants.ts';
+import { useState, useEffect } from 'react'
+import { determineSoundFile } from './utils/soundUtils'
+import * as SoundConstants from './constants/soundConstants.ts'
 
 interface SoundState {
-  playing: boolean;
-  soundFile: string;
-  loop: boolean;
+  id: number
+  playing: boolean
+  soundFile: string
+  loop: boolean
 }
 
 interface SoundOptions {
-  loop?: boolean;
-  playOnce?: boolean;
-  duration?: number;
+  id: number
+  loop?: boolean
+  playOnce?: boolean
+  duration?: number
 }
 
 export const useSoundManagerLogic = () => {
-  const [state, setState] = useState<SoundState>({
-    playing: false,
-    soundFile: '',
-    loop: false,
-  });
+  const [sounds, setSounds] = useState<SoundState[]>([])
+  const [soundIdCounter, setSoundIdCounter] = useState(0)
 
   useEffect(() => {
-    const audio = new Audio(state.soundFile);
-    audio.loop = state.loop;
-
-    if (state.playing) {
-      audio.play();
-    } else {
-      audio.pause();
+    const playAudio = (audio: HTMLAudioElement) => {
+      audio
+        .play()
+        .catch((error) => console.error('Error playing audio:', error))
     }
 
-    if (!state.playing && state.soundFile) {
-      setTimeout(() => {
-        setState({ playing: false, soundFile: '', loop: false });
-      }, SoundConstants.DEFAULT_DURATION);
-    }
+    sounds.forEach((sound) => {
+      const audio = new Audio(sound.soundFile)
+      audio.loop = sound.loop
 
-    return () => {
-      audio.pause();
-      audio.src = '';
-    };
-  }, [state]);
+      const playPromise = audio.play()
+
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {})
+          .catch((error) => {
+            console.error('Autoplay prevented:', error)
+            document.addEventListener('click', () => playAudio(audio), {
+              once: true,
+            })
+          })
+      }
+
+      return () => {
+        audio.pause()
+        audio.src = ''
+      }
+    })
+  }, [sounds])
 
   const playInteraction = (
     interactionType: string,
-    options: SoundOptions = {}
+    options: SoundOptions = {
+      id: 0,
+    },
   ): void => {
-    const calculatedSoundFile = determineSoundFile(interactionType);
+    const calculatedSoundFile = determineSoundFile(interactionType)
+    const soundId = soundIdCounter + 1
 
-    setState({
-      playing: true,
-      soundFile: calculatedSoundFile,
-      loop: !!options.loop,
-    });
+    setSoundIdCounter((prevCounter) => prevCounter + 1)
+
+    setSounds((prevSounds) => [
+      ...prevSounds,
+      {
+        id: soundId,
+        playing: true,
+        soundFile: calculatedSoundFile,
+        loop: !!options.loop,
+      },
+    ])
 
     if (!options.playOnce) {
       setTimeout(() => {
-        setState({ playing: false, soundFile: '', loop: false });
-      }, options.duration || SoundConstants.DEFAULT_DURATION);
+        setSounds((prevSounds) =>
+          prevSounds.filter((sound) => sound.id !== soundId),
+        )
+      }, options.duration || SoundConstants.DEFAULT_DURATION)
     }
-  };
+  }
 
-  return { ...state, playInteraction };
-};
+  const clearSounds = () => {
+    setSounds([])
+  }
+
+  return { playInteraction, clearSounds }
+}
