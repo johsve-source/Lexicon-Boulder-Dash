@@ -1,6 +1,8 @@
 import './Game.css'
 import { createContext, useEffect, useRef, useState } from 'react'
 import Block from './components/Generic'
+import ControlsInfo from './components/ControlsInfo'
+import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
 
 export const PlayerContext = createContext<number[]>([])
 
@@ -8,7 +10,7 @@ export function Game() {
   // prettier-ignore
   const [blocks, setBlocks] = useState([
         "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
-        "b", "p", "d", "d", "d", "d", "d", "d", "d", "b",
+        "b", "p", "s", "n", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
         "b", "d", "d", "s", "s", "s", "d", "i", "d", "b",
         "b", "d", "i", "d", "d", "d", "d", "d", "d", "b",
@@ -19,14 +21,34 @@ export function Game() {
         "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
     ]);
 
+  const soundManager = useSoundManagerLogic()
+
   // starting player coordinates
   const position = useRef(11)
+
+  function gravity() {
+    const newBlocks = [...blocks]
+    let i = newBlocks.length - 1
+
+    while (i >= 0) {
+      if (
+        newBlocks[i] === 's' &&
+        i + 10 < newBlocks.length &&
+        newBlocks[i + 10] === 'n'
+      ) {
+        newBlocks[i + 10] = 's'
+        newBlocks[i] = 'n'
+      }
+      i--
+    }
+    setBlocks(newBlocks)
+  }
 
   // updates player coordinates on keypress, eventListener is added and removed on render
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
-      function handleMove(delta: number) {
+      function handleMove(delta: number, direction: number) {
         const newBlocks = [...blocks]
         const copy = newBlocks[position.current + delta]
         if (copy === 'b') {
@@ -35,19 +57,55 @@ export function Game() {
           newBlocks[position.current + delta] = newBlocks[position.current]
           newBlocks[position.current] = 'n'
           position.current += delta
-          setBlocks(newBlocks)
+          if (copy === 'd') {
+            soundManager.playInteraction('digging-dirt', {
+              loop: false,
+              id: 1,
+              volume: 0.5,
+            })
+          }
+        } else if (copy === 'i') {
+          soundManager.playInteraction('collecting-diamond', {
+            loop: false,
+            id: 2,
+            volume: 0.5,
+          })
+          newBlocks[position.current + delta] = newBlocks[position.current]
+          newBlocks[position.current] = 'n'
+          position.current += delta
         } else if (copy === 'f') {
           alert('WE HAVE A WINNER!')
+        } else if (
+          copy === 's' &&
+          direction === 1 &&
+          newBlocks[position.current + delta + 1] === 'n'
+        ) {
+          // right
+          newBlocks[position.current + delta] = newBlocks[position.current]
+          newBlocks[position.current + delta + 1] = 's'
+          newBlocks[position.current] = 'n'
+          position.current += delta
+        } else if (
+          copy === 's' &&
+          direction === 2 &&
+          newBlocks[position.current + delta - 1] === 'n'
+        ) {
+          // left
+          newBlocks[position.current + delta] = newBlocks[position.current]
+          newBlocks[position.current + delta - 1] = 's'
+          newBlocks[position.current] = 'n'
+          position.current += delta
         }
+        setBlocks(newBlocks)
       }
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-        handleMove(-10)
+        handleMove(-10, 0)
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-        handleMove(10)
+        handleMove(10, 0)
       } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-        handleMove(1)
+        handleMove(1, 1)
       } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
-        handleMove(-1)
+        handleMove(-1, 2)
       }
     }
     window.addEventListener('keydown', keyPress)
@@ -55,21 +113,34 @@ export function Game() {
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
+  }, [blocks, soundManager])
+
+  useEffect(() => {
+    const gravityInterval = setInterval(() => {
+      gravity()
+    }, 50)
+
+    return () => {
+      clearInterval(gravityInterval)
+      // Clear sounds after gravity interval to prevent extra plays
+      soundManager.clearSounds()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks])
 
   function toImagePath(type: string) {
     if (type === 'b') {
-      return '/bedrock.png'
+      return '/textures/bedrock/bedrock.png'
     } else if (type === 'd') {
-      return '/dirt.png'
+      return '/textures/dirt/dirt.png'
     } else if (type === 's') {
-      return '/stone.png'
+      return '/textures/boulders/boulder.png'
     } else if (type === 'i') {
-      return '/diamond.png'
+      return '/sprites/gems/sapphire.png'
     } else if (type === 'p') {
-      return '/player.png'
+      return '/sprites/player/player.png'
     } else if (type === 'n') {
-      return '/none.png'
+      return '/textures/bedrock/bedrock-2.png'
     } else if (type === 'f') {
       return '/finish.png'
     } else {
@@ -79,7 +150,8 @@ export function Game() {
 
   return (
     <div className="Game">
-      {blocks.map((key, index) => (
+      <ControlsInfo />
+      {blocks.map((key: string, index: number) => (
         <Block
           key={index}
           x={(index + 1) % 10}
