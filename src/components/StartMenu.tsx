@@ -25,7 +25,7 @@ export function StartMenu({ onPlayClick, highscores }: IStartMenuProps) {
       {highscores.length < 1 ? (
         <p>No high scores registered yet.</p>
       ) : (
-      <ul>
+      <ol>
         {highscores.map((highscore) => {
           const dots = calculateDotAmount(
             highscore.username,
@@ -38,7 +38,7 @@ export function StartMenu({ onPlayClick, highscores }: IStartMenuProps) {
             </li>
           );
         })}
-      </ul>
+      </ol>
       )}
     </div>
   );
