@@ -78,14 +78,12 @@ bbbbbbbbbb
           ]
           if (directinTile === 'd') {
             soundManager.playInteraction('digging-dirt', {
-              loop: false,
               id: 1,
               volume: 0.5,
             })
           }
         } else if (directinTile === 'i') {
           soundManager.playInteraction('collecting-diamond', {
-            loop: false,
             id: 2,
             volume: 0.5,
           })
@@ -152,12 +150,15 @@ bbbbbbbbbb
       gameGridClone
         .toItterArray()
         .reverse()
-        .filter(([block, , y]) => block === 's' && y < gameGridClone.height - 1)
+        .filter(
+          ([block, , y]) =>
+            (block === 's' || block === 'i') && y < gameGridClone.height - 1,
+        )
         .filter(([, x, y]) => gameGridClone.get(x, y + 1) === 'n')
-        .forEach(([, x, y]) => {
+        .forEach(([tile, x, y]) => {
           gameGridClone.setRelativeCenter(x, y)
           gameGridClone.setRelative(0, 0, 'n')
-          gameGridClone.setRelative(0, 1, 's')
+          gameGridClone.setRelative(0, 1, tile)
         })
 
       setGameGrid(gameGridClone)
