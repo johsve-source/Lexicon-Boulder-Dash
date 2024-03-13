@@ -24,7 +24,7 @@ export const useSoundManagerLogic = () => {
   const [soundIdCounter, setSoundIdCounter] = useState(0)
 
   const hasSound = (id: number): boolean => {
-    return sounds.some((sound) => sound.id === id)
+    return sounds.some((sound: { id: number }) => sound.id === id)
   }
 
   useEffect(() => {
@@ -35,46 +35,54 @@ export const useSoundManagerLogic = () => {
     }
 
     const clearSound = (soundId: number) => {
-      setSounds((prevSounds) =>
-        prevSounds.filter((sound) => sound.id !== soundId),
+      setSounds((prevSounds: any[]) =>
+        prevSounds.filter((sound: { id: number }) => sound.id !== soundId),
       )
     }
 
-    sounds.forEach((sound) => {
-      const audio = new Audio(sound.soundFile)
-      audio.loop = sound.loop
-      audio.volume = sound.volume !== undefined ? sound.volume : 1
+    sounds.forEach(
+      (sound: {
+        soundFile: string | undefined
+        loop: boolean
+        volume: number | undefined
+        id: number
+        duration: any
+      }) => {
+        const audio = new Audio(sound.soundFile)
+        audio.loop = sound.loop
+        audio.volume = sound.volume !== undefined ? sound.volume : 1
 
-      const playPromise = audio.play()
+        const playPromise = audio.play()
 
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {})
-          .catch((error) => {
-            console.error('Autoplay prevented:', error)
-            document.addEventListener('click', () => playAudio(audio), {
-              once: true,
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {})
+            .catch((error) => {
+              console.error('Autoplay prevented:', error)
+              document.addEventListener('click', () => playAudio(audio), {
+                once: true,
+              })
             })
-          })
-      }
+        }
 
-      if (!sound.loop) {
-        const timeoutId = setTimeout(() => {
-          clearSound(sound.id)
-        }, sound.duration || SoundConstants.DEFAULT_DURATION)
+        if (!sound.loop) {
+          const timeoutId = setTimeout(() => {
+            clearSound(sound.id)
+          }, sound.duration || SoundConstants.DEFAULT_DURATION)
+
+          return () => {
+            clearTimeout(timeoutId)
+            audio.pause()
+            audio.src = ''
+          }
+        }
 
         return () => {
-          clearTimeout(timeoutId)
           audio.pause()
           audio.src = ''
         }
-      }
-
-      return () => {
-        audio.pause()
-        audio.src = ''
-      }
-    })
+      },
+    )
   }, [sounds])
 
   const playInteraction = (
