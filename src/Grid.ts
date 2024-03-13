@@ -56,8 +56,8 @@ class Grid<T> {
     return acc
   }
 
-  clone() {
-    const clone = new Grid(0, 0)
+  clone(): Grid<T> {
+    const clone = new Grid<T>(0, 0)
     clone.width = this.width
     clone.height = this.height
     clone.data = this.data.map((col) => [...col])
