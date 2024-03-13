@@ -9,7 +9,8 @@ class Grid<T> {
   constructor(width: number, height: number) {
     this.width = width
     this.height = height
-    this.data = Array(width).map(() => Array(height))
+    this.data = new Array(width)
+    for (let x = 0; x < width; x++) this.data[x] = new Array(height)
   }
 
   get(x: number, y: number, outsideVal: T | null = null) {
@@ -48,11 +49,20 @@ class Grid<T> {
   toItterArray(): [T, number, number, Grid<T>][] {
     const acc: [T, number, number, Grid<T>][] = []
 
-    this.data.forEach((coll, x) =>
-      coll.forEach((e, y) => acc.push([e, x, y, this])),
-    )
+    for (let y = 0; y < this.height; y++)
+      for (let x = 0; x < this.width; x++)
+        acc.push([this.data[x][y], x, y, this])
 
     return acc
+  }
+
+  clone() {
+    const clone = new Grid(0, 0)
+    clone.width = this.width
+    clone.height = this.height
+    clone.data = this.data.map((col) => [...col])
+
+    return clone
   }
 }
 
