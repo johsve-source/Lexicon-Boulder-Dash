@@ -2,6 +2,7 @@ import './Game.css'
 import { createContext, useEffect, useRef, useState } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
+import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
 
 export const PlayerContext = createContext<number[]>([])
 
@@ -20,26 +21,27 @@ export function Game() {
         "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
     ]);
 
+  const soundManager = useSoundManagerLogic()
+
   // starting player coordinates
   const position = useRef(11)
 
   function gravity() {
-    setBlocks((prevBlocks: string[]) => {
-      const newBlocks = [...prevBlocks]
+    const newBlocks = [...blocks]
+    let i = newBlocks.length - 1
 
-      for (let i = newBlocks.length - 1; i >= 0; i--) {
-        if (
-          newBlocks[i] === 's' &&
-          i + 10 < newBlocks.length &&
-          newBlocks[i + 10] === 'n'
-        ) {
-          newBlocks[i + 10] = 's'
-          newBlocks[i] = 'n'
-        }
+    while (i >= 0) {
+      if (
+        newBlocks[i] === 's' &&
+        i + 10 < newBlocks.length &&
+        newBlocks[i + 10] === 'n'
+      ) {
+        newBlocks[i + 10] = 's'
+        newBlocks[i] = 'n'
       }
-
-      return newBlocks
-    })
+      i--
+    }
+    setBlocks(newBlocks)
   }
 
   // updates player coordinates on keypress, eventListener is added and removed on render
@@ -55,7 +57,19 @@ export function Game() {
           newBlocks[position.current + delta] = newBlocks[position.current]
           newBlocks[position.current] = 'n'
           position.current += delta
+          if (copy === 'd') {
+            soundManager.playInteraction('digging-dirt', {
+              loop: false,
+              id: 1,
+              volume: 0.5,
+            })
+          }
         } else if (copy === 'i') {
+          soundManager.playInteraction('collecting-diamond', {
+            loop: false,
+            id: 2,
+            volume: 0.5,
+          })
           newBlocks[position.current + delta] = newBlocks[position.current]
           newBlocks[position.current] = 'n'
           position.current += delta
@@ -99,7 +113,7 @@ export function Game() {
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [blocks])
+  }, [blocks, soundManager])
 
   useEffect(() => {
     const gravityInterval = setInterval(() => {
@@ -108,7 +122,10 @@ export function Game() {
 
     return () => {
       clearInterval(gravityInterval)
+      // Clear sounds after gravity interval to prevent extra plays
+      soundManager.clearSounds()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks])
 
   function toImagePath(type: string) {
