@@ -8,7 +8,7 @@ interface SoundState {
   playing: boolean
   soundFile: string
   loop: boolean
-  volume?: number // New property for volume
+  volume?: number
 }
 
 interface SoundOptions {
@@ -16,7 +16,7 @@ interface SoundOptions {
   loop?: boolean
   playOnce?: boolean
   duration?: number
-  volume?: number // New property for volume
+  volume?: number
 }
 
 export const useSoundManagerLogic = () => {
@@ -39,7 +39,7 @@ export const useSoundManagerLogic = () => {
     sounds.forEach((sound) => {
       const audio = new Audio(sound.soundFile)
       audio.loop = sound.loop
-      audio.volume = sound.volume !== undefined ? sound.volume : 1 // Set volume, default to 1 if not provided
+      audio.volume = sound.volume !== undefined ? sound.volume : 1
 
       const playPromise = audio.play()
 
@@ -92,7 +92,7 @@ export const useSoundManagerLogic = () => {
         soundFile: calculatedSoundFile,
         loop: !!options.loop,
         duration: options.duration || SoundConstants.DEFAULT_DURATION,
-        volume: options.volume !== undefined ? options.volume : 1, // Set volume, default to 1 if not provided
+        volume: options.volume !== undefined ? options.volume : 1,
       },
     ])
   }
