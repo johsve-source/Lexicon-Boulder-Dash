@@ -31,16 +31,16 @@ export function Game() {
   useEffect(() => {
     setGameGrid(
       parseMap(`
-      bbbbbbbbbb
-      bpsndddddb
-      bddddddddb
-      bddsssdidb
-      bdiddddddb
-      bdddddiddb
-      bddddddddb
-      bsssdddddb
-      bdddddddfb
-      bbbbbbbbbb
+bbbbbbbbbb
+bpsndddddb
+bddddddddb
+bddsssdidb
+bdiddddddb
+bdddddiddb
+bddddddddb
+bsssdddddb
+bdddddddfb
+bbbbbbbbbb
 `),
     )
   }, [])
@@ -112,7 +112,7 @@ export function Game() {
           ]
         }
 
-        setGameGrid(gameGridClone)
+        setGameGrid(gameGrid)
       }
 
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
