@@ -2,17 +2,17 @@ import './Game.css'
 import { createContext, useEffect, useRef, useState } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
-import { StartMenu } from "./components/StartMenu";
+import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
-import { highscoreTestData } from "./assets/highscoreData";
+import { highscoreTestData } from './assets/highscoreData'
 
 export const PlayerContext = createContext<number[]>([])
 
 export function Game() {
-  const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true);
-  const [isGameStarted, setIsGameStarted] = useState<boolean>(false) 
+  const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
+  const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
 
-    // prettier-ignore
+  // prettier-ignore
   const [blocks, setBlocks] = useState([
         "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
         "b", "p", "s", "n", "d", "d", "d", "d", "d", "b",
@@ -30,7 +30,7 @@ export function Game() {
   const position = useRef(11)
 
   function handlePlayClick() {
-    setStartMenuVisible(false);
+    setStartMenuVisible(false)
     setIsGameStarted(true)
     // add "start game" logic ie. start timer etc.
   }
@@ -108,7 +108,7 @@ export function Game() {
         }
       }
       window.addEventListener('keydown', keyPress)
-  
+
       return () => {
         window.removeEventListener('keydown', keyPress)
       }
@@ -148,18 +148,21 @@ export function Game() {
   return (
     <>
       {isStartMenuVisible ? (
-        <StartMenu onPlayClick={handlePlayClick} highscores={highscoreTestData} />    
+        <StartMenu
+          onPlayClick={handlePlayClick}
+          highscores={highscoreTestData}
+        />
       ) : (
         <div className="Game">
           <ControlsInfo />
-            {blocks.map((key: string, index: number) => (
-              <Block
-                key={index}
-                x={(index + 1) % 10}
-                y={(index + 1) / 10}
-                image={toImagePath(key)}
-              />
-            ))}
+          {blocks.map((key: string, index: number) => (
+            <Block
+              key={index}
+              x={(index + 1) % 10}
+              y={(index + 1) / 10}
+              image={toImagePath(key)}
+            />
+          ))}
         </div>
       )}
     </>
