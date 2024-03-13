@@ -23,6 +23,10 @@ export const useSoundManagerLogic = () => {
   const [sounds, setSounds] = useState<SoundState[]>([])
   const [soundIdCounter, setSoundIdCounter] = useState(0)
 
+  const hasSound = (id: number): boolean => {
+    return sounds.some((sound) => sound.id === id)
+  }
+
   useEffect(() => {
     const playAudio = (audio: HTMLAudioElement) => {
       audio
@@ -101,5 +105,5 @@ export const useSoundManagerLogic = () => {
     setSounds([])
   }
 
-  return { playInteraction, clearSounds }
+  return { playInteraction, clearSounds, hasSound }
 }
