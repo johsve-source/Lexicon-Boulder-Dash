@@ -227,26 +227,29 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       action.soundManager.playInteraction('falling-stone', {
         id: 3,
         volume: 0.2,
+        loop: false,
       })
 
     if (playDiamondFallingSound)
       action.soundManager.playInteraction('falling-diamond', {
         id: 4,
         volume: 0.2,
+        loop: false,
       })
 
     if (playDiamondPickupSound)
       action.soundManager.playInteraction('collecting-diamond', {
         id: 2,
         volume: 0.5,
+        loop: false,
       })
 
     if (playExplosionSound)
       action.soundManager.playInteraction('stone-explode', {
         id: 2,
         volume: 0.5,
+        loop: false,
       })
-
   }
 
   return {
