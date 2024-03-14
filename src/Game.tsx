@@ -80,7 +80,7 @@ bbbbbbbbbb
   useEffect(() => {
     const gravityInterval = setInterval(() => {
       gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
-    }, 50)
+    }, 100)
 
     return () => {
       clearInterval(gravityInterval)
