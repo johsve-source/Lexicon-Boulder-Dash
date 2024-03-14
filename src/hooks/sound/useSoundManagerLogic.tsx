@@ -28,35 +28,39 @@ export const useSoundManagerLogic = () => {
   }
 
   useEffect(() => {
-    sounds.current.forEach((sound: { loop?: boolean; id?: number; audio?: any }) => {
+    sounds.current.forEach((sound: SoundState) => {
       const { audio } = sound
-      audio
-        .play()
-        .catch((error: string) => console.error('Error playing audio:', error))
-
-      // If loop is set to true, configure the audio element to loop indefinitely
-      if (sound.loop) {
-        audio.loop = true
-      } else {
-        // Otherwise, set up event listeners for cleanup
-        const audioEndedHandler = () => {
-          sounds.current = sounds.current.filter(
-            (prevSound: { id: number }) => prevSound.id !== sound.id,
+      if (audio) {
+        // Check if audio is defined
+        audio
+          .play()
+          .catch((error: string) =>
+            console.error('Error playing audio:', error),
           )
-          // Cleanup
-          audio.removeEventListener('ended', audioEndedHandler)
-          audio.pause()
-          audio.src = ''
-        }
 
-        audio.addEventListener('ended', audioEndedHandler)
+        // If loop is set to true, configure the audio element to loop indefinitely
+        if (!sound.loop) {
+          // Set up event listener for non-looping sounds
+          const audioEndedHandler = () => {
+            sounds.current = sounds.current.filter(
+              (prevSound: { id: number }) => prevSound.id !== sound.id,
+            )
+            // Cleanup
+            audio.removeEventListener('ended', audioEndedHandler)
+            audio.pause()
+            audio.src = ''
+          }
+
+          audio.addEventListener('ended', audioEndedHandler)
+        }
       }
     })
 
-    // Cleanup on unmount for non-looping sounds
+    // Cleanup on unmount for all sounds
     return () => {
-      sounds.current.forEach((sound: { loop: boolean; audio: { pause: () => void; src: string } }) => {
-        if (!sound.loop) {
+      sounds.current.forEach((sound: SoundState) => {
+        if (sound.audio && !sound.loop) {
+          // Check if audio is defined and not looping
           sound.audio.pause()
           sound.audio.src = ''
         }
@@ -66,19 +70,24 @@ export const useSoundManagerLogic = () => {
 
   const playInteraction = (
     interactionType: string,
-    options: SoundOptions = {
-      id: 0,
-    },
+    options: SoundOptions = { id: 0 },
   ): void => {
     // Clear all sounds from the state
     clearSounds()
 
     const calculatedSoundFile = determineSoundFile(interactionType)
-    const soundId = options.id || Math.random() // Assign a random id if not provided
+    const soundId =
+      options.id ||
+      (sounds.current.length > 0
+        ? Math.max(...sounds.current.map((sound) => sound.id)) + 1
+        : 1)
 
     // Create a new audio instance
     const audio = new Audio(calculatedSoundFile)
     audio.volume = options.volume !== undefined ? options.volume : 1
+
+    // Set loop property to true if it's not explicitly set to false in options
+    audio.loop = options.loop !== false
 
     // Add the new sound to the list
     sounds.current = [
