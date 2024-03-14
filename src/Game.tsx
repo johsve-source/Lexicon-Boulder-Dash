@@ -54,6 +54,13 @@ bbbbbbbbbb
     setStartMenuVisible(false)
     setIsGameStarted(true)
     // add "isGameStarted" state update, ie. start timer, score count etc.
+
+    // Play ambiance when I press play
+    soundManager.playInteraction('ambiance', {
+      id: 5,
+      volume: 0.05,
+      loop: true,
+    })
   }
 
   useEffect(() => {
