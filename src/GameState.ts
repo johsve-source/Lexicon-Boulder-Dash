@@ -144,20 +144,34 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       }
     })
 
-  if (playStoneFallingSound)
-    if (typeof action.soundManager !== 'undefined') {
+  if (playStoneFallingSound && action?.soundManager) {
+    action.soundManager.playInteraction('falling-stone', {
+      id: 3,
+      volume: 0.2,
+    })
+  }
+
+  if (playStoneFallingSound && action?.soundManager) {
+    try {
       action.soundManager.playInteraction('falling-stone', {
         id: 3,
         volume: 0.2,
       })
+    } catch (error) {
+      console.log('Error playing stone falling sound: ', error)
     }
-  if (playDiamondFallingSound)
-    if (typeof action.soundManager !== 'undefined') {
+  }
+
+  if (playDiamondFallingSound && action?.soundManager) {
+    try {
       action.soundManager.playInteraction('falling-diamond', {
         id: 4,
         volume: 0.2,
       })
+    } catch (error) {
+      console.log('Error playing diamond falling sound: ', error)
     }
+  }
 
   return {
     ...state,
