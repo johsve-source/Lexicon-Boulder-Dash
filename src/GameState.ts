@@ -145,13 +145,6 @@ function processPhysics(state: GameState, action: GameAction): GameState {
     })
 
   if (playStoneFallingSound && action?.soundManager) {
-    action.soundManager.playInteraction('falling-stone', {
-      id: 3,
-      volume: 0.2,
-    })
-  }
-
-  if (playStoneFallingSound && action?.soundManager) {
     try {
       action.soundManager.playInteraction('falling-stone', {
         id: 3,
