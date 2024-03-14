@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { determineSoundFile } from './utils/soundUtils'
 
 interface SoundState {
@@ -19,40 +19,46 @@ export interface SoundManagerHook {
 }
 
 export const useSoundManagerLogic = () => {
-  const [sounds, setSounds] = useState<SoundState[]>([])
+  // const [sounds, setSounds] = useState<SoundState[]>([])
+  const sounds = useRef<SoundState[]>([])
 
   const hasSound = (id: number): boolean => {
-    return sounds.some((sound) => sound.id === id)
+    return sounds.current.some((sound) => sound.id === id)
   }
 
   useEffect(() => {
-    sounds.forEach((sound) => {
+    sounds.current.forEach((sound) => {
       const { audio } = sound
       audio
         .play()
         .catch((error) => console.error('Error playing audio:', error))
 
       const audioEndedHandler = () => {
+        /**
         setSounds((prevSounds) =>
           prevSounds.filter((prevSound) => prevSound.id !== sound.id),
         )
+         */
+        sounds.current = sounds.current.filter(
+          (prevSound) => prevSound.id !== sound.id,
+        )
         // Cleanup
-        audio.removeEventListener('ended', audioEndedHandler)
+        audio.removeEventListener('started', audioEndedHandler)
         audio.pause()
         audio.src = ''
       }
 
-      audio.addEventListener('ended', audioEndedHandler)
+      audio.addEventListener('started', audioEndedHandler)
     })
 
     // Cleanup on unmount
     return () => {
-      sounds.forEach((sound) => {
+      sounds.current.forEach((sound) => {
         sound.audio.pause()
         sound.audio.src = ''
       })
     }
-  }, [sounds])
+  }, [])
 
   const playInteraction = (
     interactionType: string,
@@ -71,18 +77,16 @@ export const useSoundManagerLogic = () => {
     audio.volume = options.volume !== undefined ? options.volume : 1
 
     // Add the new sound to the list
-    setSounds([
+    sounds.current = [
       {
         id: soundId,
         audio: audio,
       },
-    ])
+    ]
 
     // Cleanup audio after playing (remove it from sounds state)
-    audio.addEventListener('ended', () => {
-      setSounds((prevSounds) =>
-        prevSounds.filter((sound) => sound.id !== soundId),
-      )
+    audio.addEventListener('started', () => {
+      sounds.current = sounds.current.filter((sound) => sound.id !== soundId)
     })
 
     // Preload audio before playing
@@ -95,7 +99,7 @@ export const useSoundManagerLogic = () => {
   }
 
   const clearSounds = () => {
-    setSounds([])
+    sounds.current = []
     console.log('Sounds cleared')
   }
 
