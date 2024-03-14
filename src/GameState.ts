@@ -119,7 +119,8 @@ function processPlayerMovement(
 
 function processPhysics(state: GameState, action: GameAction): GameState {
   const gameGridClone = state.grid.clone()
-  let playFallSound = false
+  let playStoneFallingSound = false
+  let playDiamondFallingSound = false
 
   gameGridClone
     .toItterArray()
@@ -134,13 +135,26 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       gameGridClone.setRelative(0, 0, 'n')
       gameGridClone.setRelative(0, 1, tile)
 
-      playFallSound = true
+      if (gameGridClone.get(x, y + 1) === 's') {
+        playStoneFallingSound = true
+      }
+
+      if (gameGridClone.get(x, y + 1) === 'i') {
+        playDiamondFallingSound = true
+      }
     })
 
-  if (playFallSound)
+  if (playStoneFallingSound)
     if (typeof action.soundManager !== 'undefined') {
       action.soundManager.playInteraction('falling-stone', {
         id: 3,
+        volume: 0.2,
+      })
+    }
+  if (playDiamondFallingSound)
+    if (typeof action.soundManager !== 'undefined') {
+      action.soundManager.playInteraction('falling-diamond', {
+        id: 4,
         volume: 0.2,
       })
     }
