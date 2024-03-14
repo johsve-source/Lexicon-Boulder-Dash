@@ -1,9 +1,10 @@
 import './Game.css'
-import { createContext, useEffect, useRef, useState } from 'react'
+import { createContext, useEffect, useReducer } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
 import Grid from './Grid'
 import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
+import { gameReducer, ActionEnum } from './GameState'
 
 export const PlayerContext = createContext<number[]>([])
 
@@ -24,14 +25,9 @@ function parseMap(data: string) {
 }
 
 export function Game() {
-  // Init empty Game Grid Board (10 x 10)
   const soundManager = useSoundManagerLogic()
-  const position = useRef([1, 1])
-  const [gameGrid, setGameGrid] = useState(new Grid<string>(0, 0))
-
-  useEffect(() => {
-    setGameGrid(
-      parseMap(`
+  const [gameState, gameDispatch] = useReducer(gameReducer, {
+    grid: parseMap(`
 bbbbbbbbbb
 bpsndddddb
 bddddddddb
@@ -43,97 +39,23 @@ bsssdddddb
 bdddddddfb
 bbbbbbbbbb
 `),
-    )
-  }, [])
+    playerPos: { x: 1, y: 1 },
+    time: 0,
+    score: 0,
+  })
 
-  /* blocks.forEach((e, i) => {
-    gameGrid.set(i % gameGrid.width, Math.floor(i / gameGrid.width)), e
-  }) */
-
-  // updates player coordinates on keypress, eventListener is added and removed on render
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
 
-      function handleMove(
-        x: number,
-        y: number,
-        directionX: number,
-        directionY: number,
-      ) {
-        const gameGridClone = gameGrid.clone()
-        gameGridClone.setRelativeCenter(x, y)
-        const centerTile = gameGridClone.getRelative(0, 0) ?? 'default'
-        const directinTile =
-          gameGridClone.getRelative(directionX, directionY) ?? 'default'
-
-        if (directinTile === 'b') {
-          return
-        } else if (directinTile === 'd' || directinTile === 'n') {
-          gameGridClone.setRelative(directionX, directionY, centerTile)
-          gameGridClone.setRelative(0, 0, 'n')
-          position.current = [
-            position.current[0] + directionX,
-            position.current[1] + directionY,
-          ]
-          if (directinTile === 'd') {
-            soundManager.playInteraction('digging-dirt', {
-              id: 1,
-              volume: 0.5,
-            })
-          }
-        } else if (directinTile === 'i') {
-          soundManager.playInteraction('collecting-diamond', {
-            id: 2,
-            volume: 0.5,
-          })
-          gameGridClone.setRelative(directionX, directionY, centerTile)
-          gameGridClone.setRelative(0, 0, 'n')
-          position.current = [
-            position.current[0] + directionX,
-            position.current[1] + directionY,
-          ]
-        } else if (directinTile === 'f') {
-          alert('WE HAVE A WINNER!')
-        } else if (
-          directinTile === 's' &&
-          directionX === 1 &&
-          gameGridClone.getRelative(2, 0) === 'n'
-        ) {
-          // right
-          gameGridClone.setRelative(directionX, directionY, centerTile)
-          gameGridClone.setRelative(directionX + 1, directionY, 's')
-          gameGridClone.setRelative(0, 0, 'n')
-          position.current = [
-            position.current[0] + directionX,
-            position.current[1] + directionY,
-          ]
-        } else if (
-          directinTile === 's' &&
-          directionX === -1 &&
-          gameGridClone.getRelative(-2, 0) === 'n'
-        ) {
-          // left
-          gameGridClone.setRelative(directionX, directionY, centerTile)
-          gameGridClone.setRelative(directionX - 1, directionY, 's')
-          gameGridClone.setRelative(0, 0, 'n')
-          position.current = [
-            position.current[0] + directionX,
-            position.current[1] + directionY,
-          ]
-        }
-
-        setGameGrid(gameGridClone)
-      }
-
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-        handleMove(position.current[0], position.current[1], 0, -1)
+        gameDispatch({ type: ActionEnum.MOVE_UP, soundManager })
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-        handleMove(position.current[0], position.current[1], 0, 1)
+        gameDispatch({ type: ActionEnum.MOVE_DOWN, soundManager })
       } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-        handleMove(position.current[0], position.current[1], 1, 0)
+        gameDispatch({ type: ActionEnum.MOVE_RIGHT, soundManager })
       } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
-        handleMove(position.current[0], position.current[1], -1, 0)
+        gameDispatch({ type: ActionEnum.MOVE_LEFT, soundManager })
       }
     }
     window.addEventListener('keydown', keyPress)
@@ -141,31 +63,11 @@ bbbbbbbbbb
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [gameGrid, soundManager])
+  }, [gameDispatch, soundManager])
 
   useEffect(() => {
-    function gravity() {
-      const gameGridClone = gameGrid.clone()
-
-      gameGridClone
-        .toItterArray()
-        .reverse()
-        .filter(
-          ([block, , y]) =>
-            (block === 's' || block === 'i') && y < gameGridClone.height - 1,
-        )
-        .filter(([, x, y]) => gameGridClone.get(x, y + 1) === 'n')
-        .forEach(([tile, x, y]) => {
-          gameGridClone.setRelativeCenter(x, y)
-          gameGridClone.setRelative(0, 0, 'n')
-          gameGridClone.setRelative(0, 1, tile)
-        })
-
-      setGameGrid(gameGridClone)
-    }
-
     const gravityInterval = setInterval(() => {
-      gravity()
+      gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
     }, 50)
 
     return () => {
@@ -173,7 +75,7 @@ bbbbbbbbbb
       soundManager.clearSounds()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameGrid])
+  }, [/* gameGrid */ gameDispatch])
 
   function toImagePath(type: string | null) {
     if (type === 'b') {
@@ -198,9 +100,10 @@ bbbbbbbbbb
   return (
     <div className="Game">
       <ControlsInfo />
-      {gameGrid.toItterArray().map(([block, x, y]) => (
+
+      {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
         <Block
-          key={x + y * gameGrid.width}
+          key={x + y * grid.width}
           x={1 + y}
           y={1 + x}
           image={toImagePath(block)}
