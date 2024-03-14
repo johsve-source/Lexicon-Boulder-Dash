@@ -1,10 +1,13 @@
 import './Game.css'
-import { createContext, useEffect, useReducer } from 'react'
+import { createContext, useState, useEffect, useReducer } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
 import Grid from './Grid'
 import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
 import { gameReducer, ActionEnum } from './GameState'
+import { StartMenu } from './components/StartMenu'
+// remove import after highscore caching is finished
+import { highscoreTestData } from './assets/highscoreData'
 
 export const PlayerContext = createContext<number[]>([])
 
@@ -25,6 +28,9 @@ function parseMap(data: string) {
 }
 
 export function Game() {
+  const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
+  const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
+
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = useReducer(gameReducer, {
     grid: parseMap(`
@@ -43,6 +49,12 @@ bbbbbbbbbb
     time: 0,
     score: 0,
   })
+
+  function handlePlayClick() {
+    setStartMenuVisible(false)
+    setIsGameStarted(true)
+    // add "isGameStarted" state update, ie. start timer, score count etc.
+  }
 
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
@@ -98,18 +110,27 @@ bbbbbbbbbb
   }
 
   return (
-    <div className="Game">
-      <ControlsInfo />
-
-      {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
-        <Block
-          key={x + y * grid.width}
-          x={1 + y}
-          y={1 + x}
-          image={toImagePath(block)}
+    <>
+      {isStartMenuVisible ? (
+        <StartMenu
+          onPlayClick={handlePlayClick}
+          highscores={highscoreTestData}
         />
-      ))}
-    </div>
+      ) : (
+        <div className="Game">
+          <ControlsInfo />
+
+          {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
+            <Block
+              key={x + y * grid.width}
+              x={1 + y}
+              y={1 + x}
+              image={toImagePath(block)}
+            />
+          ))}
+        </div>
+      )}
+    </>
   )
 }
 
