@@ -145,22 +145,18 @@ function processPhysics(state: GameState, action: GameAction): GameState {
     })
 
   if (playStoneFallingSound && action?.soundManager) {
+    const stoneOptions = { id: 3, volume: 0.2 }
     try {
-      action.soundManager.playInteraction('falling-stone', {
-        id: 3,
-        volume: 0.2,
-      })
+      action.soundManager.playInteraction('falling-stone', stoneOptions)
     } catch (error) {
       console.log('Error playing stone falling sound: ', error)
     }
   }
 
   if (playDiamondFallingSound && action?.soundManager) {
+    const diamondOptions = { id: 4, volume: 0.2 }
     try {
-      action.soundManager.playInteraction('falling-diamond', {
-        id: 4,
-        volume: 0.2,
-      })
+      action.soundManager.playInteraction('falling-diamond', diamondOptions)
     } catch (error) {
       console.log('Error playing diamond falling sound: ', error)
     }
