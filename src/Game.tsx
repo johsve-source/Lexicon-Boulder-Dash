@@ -30,7 +30,7 @@ function parseMap(data: string) {
 export function Game() {
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
+  const [, setIsGameStarted] = useState<boolean>(false)
 
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = useReducer(gameReducer, {
