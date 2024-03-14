@@ -71,6 +71,7 @@ function processPlayerMovement(
         action.soundManager.playInteraction('digging-dirt', {
           id: 1,
           volume: 0.5,
+          loop: false,
         })
       }
   } else if (directinTile === 'i') {
@@ -78,6 +79,7 @@ function processPlayerMovement(
       action.soundManager.playInteraction('collecting-diamond', {
         id: 2,
         volume: 0.5,
+        loop: false,
       })
 
     gameGridClone.setRelative(directionX, directionY, centerTile)
@@ -149,6 +151,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       action.soundManager.playInteraction('falling-stone', {
         id: 3,
         volume: 0.2,
+        loop: false,
       })
     }
   if (playDiamondFallingSound)
@@ -156,6 +159,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       action.soundManager.playInteraction('falling-diamond', {
         id: 4,
         volume: 0.2,
+        loop: false,
       })
     }
 
