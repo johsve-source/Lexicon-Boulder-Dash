@@ -33,7 +33,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
   else if (action.type === ActionEnum.TIME_STEP) {
-    return processPhysics(state)
+    return processPhysics(state, action)
   }
  
   else {
@@ -68,8 +68,6 @@ function processPlayerMovement(
 
     if (typeof action.soundManager !== 'undefined')
       if (directinTile === 'd') {
-        const audio = new Audio('path/to/audio.mp3')
-        audio.play()
         action.soundManager.playInteraction('digging-dirt', {
           id: 1,
           volume: 0.5,
@@ -119,8 +117,9 @@ function processPlayerMovement(
   }
 }
 
-function processPhysics(state: GameState): GameState {
+function processPhysics(state: GameState, action: GameAction): GameState {
   const gameGridClone = state.grid.clone()
+  let playFallSound = false
 
   gameGridClone
     .toItterArray()
@@ -134,7 +133,17 @@ function processPhysics(state: GameState): GameState {
       gameGridClone.setRelativeCenter(x, y)
       gameGridClone.setRelative(0, 0, 'n')
       gameGridClone.setRelative(0, 1, tile)
+
+      playFallSound = true
     })
+
+  if (playFallSound)
+    if (typeof action.soundManager !== 'undefined') {
+      action.soundManager.playInteraction('falling-stone', {
+        id: 3,
+        volume: 0.5,
+      })
+    }
 
   return {
     ...state,

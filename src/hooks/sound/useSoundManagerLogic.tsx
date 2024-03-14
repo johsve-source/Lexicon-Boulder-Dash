@@ -26,17 +26,13 @@ export const useSoundManagerLogic = () => {
   }
 
   useEffect(() => {
-    const playAudio = (audio: HTMLAudioElement) => {
+    sounds.forEach((sound) => {
+      const { audio } = sound
       audio
         .play()
         .catch((error) => console.error('Error playing audio:', error))
-    }
 
-    sounds.forEach((sound) => {
-      const { audio } = sound
-      playAudio(audio)
-
-      const clearSound = () => {
+      const audioEndedHandler = () => {
         setSounds((prevSounds) =>
           prevSounds.filter((prevSound) => prevSound.id !== sound.id),
         )
@@ -44,10 +40,6 @@ export const useSoundManagerLogic = () => {
         audio.removeEventListener('ended', audioEndedHandler)
         audio.pause()
         audio.src = ''
-      }
-
-      const audioEndedHandler = () => {
-        clearSound()
       }
 
       audio.addEventListener('ended', audioEndedHandler)
@@ -68,6 +60,9 @@ export const useSoundManagerLogic = () => {
       id: 0,
     },
   ): void => {
+    // Clear all sounds from the state
+    clearSounds()
+
     const calculatedSoundFile = determineSoundFile(interactionType)
     const soundId = options.id || Math.random() // Assign a random id if not provided
 
@@ -76,8 +71,7 @@ export const useSoundManagerLogic = () => {
     audio.volume = options.volume !== undefined ? options.volume : 1
 
     // Add the new sound to the list
-    setSounds((prevSounds) => [
-      ...prevSounds,
+    setSounds([
       {
         id: soundId,
         audio: audio,
@@ -102,6 +96,7 @@ export const useSoundManagerLogic = () => {
 
   const clearSounds = () => {
     setSounds([])
+    console.log('Sounds cleared')
   }
 
   const out: SoundManagerHook = { playInteraction, clearSounds, hasSound }

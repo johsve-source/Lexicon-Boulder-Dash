@@ -67,7 +67,7 @@ bbbbbbbbbb
 
   useEffect(() => {
     const gravityInterval = setInterval(() => {
-      gameDispatch({ type: ActionEnum.TIME_STEP })
+      gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
     }, 50)
 
     return () => {
@@ -75,7 +75,7 @@ bbbbbbbbbb
       soundManager.clearSounds()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [/* gameGrid */ soundManager, gameDispatch])
+  }, [/* gameGrid */ gameDispatch])
 
   function toImagePath(type: string | null) {
     if (type === 'b') {
