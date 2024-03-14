@@ -71,6 +71,7 @@ function processPlayerMovement(
         action.soundManager.playInteraction('digging-dirt', {
           id: 1,
           volume: 0.5,
+          loop: false,
         })
       }
   } else if (['i', 'I'].includes(directinTile)) {
@@ -78,6 +79,7 @@ function processPlayerMovement(
       action.soundManager.playInteraction('collecting-diamond', {
         id: 2,
         volume: 0.5,
+        loop: false,
       })
 
     gameGridClone.setRelative(directionX, directionY, centerTile)
@@ -244,6 +246,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         id: 2,
         volume: 0.5,
       })
+
   }
 
   return {
