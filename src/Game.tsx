@@ -29,6 +29,7 @@ function parseMap(data: string) {
 
 export function Game() {
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
 
   const soundManager = useSoundManagerLogic()
@@ -102,9 +103,17 @@ bbbbbbbbbb
     } else if (type === 'd') {
       return '/textures/pixel/dirt.png'
     } else if (type === 's') {
+      return '/textures/pixel/dirt-boulder.png'
+    } else if (type === 'S') {
       return '/textures/pixel/bedrock-boulder.png'
+    } else if (type === '!') {
+      return '/textures/pixel/bedrock-boulder.png'
+    } else if (type === '*') {
+      return '/textures/pixel/boom.gif'
     } else if (type === 'i') {
       return '/textures/pixel/dirt-diamond.png'
+    } else if (type === 'I') {
+      return '/textures/pixel/bedrock-diamond.png'
     } else if (type === 'p') {
       return '/textures/pixel/player.gif'
     } else if (type === 'n') {
