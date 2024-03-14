@@ -1,80 +1,57 @@
 import { useState, useEffect } from 'react'
 import { determineSoundFile } from './utils/soundUtils'
-import * as SoundConstants from './constants/soundConstants.ts'
 
 interface SoundState {
-  duration: number
   id: number
-  playing: boolean
-  soundFile: string
-  loop: boolean
-  volume?: number
+  audio: HTMLAudioElement
 }
 
-interface SoundOptions {
+export interface SoundOptions {
   id: number
-  loop?: boolean
-  playOnce?: boolean
   duration?: number
   volume?: number
 }
 
+export interface SoundManagerHook {
+  playInteraction: (interactionType: string, options?: SoundOptions) => void
+  clearSounds: () => void
+  hasSound: (id: number) => boolean
+}
+
 export const useSoundManagerLogic = () => {
   const [sounds, setSounds] = useState<SoundState[]>([])
-  const [soundIdCounter, setSoundIdCounter] = useState(0)
 
   const hasSound = (id: number): boolean => {
     return sounds.some((sound) => sound.id === id)
   }
 
   useEffect(() => {
-    const playAudio = (audio: HTMLAudioElement) => {
+    sounds.forEach((sound) => {
+      const { audio } = sound
       audio
         .play()
         .catch((error) => console.error('Error playing audio:', error))
-    }
 
-    const clearSound = (soundId: number) => {
-      setSounds((prevSounds) =>
-        prevSounds.filter((sound) => sound.id !== soundId),
-      )
-    }
-
-    sounds.forEach((sound) => {
-      const audio = new Audio(sound.soundFile)
-      audio.loop = sound.loop
-      audio.volume = sound.volume !== undefined ? sound.volume : 1
-
-      const playPromise = audio.play()
-
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {})
-          .catch((error) => {
-            console.error('Autoplay prevented:', error)
-            document.addEventListener('click', () => playAudio(audio), {
-              once: true,
-            })
-          })
-      }
-
-      if (!sound.loop) {
-        const timeoutId = setTimeout(() => {
-          clearSound(sound.id)
-        }, sound.duration || SoundConstants.DEFAULT_DURATION)
-
-        return () => {
-          clearTimeout(timeoutId)
-          audio.pause()
-          audio.src = ''
-        }
-      }
-
-      return () => {
+      const audioEndedHandler = () => {
+        setSounds((prevSounds) =>
+          prevSounds.filter((prevSound) => prevSound.id !== sound.id),
+        )
+        // Cleanup
+        audio.removeEventListener('ended', audioEndedHandler)
         audio.pause()
         audio.src = ''
       }
+
+      audio.addEventListener('ended', audioEndedHandler)
     })
+
+    // Cleanup on unmount
+    return () => {
+      sounds.forEach((sound) => {
+        sound.audio.pause()
+        sound.audio.src = ''
+      })
+    }
   }, [sounds])
 
   const playInteraction = (
@@ -83,27 +60,45 @@ export const useSoundManagerLogic = () => {
       id: 0,
     },
   ): void => {
+    // Clear all sounds from the state
+    clearSounds()
+
     const calculatedSoundFile = determineSoundFile(interactionType)
-    const soundId = soundIdCounter + 1
+    const soundId = options.id || Math.random() // Assign a random id if not provided
 
-    setSoundIdCounter((prevCounter) => prevCounter + 1)
+    // Create a new audio instance
+    const audio = new Audio(calculatedSoundFile)
+    audio.volume = options.volume !== undefined ? options.volume : 1
 
-    setSounds((prevSounds) => [
-      ...prevSounds,
+    // Add the new sound to the list
+    setSounds([
       {
         id: soundId,
-        playing: true,
-        soundFile: calculatedSoundFile,
-        loop: !!options.loop,
-        duration: options.duration || SoundConstants.DEFAULT_DURATION,
-        volume: options.volume !== undefined ? options.volume : 1,
+        audio: audio,
       },
     ])
+
+    // Cleanup audio after playing (remove it from sounds state)
+    audio.addEventListener('ended', () => {
+      setSounds((prevSounds) =>
+        prevSounds.filter((sound) => sound.id !== soundId),
+      )
+    })
+
+    // Preload audio before playing
+    audio.preload = 'auto'
+    audio.addEventListener('loadeddata', () => {
+      audio
+        .play()
+        .catch((error) => console.error('Error playing audio:', error))
+    })
   }
 
   const clearSounds = () => {
     setSounds([])
+    console.log('Sounds cleared')
   }
 
-  return { playInteraction, clearSounds, hasSound }
+  const out: SoundManagerHook = { playInteraction, clearSounds, hasSound }
+  return out
 }

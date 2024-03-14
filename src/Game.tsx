@@ -1,148 +1,95 @@
 import './Game.css'
-import { createContext, useEffect, useRef, useState } from 'react'
+import { createContext, useState, useEffect, useReducer } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
+import Grid from './Grid'
 import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
+import { gameReducer, ActionEnum } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
 
 export const PlayerContext = createContext<number[]>([])
 
+function parseMap(data: string) {
+  const gridData = data
+    .split('\n')
+    .filter((e) => e.length > 0)
+    .map((e) => [...e])
+
+  const height = gridData.length
+  const width = gridData.reduce((acc, row) => Math.max(acc, row.length), 0)
+
+  const grid = new Grid<string>(width, height)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  grid.toItterArray().forEach(([_, x, y]) => grid.set(x, y, gridData[y][x]))
+
+  return grid
+}
+
 export function Game() {
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
 
-  // prettier-ignore
-  const [blocks, setBlocks] = useState([
-        "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
-        "b", "p", "s", "n", "d", "d", "d", "d", "d", "b",
-        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
-        "b", "d", "d", "s", "s", "s", "d", "i", "d", "b",
-        "b", "d", "i", "d", "d", "d", "d", "d", "d", "b",
-        "b", "d", "d", "d", "d", "d", "i", "d", "d", "b",
-        "b", "d", "d", "d", "d", "d", "d", "d", "d", "b",
-        "b", "s", "s", "s", "d", "d", "d", "d", "d", "b",
-        "b", "d", "d", "d", "d", "d", "d", "d", "f", "b",
-        "b", "b", "b", "b", "b", "b", "b", "b", "b", "b",
-    ]);
-
   const soundManager = useSoundManagerLogic()
-
-  // starting player coordinates
-  const position = useRef(11)
+  const [gameState, gameDispatch] = useReducer(gameReducer, {
+    grid: parseMap(`
+bbbbbbbbbb
+bpsndddddb
+bddddddddb
+bddsssdidb
+bdiddddddb
+bdddddiddb
+bddddddddb
+bsssdddddb
+bdddddddfb
+bbbbbbbbbb
+`),
+    playerPos: { x: 1, y: 1 },
+    time: 0,
+    score: 0,
+  })
 
   function handlePlayClick() {
     setStartMenuVisible(false)
     setIsGameStarted(true)
-    // add "start game" logic ie. start timer etc.
+    // add "isGameStarted" state update, ie. start timer, score count etc.
   }
 
-  function gravity() {
-    const newBlocks = [...blocks]
-    let i = newBlocks.length - 1
-
-    while (i >= 0) {
-      if (
-        newBlocks[i] === 's' &&
-        i + 10 < newBlocks.length &&
-        newBlocks[i + 10] === 'n'
-      ) {
-        newBlocks[i + 10] = 's'
-        newBlocks[i] = 'n'
-      }
-      i--
-    }
-    setBlocks(newBlocks)
-  }
-
-  // updates player coordinates on keypress, eventListener is added and removed on render
   useEffect(() => {
-    if (isGameStarted) {
-      const keyPress = (e: KeyboardEvent) => {
-        console.log(e.code)
-        function handleMove(delta: number, direction: number) {
-          const newBlocks = [...blocks]
-          const copy = newBlocks[position.current + delta]
-          if (copy === 'b') {
-            return
-          } else if (copy === 'd' || copy === 'n') {
-            newBlocks[position.current + delta] = newBlocks[position.current]
-            newBlocks[position.current] = 'n'
-            position.current += delta
-          if (copy === 'd') {
-            soundManager.playInteraction('digging-dirt', {
-              loop: false,
-              id: 1,
-              volume: 0.5,
-            })
-          }
-          } else if (copy === 'i') {
-          soundManager.playInteraction('collecting-diamond', {
-            loop: false,
-            id: 2,
-            volume: 0.5,
-          })
-            newBlocks[position.current + delta] = newBlocks[position.current]
-            newBlocks[position.current] = 'n'
-            position.current += delta
-          } else if (copy === 'f') {
-            alert('WE HAVE A WINNER!')
-          } else if (
-            copy === 's' &&
-            direction === 1 &&
-            newBlocks[position.current + delta + 1] === 'n'
-          ) {
-            // right
-            newBlocks[position.current + delta] = newBlocks[position.current]
-            newBlocks[position.current + delta + 1] = 's'
-            newBlocks[position.current] = 'n'
-            position.current += delta
-          } else if (
-            copy === 's' &&
-            direction === 2 &&
-            newBlocks[position.current + delta - 1] === 'n'
-          ) {
-            // left
-            newBlocks[position.current + delta] = newBlocks[position.current]
-            newBlocks[position.current + delta - 1] = 's'
-            newBlocks[position.current] = 'n'
-            position.current += delta
-          }
-          setBlocks(newBlocks)
-        }
-        if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-          handleMove(-10, 0)
-        } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-          handleMove(10, 0)
-        } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-          handleMove(1, 1)
-        } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
-          handleMove(-1, 2)
-        }
-      }
-      window.addEventListener('keydown', keyPress)
+    const keyPress = (e: KeyboardEvent) => {
+      console.log(e.code)
 
-      return () => {
-        window.removeEventListener('keydown', keyPress)
+      if (e.code === 'ArrowUp' || e.code === 'KeyW') {
+        gameDispatch({ type: ActionEnum.MOVE_UP, soundManager })
+      } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        gameDispatch({ type: ActionEnum.MOVE_DOWN, soundManager })
+      } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+        gameDispatch({ type: ActionEnum.MOVE_RIGHT, soundManager })
+      } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+        gameDispatch({ type: ActionEnum.MOVE_LEFT, soundManager })
       }
     }
-  }, [isGameStarted, blocks, soundManager])
+    window.addEventListener('keydown', keyPress)
+
+    return () => {
+      window.removeEventListener('keydown', keyPress)
+    }
+  }, [gameDispatch, soundManager])
 
   useEffect(() => {
     const gravityInterval = setInterval(() => {
-      gravity()
+      gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
     }, 50)
 
     return () => {
       clearInterval(gravityInterval)
-      // Clear sounds after gravity interval to prevent extra plays
       soundManager.clearSounds()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blocks])
+  }, [/* gameGrid */ gameDispatch])
 
-  function toImagePath(type: string) {
+  function toImagePath(type: string | null) {
     if (type === 'b') {
       return '/textures/pixel/bedrock-2.png'
     } else if (type === 'd') {
@@ -172,12 +119,13 @@ export function Game() {
       ) : (
         <div className="Game">
           <ControlsInfo />
-          {blocks.map((key: string, index: number) => (
+
+          {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
             <Block
-              key={index}
-              x={(index + 1) % 10}
-              y={(index + 1) / 10}
-              image={toImagePath(key)}
+              key={x + y * grid.width}
+              x={1 + y}
+              y={1 + x}
+              image={toImagePath(block)}
             />
           ))}
         </div>
