@@ -73,7 +73,7 @@ function processPlayerMovement(
           volume: 0.5,
         })
       }
-  } else if (directinTile === 'i') {
+  } else if (['i', 'I'].includes(directinTile)) {
     if (typeof action.soundManager !== 'undefined')
       action.soundManager.playInteraction('collecting-diamond', {
         id: 2,
@@ -86,13 +86,13 @@ function processPlayerMovement(
     alert('WE HAVE A WINNER!')
     return state
   } else if (
-    directinTile === 's' &&
+    ['s', 'S'].includes(directinTile) &&
     directionX === 1 &&
     gameGridClone.getRelative(2, 0) === 'n'
   ) {
     // right
     gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(directionX + 1, directionY, 's')
+    gameGridClone.setRelative(directionX + 1, directionY, 'S')
     gameGridClone.setRelative(0, 0, 'n')
   } else if (
     directinTile === 's' &&
@@ -121,43 +121,130 @@ function processPhysics(state: GameState, action: GameAction): GameState {
   const gameGridClone = state.grid.clone()
   let playStoneFallingSound = false
   let playDiamondFallingSound = false
+  let playDiamondPickupSound = false
+  let playExplosionSound = false
 
   gameGridClone
     .toItterArray()
     .reverse()
     .filter(
-      ([block, , y]) =>
-        (block === 's' || block === 'i') && y < gameGridClone.height - 1,
+      ([, x, y]) =>
+        y > 0 &&
+        y < gameGridClone.height - 1 &&
+        x > 0 &&
+        x < gameGridClone.width - 1,
     )
-    .filter(([, x, y]) => gameGridClone.get(x, y + 1) === 'n')
+    .filter(([tile]) => ['s', 'S', '!', '*', 'i', 'I'].includes(tile))
     .forEach(([tile, x, y]) => {
       gameGridClone.setRelativeCenter(x, y)
-      gameGridClone.setRelative(0, 0, 'n')
-      gameGridClone.setRelative(0, 1, tile)
 
-      if (gameGridClone.get(x, y + 1) === 's') {
-        playStoneFallingSound = true
+      // Remove explosion
+      if (tile === '*') {
+        gameGridClone.setRelative(0, 0, 'n')
+        return
       }
 
-      if (gameGridClone.get(x, y + 1) === 'i') {
-        playDiamondFallingSound = true
+      // Falling boulder player kill
+      if (tile === '!' && gameGridClone.getRelative(0, 1) === 'p') {
+        for (let iy = 0; iy <= 2; iy++)
+          for (let ix = -1; ix <= 1; ix++)
+            if (gameGridClone.getRelative(ix, iy) !== 'b')
+              gameGridClone.setRelative(ix, iy, '*')
+
+        playExplosionSound = true
+        return
+      }
+
+      // Falling gem pick up
+      if (
+        ['i', 'I'].includes(tile) &&
+        gameGridClone.getRelative(0, 1) === 'p'
+      ) {
+        gameGridClone.setRelative(0, 0, 'n')
+        playDiamondPickupSound = true
+        return
+      }
+
+      // Falling down
+      if (gameGridClone.getRelative(0, 1) === 'n') {
+        let fallVariant = tile
+        if (tile === 's' || tile === 'S') fallVariant = '!'
+        else if (tile === 'i') fallVariant = 'I'
+
+        gameGridClone.setRelative(0, 0, 'n')
+        gameGridClone.setRelative(0, 1, fallVariant)
+
+        if (['i', 'I'].includes(tile)) playDiamondFallingSound = true
+        else playStoneFallingSound = true
+        return
+      }
+
+      // Falling left
+      if (
+        gameGridClone.getRelative(-1, 0) === 'n' &&
+        gameGridClone.getRelative(-1, 1) === 'n'
+      ) {
+        let fallVariant = tile
+        if (tile === 's' || tile === 'S') fallVariant = '!'
+        else if (tile === 'i') fallVariant = 'I'
+
+        gameGridClone.setRelative(0, 0, 'n')
+        gameGridClone.setRelative(-1, 0, fallVariant)
+
+        if (['i', 'I'].includes(tile)) playDiamondFallingSound = true
+        else playStoneFallingSound = true
+        return
+      }
+
+      // Falling right
+      if (
+        gameGridClone.getRelative(1, 0) === 'n' &&
+        gameGridClone.getRelative(1, 1) === 'n'
+      ) {
+        let fallVariant = tile
+        if (tile === 's' || tile === 'S') fallVariant = '!'
+        else if (tile === 'i') fallVariant = 'I'
+
+        gameGridClone.setRelative(0, 0, 'n')
+        gameGridClone.setRelative(1, 0, fallVariant)
+
+        if (['i', 'I'].includes(tile)) playDiamondFallingSound = true
+        else playStoneFallingSound = true
+        return
+      }
+
+      // Reset falling boulder
+      if (tile === '!') {
+        gameGridClone.setRelative(0, 0, 'S')
+        return
       }
     })
 
-  if (playStoneFallingSound)
-    if (typeof action.soundManager !== 'undefined') {
+  if (typeof action.soundManager !== 'undefined') {
+    if (playStoneFallingSound)
       action.soundManager.playInteraction('falling-stone', {
         id: 3,
         volume: 0.2,
       })
-    }
-  if (playDiamondFallingSound)
-    if (typeof action.soundManager !== 'undefined') {
+
+    if (playDiamondFallingSound)
       action.soundManager.playInteraction('falling-diamond', {
         id: 4,
         volume: 0.2,
       })
-    }
+
+    if (playDiamondPickupSound)
+      action.soundManager.playInteraction('collecting-diamond', {
+        id: 2,
+        volume: 0.5,
+      })
+
+    if (playExplosionSound)
+      action.soundManager.playInteraction('stone-explode', {
+        id: 2,
+        volume: 0.5,
+      })
+  }
 
   return {
     ...state,
