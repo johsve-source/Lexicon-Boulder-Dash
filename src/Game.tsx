@@ -75,7 +75,7 @@ bbbbbbbbbb
       soundManager.clearSounds()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [/* gameGrid */ /* soundManager, */ gameDispatch])
+  }, [/* gameGrid */ soundManager, gameDispatch])
 
   function toImagePath(type: string | null) {
     if (type === 'b') {
