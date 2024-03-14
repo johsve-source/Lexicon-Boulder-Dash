@@ -11,12 +11,18 @@ interface SoundState {
   volume?: number
 }
 
-interface SoundOptions {
+export interface SoundOptions {
   id: number
   loop?: boolean
   playOnce?: boolean
   duration?: number
   volume?: number
+}
+
+export interface SoundManagerHook {
+  playInteraction: (interactionType: string, options?: SoundOptions) => void
+  clearSounds: () => void
+  hasSound: (id: number) => boolean
 }
 
 export const useSoundManagerLogic = () => {
@@ -46,7 +52,7 @@ export const useSoundManagerLogic = () => {
         loop: boolean
         volume: number | undefined
         id: number
-        duration: any
+        duration: number
       }) => {
         const audio = new Audio(sound.soundFile)
         audio.loop = sound.loop
@@ -113,5 +119,6 @@ export const useSoundManagerLogic = () => {
     setSounds([])
   }
 
-  return { playInteraction, clearSounds, hasSound }
+  const out: SoundManagerHook = { playInteraction, clearSounds, hasSound }
+  return out
 }
