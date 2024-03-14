@@ -4,12 +4,14 @@ import { determineSoundFile } from './utils/soundUtils'
 interface SoundState {
   id: number
   audio: HTMLAudioElement
+  loop: boolean
 }
 
 export interface SoundOptions {
   id: number
   duration?: number
   volume?: number
+  loop?: boolean
 }
 
 export interface SoundManagerHook {
@@ -19,43 +21,45 @@ export interface SoundManagerHook {
 }
 
 export const useSoundManagerLogic = () => {
-  // const [sounds, setSounds] = useState<SoundState[]>([])
   const sounds = useRef<SoundState[]>([])
 
   const hasSound = (id: number): boolean => {
-    return sounds.current.some((sound) => sound.id === id)
+    return sounds.current.some((sound: { id: number }) => sound.id === id)
   }
 
   useEffect(() => {
-    sounds.current.forEach((sound) => {
+    sounds.current.forEach((sound: { loop?: boolean; id?: number; audio?: any }) => {
       const { audio } = sound
       audio
         .play()
-        .catch((error) => console.error('Error playing audio:', error))
+        .catch((error: string) => console.error('Error playing audio:', error))
 
-      const audioEndedHandler = () => {
-        /**
-        setSounds((prevSounds) =>
-          prevSounds.filter((prevSound) => prevSound.id !== sound.id),
-        )
-         */
-        sounds.current = sounds.current.filter(
-          (prevSound) => prevSound.id !== sound.id,
-        )
-        // Cleanup
-        audio.removeEventListener('started', audioEndedHandler)
-        audio.pause()
-        audio.src = ''
+      // If loop is set to true, configure the audio element to loop indefinitely
+      if (sound.loop) {
+        audio.loop = true
+      } else {
+        // Otherwise, set up event listeners for cleanup
+        const audioEndedHandler = () => {
+          sounds.current = sounds.current.filter(
+            (prevSound: { id: number }) => prevSound.id !== sound.id,
+          )
+          // Cleanup
+          audio.removeEventListener('ended', audioEndedHandler)
+          audio.pause()
+          audio.src = ''
+        }
+
+        audio.addEventListener('ended', audioEndedHandler)
       }
-
-      audio.addEventListener('started', audioEndedHandler)
     })
 
-    // Cleanup on unmount
+    // Cleanup on unmount for non-looping sounds
     return () => {
-      sounds.current.forEach((sound) => {
-        sound.audio.pause()
-        sound.audio.src = ''
+      sounds.current.forEach((sound: { loop: boolean; audio: { pause: () => void; src: string } }) => {
+        if (!sound.loop) {
+          sound.audio.pause()
+          sound.audio.src = ''
+        }
       })
     }
   }, [])
@@ -81,13 +85,9 @@ export const useSoundManagerLogic = () => {
       {
         id: soundId,
         audio: audio,
+        loop: options.loop || false, // Set loop property from options or default to false
       },
     ]
-
-    // Cleanup audio after playing (remove it from sounds state)
-    audio.addEventListener('started', () => {
-      sounds.current = sounds.current.filter((sound) => sound.id !== soundId)
-    })
 
     // Preload audio before playing
     audio.preload = 'auto'
