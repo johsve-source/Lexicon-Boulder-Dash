@@ -6,6 +6,8 @@ export const determineSoundFile = (interactionType: string): string => {
       return SoundConstants.START_GAME
     case 'game-over':
       return SoundConstants.GAME_OVER
+    case 'timer-ending':
+      return SoundConstants.TIMER_ENDING
     case 'ui-interaction':
       return SoundConstants.UI_INTERACTION
     case 'ambiance':
@@ -14,6 +16,8 @@ export const determineSoundFile = (interactionType: string): string => {
       return SoundConstants.DIGGING_DIRT
     case 'falling-stone':
       return SoundConstants.FALLING_STONE
+    case 'falling-diamond':
+      return SoundConstants.FALLING_DIAMOND
     case 'stone-explode':
       return SoundConstants.STONE_EXPLODE
     case 'collecting-diamond':

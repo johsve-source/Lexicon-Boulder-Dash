@@ -1,8 +1,9 @@
 import './Game.css'
-import { createContext, useState, useEffect, useReducer } from 'react'
+import { createContext, useState, useEffect, useReducer, useRef } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
 import Grid from './Grid'
+import { Tile, symbolToTile } from './Tiles'
 import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
 import { gameReducer, ActionEnum } from './GameState'
 import { StartMenu } from './components/StartMenu'
@@ -16,12 +17,12 @@ function parseMap(data: string) {
   const gridData = data
     .split('\n')
     .filter((e) => e.length > 0)
-    .map((e) => [...e])
+    .map((e) => [...e].map((f) => symbolToTile[f]))
 
   const height = gridData.length
   const width = gridData.reduce((acc, row) => Math.max(acc, row.length), 0)
 
-  const grid = new Grid<string>(width, height)
+  const grid = new Grid<Tile>(width, height)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   grid.toItterArray().forEach(([_, x, y]) => grid.set(x, y, gridData[y][x]))
 
@@ -33,16 +34,20 @@ export function Game() {
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   const [gameState, gameDispatch] = useReducer(gameReducer, {
     grid: parseMap(`
-bbbbbbbbbb
-bpsndddddb
-bddddddddb
-bddsssdidb
-bdiddddddb
-bdddddiddb
-bddddddddb
-bsssdddddb
-bdddddddfb
-bbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb
+bpsnddddddsnddddddsndddddb
+bdddddssssdddddddddddddddb
+bddddddddddddddddddddddddb
+bddddddsdddddddddddddddddb
+bdddddsssddddddddddddddddb
+bbbbbbbbbbbbbbbbbddddddddb
+bddddddddddddddddddddddddb
+bddddddsdddddddddddddddddb
+bdddddsssddddddddddddddddb
+bddddddddddddddddddddddddb
+bdddddiiiidddddddddddddddb
+bddddddddddsssddddddddfddb
+bbbbbbbbbbbbbbbbbbbbbbbbbb
 `),
     playerPos: { x: 1, y: 1 },
     isGameOver: true,
@@ -58,10 +63,18 @@ bbbbbbbbbb
   // start game
   useEffect(() => {
     if (!isStartMenuVisible) {
+      
       console.log("New game, time interval started.")
         setInterval(() => {
         gameDispatch({ type: ActionEnum.TIME_STEP })
       }, 1000)
+
+      // Play ambiance when I press play
+    soundManager.playInteraction('ambiance', {
+      id: 7,
+      volume: 0.2,
+      loop: true,
+    })
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStartMenuVisible])
@@ -86,38 +99,21 @@ bbbbbbbbbb
       window.removeEventListener('keydown', keyPress)
     }
   }, [gameDispatch, soundManager])
+  
 
-  // useEffect(() => {
-  //   const gravityInterval = setInterval(() => {
-  //     gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
-  //   }, 100)
+  const storedGrid = useRef(gameState.grid);
 
-  //   return () => {
-  //     clearInterval(gravityInterval)
-  //     soundManager.clearSounds()
-  //   }
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [/* gameGrid */ gameDispatch])
-
-  function toImagePath(type: string | null) {
-    if (type === 'b') {
-      return '/textures/pixel/bedrock-2.png'
-    } else if (type === 'd') {
-      return '/textures/pixel/dirt.png'
-    } else if (type === 's') {
-      return '/textures/pixel/bedrock-boulder.png'
-    } else if (type === 'i') {
-      return '/textures/pixel/dirt-diamond.png'
-    } else if (type === 'p') {
-      return '/textures/pixel/player.gif'
-    } else if (type === 'n') {
-      return '/textures/pixel/bedrock.png'
-    } else if (type === 'f') {
-      return '/textures/pixel/finish.gif'
-    } else {
-      return '/textures/pixel/player.gif'
+  useEffect(() => {
+    async function gravity() {
+      setTimeout(() => {
+        if (storedGrid.current !== gameState.grid) {
+          gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
+          storedGrid.current = gameState.grid
+        }
+      }, 200);
     }
-  }
+    gravity()
+  }, [gameState, soundManager])
 
   return (
     <>
@@ -129,16 +125,15 @@ bbbbbbbbbb
           <div className="Game">
             <ControlsInfo />
 
-            {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
-              <Block
-                key={x + y * grid.width}
-                x={1 + y}
-                y={1 + x}
-                image={toImagePath(block)}
-              />
-            ))}
-          </div>
-        </>
+          {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
+            <Block
+              key={x + y * grid.width}
+              x={1 + y}
+              y={1 + x}
+              image={block.texture}
+            />
+          ))}
+        </div>
       )}
     </>
   )

@@ -1,5 +1,6 @@
 import Grid from './Grid'
 import { SoundManagerHook } from './hooks/sound/useSoundManagerLogic'
+import { TILES, Tile } from './Tiles'
 
 export enum ActionEnum {
   MOVE_UP = 'MOVE_UP',
@@ -18,7 +19,7 @@ export interface GameAction {
 }
 
 export interface GameState {
-  grid: Grid<string>
+  grid: Grid<Tile>
   playerPos: { x: number; y: number }
   isGameOver: boolean
   time: number
@@ -28,16 +29,15 @@ export interface GameState {
 export function gameReducer(state: GameState, action: GameAction): GameState {
   // prettier-ignore
   if (action.type === ActionEnum.MOVE_UP ||
-    action.type === ActionEnum.MOVE_DOWN ||
-    action.type === ActionEnum.MOVE_LEFT ||
-    action.type === ActionEnum.MOVE_RIGHT) {
-    return processPlayerMovement(state, action)
-  }
-
-  else if (action.type === ActionEnum.TIME_STEP) {
-    // return processPhysics(state, action)
-    return processTime(state, action)
-  }
+        action.type === ActionEnum.MOVE_DOWN ||
+        action.type === ActionEnum.MOVE_LEFT ||
+        action.type === ActionEnum.MOVE_RIGHT) {
+          return processPlayerMovement(state, action)
+    }
+  
+    else if (action.type === ActionEnum.TIME_STEP){
+      return processPhysics(state, action)
+    }
  
   else {
     throw new Error(`Invalid action type "${action.type}"!`)
@@ -77,53 +77,57 @@ function processPlayerMovement(
   const gameGridClone = state.grid.clone()
   gameGridClone.setRelativeCenter(state.playerPos.x, state.playerPos.y)
 
-  const centerTile = gameGridClone.getRelative(0, 0) ?? 'default'
+  const centerTile = gameGridClone.getRelative(0, 0) ?? TILES.NOTHING
   const directinTile =
-    gameGridClone.getRelative(directionX, directionY) ?? 'default'
+    gameGridClone.getRelative(directionX, directionY) ?? TILES.NOTHING
 
-  if (directinTile === 'b') {
+  if (directinTile === TILES.BEDROCK) {
     return state
-  } else if (directinTile === 'd' || directinTile === 'n') {
+  } else if (directinTile === TILES.DIRT || directinTile === TILES.NOTHING) {
     gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(0, 0, 'n')
+    gameGridClone.setRelative(0, 0, TILES.NOTHING)
 
     if (typeof action.soundManager !== 'undefined')
-      if (directinTile === 'd') {
+      if (directinTile === TILES.DIRT) {
         action.soundManager.playInteraction('digging-dirt', {
           id: 1,
           volume: 0.5,
+          loop: false,
         })
       }
-  } else if (directinTile === 'i') {
+  } else if (
+    [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(directinTile)
+  ) {
     if (typeof action.soundManager !== 'undefined')
       action.soundManager.playInteraction('collecting-diamond', {
         id: 2,
         volume: 0.5,
+        loop: false,
       })
 
     gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(0, 0, 'n')
-  } else if (directinTile === 'f') {
+    gameGridClone.setRelative(0, 0, TILES.NOTHING)
+  } else if (directinTile === TILES.FINISH) {
     alert('WE HAVE A WINNER!')
     return state
   } else if (
-    directinTile === 's' &&
+    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile) &&
     directionX === 1 &&
-    gameGridClone.getRelative(2, 0) === 'n'
+    gameGridClone.getRelative(2, 0) === TILES.NOTHING
   ) {
     // right
     gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(directionX + 1, directionY, 's')
-    gameGridClone.setRelative(0, 0, 'n')
+    gameGridClone.setRelative(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
+    gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else if (
-    directinTile === 's' &&
+    directinTile === TILES.DIRT_BOULDER &&
     directionX === -1 &&
-    gameGridClone.getRelative(-2, 0) === 'n'
+    gameGridClone.getRelative(-2, 0) === TILES.NOTHING
   ) {
     // left
     gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(directionX - 1, directionY, 's')
-    gameGridClone.setRelative(0, 0, 'n')
+    gameGridClone.setRelative(directionX - 1, directionY, TILES.DIRT_BOULDER)
+    gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else {
     return state
   }
@@ -138,33 +142,164 @@ function processPlayerMovement(
   }
 }
 
-// function processPhysics(state: GameState, action: GameAction): GameState {
-//   const gameGridClone = state.grid.clone()
-//   let playFallSound = false
+function processPhysics(state: GameState, action: GameAction): GameState {
+  const gameGridClone = state.grid.clone()
+  let playStoneFallingSound = false
+  let playDiamondFallingSound = false
+  let playDiamondPickupSound = false
+  let playExplosionSound = false
+  console.log('Physics')
+  let changed = false
+  gameGridClone
+    .toItterArray()
+    .reverse()
+    .filter(
+      ([, x, y]) =>
+        y > 0 &&
+        y < gameGridClone.height - 1 &&
+        x > 0 &&
+        x < gameGridClone.width - 1,
+    )
+    .filter(([tile]) =>
+      [
+        TILES.DIRT_BOULDER,
+        TILES.BEDROCK_BOULDER,
+        TILES.FALLING_BOULDER,
+        TILES.EXPLOSION,
+        TILES.DIRT_DIAMOND,
+        TILES.BEDROCK_DIAMOND,
+      ].includes(tile),
+    )
+    .forEach(([tile, x, y]) => {
+      gameGridClone.setRelativeCenter(x, y)
 
-//   gameGridClone
-//     .toItterArray()
-//     .reverse()
-//     .filter(
-//       ([block, , y]) =>
-//         (block === 's' || block === 'i') && y < gameGridClone.height - 1,
-//     )
-//     .filter(([, x, y]) => gameGridClone.get(x, y + 1) === 'n')
-//     .forEach(([tile, x, y]) => {
-//       gameGridClone.setRelativeCenter(x, y)
-//       gameGridClone.setRelative(0, 0, 'n')
-//       gameGridClone.setRelative(0, 1, tile)
+      // Remove explosion
+      if (tile === TILES.EXPLOSION) {
+        changed = true
+        gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      }
 
-//       playFallSound = true
-//     })
+      // Falling boulder player kill
+      else if (tile === TILES.FALLING_BOULDER && gameGridClone.getRelative(0, 1) === TILES.PLAYER) {
+        changed = true
+        for (let iy = 0; iy <= 2; iy++)
+          for (let ix = -1; ix <= 1; ix++)
+            if (gameGridClone.getRelative(ix, iy) !== TILES.BEDROCK)
+              gameGridClone.setRelative(ix, iy, TILES.EXPLOSION)
 
-//   if (playFallSound)
-//     if (typeof action.soundManager !== 'undefined') {
-//       action.soundManager.playInteraction('falling-stone', {
-//         id: 3,
-//         volume: 0.2,
-//       })
-//     }
+        playExplosionSound = true
+      }
+
+      // Falling gem pick up
+      else if (
+        [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile) &&
+        gameGridClone.getRelative(0, 1) === TILES.PLAYER
+      ) {
+        changed = true
+        gameGridClone.setRelative(0, 0, TILES.NOTHING)
+        playDiamondPickupSound = true
+      }
+
+      // Falling down
+      else if (gameGridClone.getRelative(0, 1) === TILES.NOTHING) {
+        changed = true
+        let fallVariant = tile
+        if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
+          fallVariant = TILES.FALLING_BOULDER
+        else if (tile === TILES.DIRT_DIAMOND)
+          fallVariant = TILES.BEDROCK_DIAMOND
+
+        gameGridClone.setRelative(0, 0, TILES.NOTHING)
+        gameGridClone.setRelative(0, 1, fallVariant)
+
+        if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
+          playDiamondFallingSound = true
+        else playStoneFallingSound = true
+      }
+
+      // Falling left
+      else if (
+        gameGridClone.getRelative(-1, 0) === TILES.NOTHING &&
+        gameGridClone.getRelative(-1, 1) === TILES.NOTHING
+      ) {
+        changed = true
+        let fallVariant = tile
+        if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
+          fallVariant = TILES.FALLING_BOULDER
+        else if (tile === TILES.DIRT_DIAMOND)
+          fallVariant = TILES.BEDROCK_DIAMOND
+
+        gameGridClone.setRelative(0, 0, TILES.NOTHING)
+        gameGridClone.setRelative(-1, 0, fallVariant)
+
+        if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
+          playDiamondFallingSound = true
+        else playStoneFallingSound = true
+      }
+
+      // Falling right
+      else if (
+        gameGridClone.getRelative(1, 0) === TILES.NOTHING &&
+        gameGridClone.getRelative(1, 1) === TILES.NOTHING
+      ) {
+        changed = true
+        let fallVariant = tile
+        if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
+          fallVariant = TILES.FALLING_BOULDER
+        else if (tile === TILES.DIRT_DIAMOND)
+          fallVariant = TILES.BEDROCK_DIAMOND
+
+        gameGridClone.setRelative(0, 0, TILES.NOTHING)
+        gameGridClone.setRelative(1, 0, fallVariant)
+
+        if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
+          playDiamondFallingSound = true
+        else playStoneFallingSound = true
+      }
+
+      // Reset falling boulder
+      else if (tile === TILES.FALLING_BOULDER) {
+        changed = true
+        gameGridClone.setRelative(0, 0, TILES.BEDROCK_BOULDER)
+      }
+    })
+
+  if (typeof action.soundManager !== 'undefined') {
+    if (playExplosionSound)
+      action.soundManager.playInteraction('stone-explode', {
+        id: 3,
+        volume: 0.5,
+        loop: false,
+      })
+
+    if (playStoneFallingSound)
+      action.soundManager.playInteraction('falling-stone', {
+        id: 4,
+        volume: 0.2,
+        loop: false,
+      })
+
+    if (playDiamondFallingSound)
+      action.soundManager.playInteraction('falling-diamond', {
+        id: 5,
+        volume: 0.2,
+        loop: false,
+      })
+
+    if (playDiamondPickupSound)
+      action.soundManager.playInteraction('collecting-diamond', {
+        id: 6,
+        volume: 0.5,
+        loop: false,
+      })
+  }
+
+  if (!changed) {
+    return {
+      ...state,
+      grid: state.grid,
+    }
+  }
 
 //   return {
 //     ...state,

@@ -1,15 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { determineSoundFile } from './utils/soundUtils'
-
-interface SoundState {
-  id: number
-  audio: HTMLAudioElement
-}
+import { DEFAULT_DURATION } from './constants/soundConstants'
 
 export interface SoundOptions {
   id: number
   duration?: number
   volume?: number
+  loop?: boolean
 }
 
 export interface SoundManagerHook {
@@ -19,87 +16,102 @@ export interface SoundManagerHook {
 }
 
 export const useSoundManagerLogic = () => {
-  // const [sounds, setSounds] = useState<SoundState[]>([])
-  const sounds = useRef<SoundState[]>([])
-
-  const hasSound = (id: number): boolean => {
-    return sounds.current.some((sound) => sound.id === id)
+  interface SoundState {
+    id: number
+    audio: HTMLAudioElement
+    loop: boolean
   }
 
+  const sounds = useRef<Map<number, SoundState>>(new Map<number, SoundState>())
+  const nonLoopingSounds = useRef<number[]>([])
+
+  const hasSound = (id: number): boolean => sounds.current.has(id)
+
   useEffect(() => {
-    sounds.current.forEach((sound) => {
-      const { audio } = sound
-      audio
-        .play()
-        .catch((error) => console.error('Error playing audio:', error))
-
-      const audioEndedHandler = () => {
-        /**
-        setSounds((prevSounds) =>
-          prevSounds.filter((prevSound) => prevSound.id !== sound.id),
-        )
-         */
-        sounds.current = sounds.current.filter(
-          (prevSound) => prevSound.id !== sound.id,
-        )
-        // Cleanup
-        audio.removeEventListener('started', audioEndedHandler)
-        audio.pause()
-        audio.src = ''
-      }
-
-      audio.addEventListener('started', audioEndedHandler)
-    })
-
-    // Cleanup on unmount
-    return () => {
-      sounds.current.forEach((sound) => {
-        sound.audio.pause()
-        sound.audio.src = ''
+    const cleanupSounds = () => {
+      nonLoopingSounds.current.forEach((id) => {
+        const audio = sounds.current.get(id)?.audio
+        if (audio) {
+          audio.pause()
+          audio.src = ''
+        }
       })
+      sounds.current.clear()
+      nonLoopingSounds.current = []
+    }
+
+    window.addEventListener('beforeunload', cleanupSounds)
+
+    return () => {
+      cleanupSounds()
+      window.removeEventListener('beforeunload', cleanupSounds)
     }
   }, [])
 
   const playInteraction = (
     interactionType: string,
-    options: SoundOptions = {
-      id: 0,
-    },
+    options: SoundOptions = { id: 0 },
   ): void => {
-    // Clear all sounds from the state
-    clearSounds()
+    const {
+      id = sounds.current.size + 1,
+      loop = false,
+      duration = DEFAULT_DURATION,
+      volume = 1,
+    } = options
 
-    const calculatedSoundFile = determineSoundFile(interactionType)
-    const soundId = options.id || Math.random() // Assign a random id if not provided
+    if (!loop) nonLoopingSounds.current.push(id)
 
-    // Create a new audio instance
-    const audio = new Audio(calculatedSoundFile)
-    audio.volume = options.volume !== undefined ? options.volume : 1
+    let sound = sounds.current.get(id)
+    if (!sound) {
+      const audio = new Audio(determineSoundFile(interactionType))
+      audio.volume = volume
+      audio.loop = loop
 
-    // Add the new sound to the list
-    sounds.current = [
-      {
-        id: soundId,
-        audio: audio,
-      },
-    ]
+      audio.addEventListener('error', (error) => {
+        console.error('Error loading audio:', error)
+        // Cleanup the audio element if an error occurs
+        audio.pause()
+        audio.src = ''
+        sounds.current.delete(id)
+        // Remove the id from nonLoopingSounds array if it exists
+        const index = nonLoopingSounds.current.indexOf(id)
+        if (index !== -1) {
+          nonLoopingSounds.current.splice(index, 1)
+        }
+      })
 
-    // Cleanup audio after playing (remove it from sounds state)
-    audio.addEventListener('started', () => {
-      sounds.current = sounds.current.filter((sound) => sound.id !== soundId)
-    })
+      sound = { id, audio, loop }
+      sounds.current.set(id, sound)
+    }
 
-    // Preload audio before playing
-    audio.preload = 'auto'
-    audio.addEventListener('loadeddata', () => {
-      audio
-        .play()
-        .catch((error) => console.error('Error playing audio:', error))
-    })
+    sound.audio.currentTime = 0
+
+    if (!loop) {
+      setTimeout(() => {
+        sound?.audio.pause()
+        // Remove the id from nonLoopingSounds array after duration
+        const index = nonLoopingSounds.current.indexOf(id)
+        if (index !== -1) {
+          nonLoopingSounds.current.splice(index, 1)
+        }
+      }, duration)
+    }
+
+    sound.audio
+      .play()
+      .catch((error) => console.error('Error playing audio:', error))
   }
 
   const clearSounds = () => {
-    sounds.current = []
+    nonLoopingSounds.current.forEach((id) => {
+      const audio = sounds.current.get(id)?.audio
+      if (audio) {
+        audio.pause()
+        audio.src = ''
+      }
+    })
+    sounds.current.clear()
+    nonLoopingSounds.current = []
     console.log('Sounds cleared')
   }
 
