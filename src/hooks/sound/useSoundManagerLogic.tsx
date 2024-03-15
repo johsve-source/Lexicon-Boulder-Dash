@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { determineSoundFile } from './utils/soundUtils'
+import { DEFAULT_DURATION } from './constants/soundConstants'
 
 interface SoundState {
   id: number
@@ -72,6 +73,14 @@ export const useSoundManagerLogic = () => {
     interactionType: string,
     options: SoundOptions = { id: 0 },
   ): void => {
+    // Check if both loop and duration are provided
+    if (options.loop !== undefined && options.duration !== undefined) {
+      console.error(
+        "Error: Sound is not playable since you can't set both loop and duration at the same time.",
+      )
+      return
+    }
+
     // Clear all sounds from the state
     clearSounds()
 
@@ -86,8 +95,13 @@ export const useSoundManagerLogic = () => {
     const audio = new Audio(calculatedSoundFile)
     audio.volume = options.volume !== undefined ? options.volume : 1
 
-    // Set loop property to true if it's not explicitly set to false in options
-    audio.loop = options.loop !== false
+    // Set loop property to true if it's explicitly set to true in options, otherwise default to false
+    audio.loop = options.loop === true
+
+    // Set the starting point of the audio file if duration is provided
+    if (options.duration) {
+      audio.currentTime = options.duration
+    }
 
     // Add the new sound to the list
     sounds.current = [
@@ -100,7 +114,18 @@ export const useSoundManagerLogic = () => {
 
     // Preload audio before playing
     audio.preload = 'auto'
-    audio.addEventListener('loadeddata', () => {
+    audio.addEventListener('loadedmetadata', () => {
+      // Wait for audio to load metadata before scheduling to stop it
+      const duration =
+        options.duration !== undefined ? options.duration : DEFAULT_DURATION
+
+      setTimeout(() => {
+        if (!audio.loop) {
+          audio.pause()
+          audio.currentTime = 0 // Reset currentTime to ensure proper playback next time
+        }
+      }, duration)
+
       audio
         .play()
         .catch((error) => console.error('Error playing audio:', error))
