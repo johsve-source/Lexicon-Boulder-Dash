@@ -8,7 +8,7 @@ import { gameReducer, ActionEnum } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
-import { GameInfoPanel } from './components/GameInfoPanel'
+import { GameInfo } from './components/GameInfo'
 
 export const PlayerContext = createContext<number[]>([])
 
@@ -125,7 +125,7 @@ bbbbbbbbbb
         <StartMenu onPlayClick={startGame} highscores={highscoreTestData} />
       ) : (
         <>
-          <GameInfoPanel timeRemaining={gameState.time} score={0} />
+          <GameInfo timeRemaining={gameState.time} score={0} />
           <div className="Game">
             <ControlsInfo />
 

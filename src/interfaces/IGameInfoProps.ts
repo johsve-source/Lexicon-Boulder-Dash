@@ -1,4 +1,4 @@
-export interface IGameInfoPanelProps {
+export interface IGameInfoProps {
     timeRemaining: number
     score: number
 }
