@@ -3,6 +3,7 @@ import { createContext, useState, useEffect, useReducer } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
 import Grid from './Grid'
+import { Tile, symbolToTile } from './Tiles'
 import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
 import { gameReducer, ActionEnum } from './GameState'
 import { StartMenu } from './components/StartMenu'
@@ -15,12 +16,12 @@ function parseMap(data: string) {
   const gridData = data
     .split('\n')
     .filter((e) => e.length > 0)
-    .map((e) => [...e])
+    .map((e) => [...e].map((f) => symbolToTile[f]))
 
   const height = gridData.length
   const width = gridData.reduce((acc, row) => Math.max(acc, row.length), 0)
 
-  const grid = new Grid<string>(width, height)
+  const grid = new Grid<Tile>(width, height)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   grid.toItterArray().forEach(([_, x, y]) => grid.set(x, y, gridData[y][x]))
 
@@ -97,34 +98,6 @@ bbbbbbbbbb
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [/* gameGrid */ gameDispatch])
 
-  function toImagePath(type: string | null) {
-    if (type === 'b') {
-      return '/textures/pixel/bedrock-2.png'
-    } else if (type === 'd') {
-      return '/textures/pixel/dirt.png'
-    } else if (type === 's') {
-      return '/textures/pixel/dirt-boulder.png'
-    } else if (type === 'S') {
-      return '/textures/pixel/bedrock-boulder.png'
-    } else if (type === '!') {
-      return '/textures/pixel/bedrock-boulder.png'
-    } else if (type === '*') {
-      return '/textures/pixel/boom.gif'
-    } else if (type === 'i') {
-      return '/textures/pixel/dirt-diamond.png'
-    } else if (type === 'I') {
-      return '/textures/pixel/bedrock-diamond.png'
-    } else if (type === 'p') {
-      return '/textures/pixel/player.gif'
-    } else if (type === 'n') {
-      return '/textures/pixel/bedrock.png'
-    } else if (type === 'f') {
-      return '/textures/pixel/finish.gif'
-    } else {
-      return '/textures/pixel/player.gif'
-    }
-  }
-
   return (
     <>
       {isStartMenuVisible ? (
@@ -141,7 +114,7 @@ bbbbbbbbbb
               key={x + y * grid.width}
               x={1 + y}
               y={1 + x}
-              image={toImagePath(block)}
+              image={block.texture}
             />
           ))}
         </div>
