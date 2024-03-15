@@ -36,20 +36,20 @@ export function Game() {
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = useReducer(gameReducer, {
     grid: parseMap(`
-bbbbbbbbbbbbbbbbbbbbbbbbbb
-bpsnddddddsnddddddsndddddb
-bdddddssssdddddddddddddddb
-bddddddddddddddddddddddddb
-bddddddsdddddddddddddddddb
-bdddddsssddddddddddddddddb
-bbbbbbbbbbbbbbbbbddddddddb
-bddddddddddddddddddddddddb
-bddddddsdddddddddddddddddb
-bdddddsssddddddddddddddddb
-bddddddddddddddddddddddddb
-bdddddiiiidddddddddddddddb
-bddddddddddsssddddddddfddb
-bbbbbbbbbbbbbbbbbbbbbbbbbb
+##########################
+#pO ......O ......O .....#
+#.....OOOO...............#
+#........................#
+#......O.................#
+#.....OOO................#
+#################........#
+#........................#
+#......O.................#
+#.....OOO................#
+#........................#
+#.....DDDD...............#
+#..........OOO........f..#
+##########################
 `),
     playerPos: { x: 1, y: 1 },
     time: 0,
@@ -89,9 +89,8 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
       window.removeEventListener('keydown', keyPress)
     }
   }, [gameDispatch, soundManager])
-  
 
-  const storedGrid = useRef(gameState.grid);
+  const storedGrid = useRef(gameState.grid)
 
   useEffect(() => {
     async function gravity() {
@@ -100,7 +99,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
           gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
           storedGrid.current = gameState.grid
         }
-      }, 200);
+      }, 200)
     }
     gravity()
   }, [gameState, soundManager])

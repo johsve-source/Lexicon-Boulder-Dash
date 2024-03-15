@@ -8,31 +8,31 @@ export const TILES: { [name: string]: Tile } = {
   NOTHING: {
     name: 'NOTHING',
     texture: '/textures/pixel/bedrock.png',
-    symbol: 'n',
+    symbol: ' ',
   },
 
   BEDROCK: {
     name: 'BEDROCK',
     texture: '/textures/pixel/bedrock-2.png',
-    symbol: 'b',
+    symbol: '#',
   },
 
   DIRT: {
     name: 'DIRT',
     texture: '/textures/pixel/dirt.png',
-    symbol: 'd',
+    symbol: '.',
   },
 
   DIRT_BOULDER: {
     name: 'DIRT_BOULDER',
     texture: '/textures/pixel/dirt-boulder.png',
-    symbol: 's',
+    symbol: 'O',
   },
 
   BEDROCK_BOULDER: {
     name: 'BEDROCK_BOULDER',
     texture: '/textures/pixel/bedrock-boulder.png',
-    symbol: 'S',
+    symbol: 'o',
   },
 
   FALLING_BOULDER: {
@@ -48,13 +48,13 @@ export const TILES: { [name: string]: Tile } = {
   DIRT_DIAMOND: {
     name: 'DIRT_DIAMOND',
     texture: '/textures/pixel/dirt-diamond.png',
-    symbol: 'i',
+    symbol: 'D',
   },
 
   BEDROCK_DIAMOND: {
     name: 'BEDROCK_DIAMOND',
     texture: '/textures/pixel/bedrock-diamond.png',
-    symbol: 'I',
+    symbol: 'd',
   },
 
   PLAYER: {

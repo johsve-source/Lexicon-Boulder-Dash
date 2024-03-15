@@ -91,22 +91,22 @@ function processPlayerMovement(
     alert('WE HAVE A WINNER!')
     return state
   } else if (
-    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile) &&
     directionX === 1 &&
-    gameGridClone.getRelative(2, 0) === TILES.NOTHING
+    gameGridClone.getRelative(2, 0) === TILES.NOTHING &&
+    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
   ) {
     // right
     gameGridClone.setRelative(directionX, directionY, centerTile)
     gameGridClone.setRelative(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else if (
-    directinTile === TILES.DIRT_BOULDER &&
     directionX === -1 &&
-    gameGridClone.getRelative(-2, 0) === TILES.NOTHING
+    gameGridClone.getRelative(-2, 0) === TILES.NOTHING &&
+    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
   ) {
     // left
     gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(directionX - 1, directionY, TILES.DIRT_BOULDER)
+    gameGridClone.setRelative(directionX - 1, directionY, TILES.BEDROCK_BOULDER)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else {
     return state
@@ -160,7 +160,10 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       }
 
       // Falling boulder player kill
-      else if (tile === TILES.FALLING_BOULDER && gameGridClone.getRelative(0, 1) === TILES.PLAYER) {
+      else if (
+        tile === TILES.FALLING_BOULDER &&
+        gameGridClone.getRelative(0, 1) === TILES.PLAYER
+      ) {
         changed = true
         for (let iy = 0; iy <= 2; iy++)
           for (let ix = -1; ix <= 1; ix++)
