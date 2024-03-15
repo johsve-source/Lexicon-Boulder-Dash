@@ -1,19 +1,10 @@
 :root {
-  --game-block-size: 64px;
-  --game-grid-x: 10;
-  --game-grid-y: 10;
+  --game-block-size: 32px;
 }
 
 .Game {
   position: relative;
-
-  background-color: gray;
-  height: calc(var(--game-block-size) * var(--game-grid-x));
-  width: calc(var(--game-block-size) * var(--game-grid-x));
   margin: auto;
   display: grid;
-  grid-template: repeat(var(--game-grid-x), var(--game-block-size)) / repeat(
-      var(--game-grid-y),
-      var(--game-block-size)
-    );
+  grid-template: var(--game-block-size) / var(--game-block-size)
 }

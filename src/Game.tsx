@@ -35,16 +35,20 @@ export function Game() {
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = useReducer(gameReducer, {
     grid: parseMap(`
-bbbbbbbbbb
-bpsndddddb
-bddddddddb
-bddsssdidb
-bdiddddddb
-bdddddiddb
-bddddddddb
-bsssdddddb
-bdddddddfb
-bbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbb
+bpsnddddddsnddddddsndddddb
+bdddddssssdddddddddddddddb
+bddddddddddddddddddddddddb
+bddddddsdddddddddddddddddb
+bdddddsssddddddddddddddddb
+bbbbbbbbbbbbbbbbbddddddddb
+bddddddddddddddddddddddddb
+bddddddsdddddddddddddddddb
+bdddddsssddddddddddddddddb
+bddddddddddddddddddddddddb
+bdddddiiiidddddddddddddddb
+bddddddddddsssddddddddfddb
+bbbbbbbbbbbbbbbbbbbbbbbbbb
 `),
     playerPos: { x: 1, y: 1 },
     time: 0,
