@@ -40,21 +40,18 @@ export const useSoundManagerLogic = () => {
       nonLoopingSounds.current = []
     }
 
-    return cleanupSounds
+    window.addEventListener('beforeunload', cleanupSounds)
+
+    return () => {
+      cleanupSounds()
+      window.removeEventListener('beforeunload', cleanupSounds)
+    }
   }, [])
 
   const playInteraction = (
     interactionType: string,
     options: SoundOptions = { id: 0 },
   ): void => {
-    // Check if both loop and duration are provided
-    if (options.loop !== undefined && options.duration !== undefined) {
-      console.error(
-        "Error: Sound is not playable since you can't set both loop and duration at the same time.",
-      )
-      return
-    }
-
     const {
       id = sounds.current.size + 1,
       loop = false,
@@ -70,24 +67,39 @@ export const useSoundManagerLogic = () => {
       audio.volume = volume
       audio.loop = loop
 
+      audio.addEventListener('error', (error) => {
+        console.error('Error loading audio:', error)
+        // Cleanup the audio element if an error occurs
+        audio.pause()
+        audio.src = ''
+        sounds.current.delete(id)
+        // Remove the id from nonLoopingSounds array if it exists
+        const index = nonLoopingSounds.current.indexOf(id)
+        if (index !== -1) {
+          nonLoopingSounds.current.splice(index, 1)
+        }
+      })
+
       sound = { id, audio, loop }
       sounds.current.set(id, sound)
     }
 
     sound.audio.currentTime = 0
 
-    if (loop) {
-      sound.audio
-        .play()
-        .catch((error) => console.error('Error playing audio:', error))
-    } else {
-      sound.audio
-        .play()
-        .catch((error) => console.error('Error playing audio:', error))
+    if (!loop) {
       setTimeout(() => {
         sound?.audio.pause()
+        // Remove the id from nonLoopingSounds array after duration
+        const index = nonLoopingSounds.current.indexOf(id)
+        if (index !== -1) {
+          nonLoopingSounds.current.splice(index, 1)
+        }
       }, duration)
     }
+
+    sound.audio
+      .play()
+      .catch((error) => console.error('Error playing audio:', error))
   }
 
   const clearSounds = () => {

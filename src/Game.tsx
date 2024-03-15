@@ -58,7 +58,7 @@ bbbbbbbbbb
 
     // Play ambiance when I press play
     soundManager.playInteraction('ambiance', {
-      id: 5,
+      id: 7,
       volume: 0.2,
       loop: true,
     })
