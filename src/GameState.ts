@@ -301,8 +301,8 @@ function processPhysics(state: GameState, action: GameAction): GameState {
     }
   }
 
-//   return {
-//     ...state,
-//     grid: gameGridClone,
-//   }
-// }
+  return {
+    ...state,
+    grid: gameGridClone,
+  }
+}

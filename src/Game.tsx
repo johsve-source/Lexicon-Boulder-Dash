@@ -63,20 +63,19 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
   // start game
   useEffect(() => {
     if (!isStartMenuVisible) {
-      
-      console.log("New game, time interval started.")
-        setInterval(() => {
+      console.log('New game, time interval started.')
+      setInterval(() => {
         gameDispatch({ type: ActionEnum.TIME_STEP })
       }, 1000)
 
       // Play ambiance when I press play
-    soundManager.playInteraction('ambiance', {
-      id: 7,
-      volume: 0.2,
-      loop: true,
-    })
+      soundManager.playInteraction('ambiance', {
+        id: 7,
+        volume: 0.2,
+        loop: true,
+      })
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStartMenuVisible])
 
   useEffect(() => {
@@ -99,9 +98,8 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
       window.removeEventListener('keydown', keyPress)
     }
   }, [gameDispatch, soundManager])
-  
 
-  const storedGrid = useRef(gameState.grid);
+  const storedGrid = useRef(gameState.grid)
 
   useEffect(() => {
     async function gravity() {
@@ -110,7 +108,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
           gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
           storedGrid.current = gameState.grid
         }
-      }, 200);
+      }, 200)
     }
     gravity()
   }, [gameState, soundManager])
@@ -125,15 +123,16 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
           <div className="Game">
             <ControlsInfo />
 
-          {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
-            <Block
-              key={x + y * grid.width}
-              x={1 + y}
-              y={1 + x}
-              image={block.texture}
-            />
-          ))}
-        </div>
+            {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
+              <Block
+                key={x + y * grid.width}
+                x={1 + y}
+                y={1 + x}
+                image={block.texture}
+              />
+            ))}
+          </div>
+        </>
       )}
     </>
   )
