@@ -55,8 +55,8 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
     score: 0,
   })
 
+  // change start menu visibility on play button click which in turn sets off 'start game' useEffect
   function startGame() {
-    gameState.isGameOver = false
     setStartMenuVisible(false)
   }
 
@@ -64,18 +64,15 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
   useEffect(() => {
     if (!isStartMenuVisible) {
       console.log('New game, time interval started.')
-      setInterval(() => {
+
+      const timeInterval = setInterval(() => {
         gameDispatch({ type: ActionEnum.TIME_STEP })
       }, 1000)
 
-      // Play ambiance when I press play
-      soundManager.playInteraction('ambiance', {
-        id: 7,
-        volume: 0.2,
-        loop: true,
-      })
+      return () => {
+        clearInterval(timeInterval)
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStartMenuVisible])
 
   useEffect(() => {

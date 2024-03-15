@@ -9,7 +9,6 @@ export enum ActionEnum {
   MOVE_RIGHT = 'MOVE_RIGHT',
   TIME_STEP = 'TIME_STEP',
   LOAD_LEVEL = 'LOAD_LEVEL',
-  STOP_TIMER = 'STOP_TIMER',
 }
 
 export interface GameAction {
@@ -35,7 +34,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           return processPlayerMovement(state, action)
     }
   
-    else if (action.type === ActionEnum.TIME_STEP){
+    else if (action.type === ActionEnum.TIME_STEP) {
       return processPhysics(state, action)
     }
  
@@ -44,17 +43,14 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   }
 }
 
-function processTime(state: GameState, action: GameAction): GameState {
-  const updatedTime = state.time - 1
-  if (updatedTime === 0) {
-    console.log('game over: true')
+function processTime(state: GameState): GameState {
+  if (state.time === 0) {
     return {
       ...state,
-      time: updatedTime,
-      isGameOver: true,
+      isGameOver: true
     }
   } else {
-    console.log('timer ticking', updatedTime)
+    const updatedTime = state.time - 1
     return {
       ...state,
       time: updatedTime,
@@ -180,7 +176,10 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       }
 
       // Falling boulder player kill
-      else if (tile === TILES.FALLING_BOULDER && gameGridClone.getRelative(0, 1) === TILES.PLAYER) {
+      else if (
+        tile === TILES.FALLING_BOULDER &&
+        gameGridClone.getRelative(0, 1) === TILES.PLAYER
+      ) {
         changed = true
         for (let iy = 0; iy <= 2; iy++)
           for (let ix = -1; ix <= 1; ix++)
