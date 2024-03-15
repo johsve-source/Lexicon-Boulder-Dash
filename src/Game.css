@@ -2,9 +2,14 @@
   --game-block-size: 32px;
 }
 
+body {
+  overflow: hidden;
+}
+
 .Game {
   position: relative;
   margin: auto;
   display: grid;
   grid-template: var(--game-block-size) / var(--game-block-size)
 }
+
