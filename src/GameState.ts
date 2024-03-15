@@ -29,12 +29,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.type === ActionEnum.MOVE_DOWN ||
         action.type === ActionEnum.MOVE_LEFT ||
         action.type === ActionEnum.MOVE_RIGHT) {
-        return processPlayerMovement(state, action)
+        return processPhysics(processPlayerMovement(state, action), action)
     }
-
-  else if (action.type === ActionEnum.TIME_STEP) {
-    return processPhysics(state, action)
-  }
  
   else {
     throw new Error(`Invalid action type "${action.type}"!`)
@@ -125,7 +121,8 @@ function processPhysics(state: GameState, action: GameAction): GameState {
   let playDiamondFallingSound = false
   let playDiamondPickupSound = false
   let playExplosionSound = false
-
+  let changed = false
+  console.log("Physics")
   gameGridClone
     .toItterArray()
     .reverse()
@@ -143,32 +140,32 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       // Remove explosion
       if (tile === '*') {
         gameGridClone.setRelative(0, 0, 'n')
-        return
       }
 
       // Falling boulder player kill
-      if (tile === '!' && gameGridClone.getRelative(0, 1) === 'p') {
+      else if (tile === '!' && gameGridClone.getRelative(0, 1) === 'p') {
+        changed = true
         for (let iy = 0; iy <= 2; iy++)
           for (let ix = -1; ix <= 1; ix++)
             if (gameGridClone.getRelative(ix, iy) !== 'b')
               gameGridClone.setRelative(ix, iy, '*')
 
         playExplosionSound = true
-        return
       }
 
       // Falling gem pick up
-      if (
+      else if (
         ['i', 'I'].includes(tile) &&
         gameGridClone.getRelative(0, 1) === 'p'
       ) {
+        changed = true
         gameGridClone.setRelative(0, 0, 'n')
         playDiamondPickupSound = true
-        return
       }
 
       // Falling down
-      if (gameGridClone.getRelative(0, 1) === 'n') {
+      else if (gameGridClone.getRelative(0, 1) === 'n') {
+        changed = true
         let fallVariant = tile
         if (tile === 's' || tile === 'S') fallVariant = '!'
         else if (tile === 'i') fallVariant = 'I'
@@ -178,14 +175,14 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
         if (['i', 'I'].includes(tile)) playDiamondFallingSound = true
         else playStoneFallingSound = true
-        return
       }
 
       // Falling left
-      if (
+      else if (
         gameGridClone.getRelative(-1, 0) === 'n' &&
         gameGridClone.getRelative(-1, 1) === 'n'
       ) {
+        changed = true
         let fallVariant = tile
         if (tile === 's' || tile === 'S') fallVariant = '!'
         else if (tile === 'i') fallVariant = 'I'
@@ -195,14 +192,14 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
         if (['i', 'I'].includes(tile)) playDiamondFallingSound = true
         else playStoneFallingSound = true
-        return
       }
 
       // Falling right
-      if (
+      else if (
         gameGridClone.getRelative(1, 0) === 'n' &&
         gameGridClone.getRelative(1, 1) === 'n'
       ) {
+        changed = true
         let fallVariant = tile
         if (tile === 's' || tile === 'S') fallVariant = '!'
         else if (tile === 'i') fallVariant = 'I'
@@ -212,13 +209,12 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
         if (['i', 'I'].includes(tile)) playDiamondFallingSound = true
         else playStoneFallingSound = true
-        return
       }
 
       // Reset falling boulder
-      if (tile === '!') {
+      else if (tile === '!') {
+        changed = true
         gameGridClone.setRelative(0, 0, 'S')
-        return
       }
     })
 
@@ -251,6 +247,11 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         loop: false,
       })
   }
+  
+  if (changed) return processPhysics({
+    ...state,
+    grid: gameGridClone,
+  }, action)
 
   return {
     ...state,

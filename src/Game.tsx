@@ -85,18 +85,6 @@ bbbbbbbbbb
     }
   }, [gameDispatch, soundManager])
 
-  useEffect(() => {
-    const gravityInterval = setInterval(() => {
-      gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
-    }, 100)
-
-    return () => {
-      clearInterval(gravityInterval)
-      soundManager.clearSounds()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [/* gameGrid */ gameDispatch])
-
   function toImagePath(type: string | null) {
     if (type === 'b') {
       return '/textures/pixel/bedrock-2.png'
