@@ -4,6 +4,7 @@ export const DEFAULT_DURATION = 3000
 // Main sound files
 export const START_GAME = '/sounds/start-game.mp3'
 export const GAME_OVER = '/sounds/game-over.mp3'
+export const TIMER_ENDING = '/sounds/timer-ending.mp3'
 export const UI_INTERACTION = '/sounds/ui-interaction.mp3'
 
 // Game sound files
