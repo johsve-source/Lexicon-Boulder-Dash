@@ -1,6 +1,8 @@
-import Grid from './Grid'
+import { useEffect, useReducer } from 'react'
 import { SoundManagerHook } from './hooks/sound/useSoundManagerLogic'
+import { loadLevelData, LevelData } from './LevelLoader'
 import { TILES, Tile } from './Tiles'
+import Grid from './Grid'
 
 export enum ActionEnum {
   MOVE_UP = 'MOVE_UP',
@@ -13,7 +15,8 @@ export enum ActionEnum {
 
 export interface GameAction {
   type: ActionEnum
-  //Leveldata?: unknown data type
+  Leveldata?: LevelData
+  loadLevelCallback?: (path: string) => void
   soundManager?: SoundManagerHook
 }
 
@@ -22,6 +25,34 @@ export interface GameState {
   playerPos: { x: number; y: number }
   time: number
   score: number
+  curentLevel?: LevelData
+  nextLevel?: string
+}
+
+export async function loadLevel(
+  gameDispatch: React.Dispatch<GameAction>,
+  path: string,
+) {
+  if (!path) return
+
+  return await loadLevelData(`/levels/${path}.json`).then((Leveldata) =>
+    gameDispatch({ type: ActionEnum.LOAD_LEVEL, Leveldata }),
+  )
+}
+
+export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
+  const [gameState, gameDispatch] = useReducer(gameReducer, {
+    grid: new Grid<Tile>(),
+    playerPos: { x: 1, y: 1 },
+    time: 0,
+    score: 0,
+  })
+
+  useEffect(() => {
+    loadLevel(gameDispatch, 'level1')
+  }, [])
+
+  return [gameState, gameDispatch]
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -32,14 +63,19 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.type === ActionEnum.MOVE_RIGHT) {
           return processPlayerMovement(state, action)
     }
-  
-    else if (action.type === ActionEnum.TIME_STEP){
-      return processPhysics(state, action)
-    }
- 
-  else {
-    throw new Error(`Invalid action type "${action.type}"!`)
+
+  if (action.type === ActionEnum.TIME_STEP) {
+    return processPhysics(state, action)
   }
+
+  if (
+    action.type === ActionEnum.LOAD_LEVEL &&
+    typeof action.Leveldata !== 'undefined'
+  ) {
+    return applyLevelData(state, action.Leveldata)
+  }
+
+  throw new Error(`Invalid action type "${action.type}"!`)
 }
 
 function processPlayerMovement(
@@ -50,9 +86,9 @@ function processPlayerMovement(
   let directionY = 0
 
   if (action.type === ActionEnum.MOVE_UP) directionY = -1
-  if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
-  if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
-  if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
+  else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
+  else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
+  else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
 
   const gameGridClone = state.grid.clone()
   gameGridClone.setRelativeCenter(state.playerPos.x, state.playerPos.y)
@@ -60,6 +96,12 @@ function processPlayerMovement(
   const centerTile = gameGridClone.getRelative(0, 0) ?? TILES.NOTHING
   const directinTile =
     gameGridClone.getRelative(directionX, directionY) ?? TILES.NOTHING
+
+  if (centerTile !== TILES.PLAYER) {
+    if (typeof state.curentLevel !== 'undefined')
+      return applyLevelData(state, state.curentLevel)
+    else return state
+  }
 
   if (directinTile === TILES.BEDROCK) {
     return state
@@ -88,25 +130,31 @@ function processPlayerMovement(
     gameGridClone.setRelative(directionX, directionY, centerTile)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else if (directinTile === TILES.FINISH) {
-    alert('WE HAVE A WINNER!')
+    /* alert('WE HAVE A WINNER!') */
+    if (
+      typeof action.loadLevelCallback !== 'undefined' &&
+      typeof state.nextLevel !== 'undefined'
+    )
+      action.loadLevelCallback(state.nextLevel)
+
     return state
   } else if (
-    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile) &&
     directionX === 1 &&
-    gameGridClone.getRelative(2, 0) === TILES.NOTHING
+    gameGridClone.getRelative(2, 0) === TILES.NOTHING &&
+    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
   ) {
     // right
     gameGridClone.setRelative(directionX, directionY, centerTile)
     gameGridClone.setRelative(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else if (
-    directinTile === TILES.DIRT_BOULDER &&
     directionX === -1 &&
-    gameGridClone.getRelative(-2, 0) === TILES.NOTHING
+    gameGridClone.getRelative(-2, 0) === TILES.NOTHING &&
+    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
   ) {
     // left
     gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(directionX - 1, directionY, TILES.DIRT_BOULDER)
+    gameGridClone.setRelative(directionX - 1, directionY, TILES.BEDROCK_BOULDER)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else {
     return state
@@ -160,7 +208,10 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       }
 
       // Falling boulder player kill
-      else if (tile === TILES.FALLING_BOULDER && gameGridClone.getRelative(0, 1) === TILES.PLAYER) {
+      else if (
+        tile === TILES.FALLING_BOULDER &&
+        gameGridClone.getRelative(0, 1) === TILES.PLAYER
+      ) {
         changed = true
         for (let iy = 0; iy <= 2; iy++)
           for (let ix = -1; ix <= 1; ix++)
@@ -284,5 +335,18 @@ function processPhysics(state: GameState, action: GameAction): GameState {
   return {
     ...state,
     grid: gameGridClone,
+  }
+}
+
+function applyLevelData(state: GameState, Leveldata: LevelData) {
+  return {
+    ...state,
+    grid: Leveldata.grid.clone(),
+    playerPos: {
+      x: Leveldata.playerPos.x,
+      y: Leveldata.playerPos.y,
+    },
+    curentLevel: Leveldata,
+    nextLevel: Leveldata.nextLevel,
   }
 }

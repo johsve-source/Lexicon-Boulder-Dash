@@ -1,4 +1,4 @@
 .Block {
-    height: 32px;
-    width: 32px;
+  height: var(--game-block-size);
+  width: var(--game-block-size);
 }

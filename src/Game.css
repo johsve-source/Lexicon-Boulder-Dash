@@ -6,5 +6,10 @@
   position: relative;
   margin: auto;
   display: grid;
+  scrollbar-width: none;
   grid-template: var(--game-block-size) / var(--game-block-size)
+}
+
+body::-webkit-scrollbar {
+  display: none;
 }
