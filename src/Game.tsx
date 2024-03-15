@@ -36,20 +36,39 @@ export function Game() {
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = useReducer(gameReducer, {
     grid: parseMap(`
-bbbbbbbbbbbbbbbbbbbbbbbbbb
-bpsnddddddsnddddddsndddddb
-bdddddssssdddddddddddddddb
-bddddddddddddddddddddddddb
-bddddddsdddddddddddddddddb
-bdddddsssddddddddddddddddb
-bbbbbbbbbbbbbbbbbddddddddb
-bddddddddddddddddddddddddb
-bddddddsdddddddddddddddddb
-bdddddsssddddddddddddddddb
-bddddddddddddddddddddddddb
-bdddddiiiidddddddddddddddb
-bddddddddddsssddddddddfddb
-bbbbbbbbbbbbbbbbbbbbbbbbbb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+bpsnddddddsnddddddsndddddbsnddddddsnddddddsndddddbsnddddddsnddddddsndddddbsnddddddsnddddddsndddddbbbbbbb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddb
+bdddddsssddddddddddddddddbbdddddsssddddddddddddddddbbdddddsssddddddddddddddddbbdddddsssddddddddddddddddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddb
+bddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddb
+bdddddsssddddddddddddddddbbdddddsssddddddddddddddddbbdddddsssddddddddddddddddbbdddddsssddddddddddddddddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddb
+bddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddb
+bddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddb
+bddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddb
+bdddddsssddddddddddddddddbbdddddsssddddddddddddddddbbdddddsssddddddddddddddddbbdddddsssddddddddddddddddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddb
+bddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddbbddddddsdddddddddddddddddb
+bdddddsssddddddddddddddddbbdddddsssddddddddddddddddbbdddddsssddddddddddddddddbbdddddsssddddddddddddddddb
+bddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddbbddddddddddddddddddddddddb
+bdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddbbdddddiiiidddddddddddddddb
+bddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddbbddddddddddsssddddddddfddb
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 `),
     playerPos: { x: 1, y: 1 },
     time: 0,
@@ -72,23 +91,40 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
-
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
+        e.preventDefault()
         gameDispatch({ type: ActionEnum.MOVE_UP, soundManager })
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
+        e.preventDefault()
         gameDispatch({ type: ActionEnum.MOVE_DOWN, soundManager })
       } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+        e.preventDefault()
         gameDispatch({ type: ActionEnum.MOVE_RIGHT, soundManager })
       } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+        e.preventDefault()
         gameDispatch({ type: ActionEnum.MOVE_LEFT, soundManager })
       }
     }
+    if (gameState.playerPos.y > gameState.grid.height / 2) {
+      window.scrollTo({
+        top: gameState.playerPos.y + 32 / gameState.grid.height * window.innerHeight,
+        left: gameState.playerPos.x / gameState.grid.width * window.innerWidth,
+        behavior: 'auto',
+      });
+    } else {
+      window.scrollTo({
+        top: gameState.playerPos.y - 32 / gameState.grid.height * window.innerHeight,
+        left: gameState.playerPos.x / gameState.grid.width * window.innerWidth,
+        behavior: 'auto',
+      });
+    }
+
     window.addEventListener('keydown', keyPress)
 
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [gameDispatch, soundManager])
+  }, [gameDispatch, gameState.grid.height, gameState.grid.width, gameState.playerPos.x, gameState.playerPos.y, soundManager])
   
 
   const storedGrid = useRef(gameState.grid);
