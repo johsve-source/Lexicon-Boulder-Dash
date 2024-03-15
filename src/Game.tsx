@@ -1,5 +1,5 @@
 import './Game.css'
-import { createContext, useState, useEffect, useReducer } from 'react'
+import { createContext, useState, useEffect, useReducer, useRef } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
 import Grid from './Grid'
@@ -84,6 +84,21 @@ bbbbbbbbbb
       window.removeEventListener('keydown', keyPress)
     }
   }, [gameDispatch, soundManager])
+  
+
+  const storedGrid = useRef(gameState.grid);
+
+  useEffect(() => {
+    async function gravity() {
+      setTimeout(() => {
+        if (storedGrid.current !== gameState.grid) {
+          gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
+          storedGrid.current = gameState.grid
+        }
+      }, 200);
+    }
+    gravity()
+  }, [gameState, soundManager])
 
   function toImagePath(type: string | null) {
     if (type === 'b') {

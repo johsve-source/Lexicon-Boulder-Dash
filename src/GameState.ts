@@ -29,7 +29,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.type === ActionEnum.MOVE_DOWN ||
         action.type === ActionEnum.MOVE_LEFT ||
         action.type === ActionEnum.MOVE_RIGHT) {
-        return processPhysics(processPlayerMovement(state, action), action)
+          return processPlayerMovement(state, action)
+    }
+  
+    else if (action.type === ActionEnum.TIME_STEP){
+      return processPhysics(state, action)
     }
  
   else {
@@ -121,8 +125,8 @@ function processPhysics(state: GameState, action: GameAction): GameState {
   let playDiamondFallingSound = false
   let playDiamondPickupSound = false
   let playExplosionSound = false
+  console.log('Physics')
   let changed = false
-  console.log("Physics")
   gameGridClone
     .toItterArray()
     .reverse()
@@ -139,6 +143,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
       // Remove explosion
       if (tile === '*') {
+        changed = true
         gameGridClone.setRelative(0, 0, 'n')
       }
 
@@ -247,11 +252,13 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         loop: false,
       })
   }
-  
-  if (changed) return processPhysics({
-    ...state,
-    grid: gameGridClone,
-  }, action)
+
+  if (!changed) {
+    return {
+      ...state,
+      grid: state.grid,
+    }
+  }
 
   return {
     ...state,
