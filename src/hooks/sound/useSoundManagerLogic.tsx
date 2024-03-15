@@ -11,7 +11,7 @@ export interface SoundOptions {
 
 export interface SoundManagerHook {
   playInteraction: (interactionType: string, options?: SoundOptions) => void
-  clearSounds: () => void
+  cleanupAllSounds: () => void
   hasSound: (id: number) => boolean
 }
 
@@ -27,24 +27,34 @@ export const useSoundManagerLogic = () => {
 
   const hasSound = (id: number): boolean => sounds.current.has(id)
 
+  const cleanupSound = (id: number) => {
+    const audio = sounds.current.get(id)?.audio
+    if (audio) {
+      audio.pause()
+      audio.src = ''
+    }
+    sounds.current.delete(id)
+    const index = nonLoopingSounds.current.indexOf(id)
+    if (index !== -1) {
+      nonLoopingSounds.current.splice(index, 1)
+    }
+  }
+
   useEffect(() => {
-    const cleanupSounds = () => {
+    const cleanupAllSounds = () => {
       nonLoopingSounds.current.forEach((id) => {
-        const audio = sounds.current.get(id)?.audio
-        if (audio) {
-          audio.pause()
-          audio.src = ''
-        }
+        cleanupSound(id)
       })
-      sounds.current.clear()
-      nonLoopingSounds.current = []
+      sounds.current.forEach((_value, key) => {
+        cleanupSound(key)
+      })
     }
 
-    window.addEventListener('beforeunload', cleanupSounds)
+    window.addEventListener('beforeunload', cleanupAllSounds)
 
     return () => {
-      cleanupSounds()
-      window.removeEventListener('beforeunload', cleanupSounds)
+      cleanupAllSounds()
+      window.removeEventListener('beforeunload', cleanupAllSounds)
     }
   }, [])
 
@@ -69,15 +79,7 @@ export const useSoundManagerLogic = () => {
 
       audio.addEventListener('error', (error) => {
         console.error('Error loading audio:', error)
-        // Cleanup the audio element if an error occurs
-        audio.pause()
-        audio.src = ''
-        sounds.current.delete(id)
-        // Remove the id from nonLoopingSounds array if it exists
-        const index = nonLoopingSounds.current.indexOf(id)
-        if (index !== -1) {
-          nonLoopingSounds.current.splice(index, 1)
-        }
+        cleanupSound(id) // Cleanup if an error occurs
       })
 
       sound = { id, audio, loop }
@@ -89,11 +91,7 @@ export const useSoundManagerLogic = () => {
     if (!loop) {
       setTimeout(() => {
         sound?.audio.pause()
-        // Remove the id from nonLoopingSounds array after duration
-        const index = nonLoopingSounds.current.indexOf(id)
-        if (index !== -1) {
-          nonLoopingSounds.current.splice(index, 1)
-        }
+        cleanupSound(id) // Cleanup non-looping sound after duration
       }, duration)
     }
 
@@ -102,19 +100,21 @@ export const useSoundManagerLogic = () => {
       .catch((error) => console.error('Error playing audio:', error))
   }
 
-  const clearSounds = () => {
+  const cleanupAllSounds = () => {
     nonLoopingSounds.current.forEach((id) => {
-      const audio = sounds.current.get(id)?.audio
-      if (audio) {
-        audio.pause()
-        audio.src = ''
-      }
+      cleanupSound(id)
+    })
+    nonLoopingSounds.current = []
+    sounds.current.forEach((_value, key) => {
+      cleanupSound(key)
     })
     sounds.current.clear()
-    nonLoopingSounds.current = []
-    console.log('Sounds cleared')
   }
 
-  const out: SoundManagerHook = { playInteraction, clearSounds, hasSound }
+  const out: SoundManagerHook = {
+    playInteraction,
+    hasSound,
+    cleanupAllSounds,
+  }
   return out
 }
