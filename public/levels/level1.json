@@ -1,6 +1,6 @@
 {
   "name": "Level1",
-  "next level": "Level1",
+  "nextLevel": "level2",
   "layout": [
     "##########################",
     "#pO ......O ......O .....#",

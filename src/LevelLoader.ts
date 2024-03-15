@@ -1,15 +1,16 @@
 import { Tile, TILES, symbolToTile } from './Tiles'
 import Grid from './Grid'
 
-export interface LevelFileData {
+interface LevelFileData {
   name: string
-  'next level': string
+  nextLevel: string
   layout: string[]
 }
 
 export interface LevelData {
   grid: Grid<Tile>
   playerPos: { x: number; y: number }
+  nextLevel: string
 }
 
 export async function loadLevelData(path: string): Promise<LevelData> {
@@ -21,7 +22,7 @@ export async function loadLevelData(path: string): Promise<LevelData> {
     [...row].map((f) => symbolToTile[f]),
   )
 
-  const grid = new Grid<Tile>(0, 0)
+  const grid = new Grid<Tile>()
   grid.height = levelData.length
   grid.width = levelData[0].length
   grid.data = levelData.reduce((acc, row) => [...acc, ...row], [])
@@ -37,5 +38,6 @@ export async function loadLevelData(path: string): Promise<LevelData> {
   return {
     grid,
     playerPos,
+    nextLevel: data.nextLevel,
   }
 }
