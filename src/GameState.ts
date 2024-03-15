@@ -8,6 +8,7 @@ export enum ActionEnum {
   MOVE_RIGHT = 'MOVE_RIGHT',
   TIME_STEP = 'TIME_STEP',
   LOAD_LEVEL = 'LOAD_LEVEL',
+  STOP_TIMER = 'STOP_TIMER',
 }
 
 export interface GameAction {
@@ -19,6 +20,7 @@ export interface GameAction {
 export interface GameState {
   grid: Grid<string>
   playerPos: { x: number; y: number }
+  isGameOver: boolean
   time: number
   score: number
 }
@@ -26,18 +28,37 @@ export interface GameState {
 export function gameReducer(state: GameState, action: GameAction): GameState {
   // prettier-ignore
   if (action.type === ActionEnum.MOVE_UP ||
-        action.type === ActionEnum.MOVE_DOWN ||
-        action.type === ActionEnum.MOVE_LEFT ||
-        action.type === ActionEnum.MOVE_RIGHT) {
-        return processPlayerMovement(state, action)
-    }
+    action.type === ActionEnum.MOVE_DOWN ||
+    action.type === ActionEnum.MOVE_LEFT ||
+    action.type === ActionEnum.MOVE_RIGHT) {
+    return processPlayerMovement(state, action)
+  }
 
   else if (action.type === ActionEnum.TIME_STEP) {
-    return processPhysics(state, action)
+    // return processPhysics(state, action)
+    return processTime(state, action)
   }
  
   else {
     throw new Error(`Invalid action type "${action.type}"!`)
+  }
+}
+
+function processTime(state: GameState, action: GameAction): GameState {
+  const updatedTime = state.time - 1
+  if (updatedTime === 0) {
+    console.log('game over: true')
+    return {
+      ...state,
+      time: updatedTime,
+      isGameOver: true,
+    }
+  } else {
+    console.log('timer ticking', updatedTime)
+    return {
+      ...state,
+      time: updatedTime,
+    }
   }
 }
 
@@ -117,36 +138,36 @@ function processPlayerMovement(
   }
 }
 
-function processPhysics(state: GameState, action: GameAction): GameState {
-  const gameGridClone = state.grid.clone()
-  let playFallSound = false
+// function processPhysics(state: GameState, action: GameAction): GameState {
+//   const gameGridClone = state.grid.clone()
+//   let playFallSound = false
 
-  gameGridClone
-    .toItterArray()
-    .reverse()
-    .filter(
-      ([block, , y]) =>
-        (block === 's' || block === 'i') && y < gameGridClone.height - 1,
-    )
-    .filter(([, x, y]) => gameGridClone.get(x, y + 1) === 'n')
-    .forEach(([tile, x, y]) => {
-      gameGridClone.setRelativeCenter(x, y)
-      gameGridClone.setRelative(0, 0, 'n')
-      gameGridClone.setRelative(0, 1, tile)
+//   gameGridClone
+//     .toItterArray()
+//     .reverse()
+//     .filter(
+//       ([block, , y]) =>
+//         (block === 's' || block === 'i') && y < gameGridClone.height - 1,
+//     )
+//     .filter(([, x, y]) => gameGridClone.get(x, y + 1) === 'n')
+//     .forEach(([tile, x, y]) => {
+//       gameGridClone.setRelativeCenter(x, y)
+//       gameGridClone.setRelative(0, 0, 'n')
+//       gameGridClone.setRelative(0, 1, tile)
 
-      playFallSound = true
-    })
+//       playFallSound = true
+//     })
 
-  if (playFallSound)
-    if (typeof action.soundManager !== 'undefined') {
-      action.soundManager.playInteraction('falling-stone', {
-        id: 3,
-        volume: 0.2,
-      })
-    }
+//   if (playFallSound)
+//     if (typeof action.soundManager !== 'undefined') {
+//       action.soundManager.playInteraction('falling-stone', {
+//         id: 3,
+//         volume: 0.2,
+//       })
+//     }
 
-  return {
-    ...state,
-    grid: gameGridClone,
-  }
-}
+//   return {
+//     ...state,
+//     grid: gameGridClone,
+//   }
+// }

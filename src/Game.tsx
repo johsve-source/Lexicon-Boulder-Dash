@@ -8,6 +8,7 @@ import { gameReducer, ActionEnum } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
+import { GameInfoPanel } from './components/GameInfoPanel'
 
 export const PlayerContext = createContext<number[]>([])
 
@@ -28,10 +29,8 @@ function parseMap(data: string) {
 }
 
 export function Game() {
-  const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
-  const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
-
   const soundManager = useSoundManagerLogic()
+  const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   const [gameState, gameDispatch] = useReducer(gameReducer, {
     grid: parseMap(`
 bbbbbbbbbb
@@ -46,19 +45,30 @@ bdddddddfb
 bbbbbbbbbb
 `),
     playerPos: { x: 1, y: 1 },
-    time: 0,
+    isGameOver: true,
+    time: 10,
     score: 0,
   })
 
-  function handlePlayClick() {
+  function startGame() {
+    gameState.isGameOver = false
     setStartMenuVisible(false)
-    setIsGameStarted(true)
-    // add "isGameStarted" state update, ie. start timer, score count etc.
   }
+
+  // start game
+  useEffect(() => {
+    if (!isStartMenuVisible) {
+      console.log("New game, time interval started.")
+        setInterval(() => {
+        gameDispatch({ type: ActionEnum.TIME_STEP })
+      }, 1000)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStartMenuVisible])
 
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
-      console.log(e.code)
+      // console.log(e.code)
 
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
         gameDispatch({ type: ActionEnum.MOVE_UP, soundManager })
@@ -77,17 +87,17 @@ bbbbbbbbbb
     }
   }, [gameDispatch, soundManager])
 
-  useEffect(() => {
-    const gravityInterval = setInterval(() => {
-      gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
-    }, 100)
+  // useEffect(() => {
+  //   const gravityInterval = setInterval(() => {
+  //     gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
+  //   }, 100)
 
-    return () => {
-      clearInterval(gravityInterval)
-      soundManager.clearSounds()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [/* gameGrid */ gameDispatch])
+  //   return () => {
+  //     clearInterval(gravityInterval)
+  //     soundManager.clearSounds()
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [/* gameGrid */ gameDispatch])
 
   function toImagePath(type: string | null) {
     if (type === 'b') {
@@ -112,23 +122,23 @@ bbbbbbbbbb
   return (
     <>
       {isStartMenuVisible ? (
-        <StartMenu
-          onPlayClick={handlePlayClick}
-          highscores={highscoreTestData}
-        />
+        <StartMenu onPlayClick={startGame} highscores={highscoreTestData} />
       ) : (
-        <div className="Game">
-          <ControlsInfo />
+        <>
+          <GameInfoPanel timeRemaining={gameState.time} score={0} />
+          <div className="Game">
+            <ControlsInfo />
 
-          {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
-            <Block
-              key={x + y * grid.width}
-              x={1 + y}
-              y={1 + x}
-              image={toImagePath(block)}
-            />
-          ))}
-        </div>
+            {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
+              <Block
+                key={x + y * grid.width}
+                x={1 + y}
+                y={1 + x}
+                image={toImagePath(block)}
+              />
+            ))}
+          </div>
+        </>
       )}
     </>
   )

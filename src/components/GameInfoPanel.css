@@ -1,0 +1,8 @@
+.gameInfoPanelContainer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.gameInfoPanelContainer span {
+    font-size: 2rem;
+}
