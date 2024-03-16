@@ -28,14 +28,14 @@ export function Game() {
       id: 7,
       volume: 0.2,
       loop: true,
+      trailing: true,
     })
   }
 
-  const loadLevelCallback = (path: string) => {
-    loadLevel(gameDispatch, path)
-  }
-
   useEffect(() => {
+    const loadLevelCallback = (path: string) => {
+      loadLevel(gameDispatch, path)
+    }
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
@@ -70,16 +70,22 @@ export function Game() {
     }
     if (gameState.playerPos.y > gameState.grid.height / 2) {
       window.scrollTo({
-        top: gameState.playerPos.y + 32 / gameState.grid.height * window.innerHeight,
-        left: gameState.playerPos.x / gameState.grid.width * window.innerWidth,
+        top:
+          gameState.playerPos.y +
+          (32 / gameState.grid.height) * window.innerHeight,
+        left:
+          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
         behavior: 'auto',
-      });
+      })
     } else {
       window.scrollTo({
-        top: gameState.playerPos.y - 32 / gameState.grid.height * window.innerHeight,
-        left: gameState.playerPos.x / gameState.grid.width * window.innerWidth,
+        top:
+          gameState.playerPos.y -
+          (32 / gameState.grid.height) * window.innerHeight,
+        left:
+          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
         behavior: 'auto',
-      });
+      })
     }
 
     window.addEventListener('keydown', keyPress)
@@ -87,7 +93,14 @@ export function Game() {
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [gameDispatch, gameState.grid.height, gameState.grid.width, gameState.playerPos.x, gameState.playerPos.y, soundManager])
+  }, [
+    gameDispatch,
+    gameState.grid.height,
+    gameState.grid.width,
+    gameState.playerPos.x,
+    gameState.playerPos.y,
+    soundManager,
+  ])
 
   const storedGrid = useRef(gameState.grid)
 

@@ -7,6 +7,7 @@ export interface SoundOptions {
   duration?: number
   volume?: number
   loop?: boolean
+  trailing?: boolean
 }
 
 export interface SoundManagerHook {
@@ -20,20 +21,25 @@ export const useSoundManagerLogic = () => {
     id: number
     audio: HTMLAudioElement
     loop: boolean
+    trailing: boolean
   }
 
-  const sounds = useRef<Map<number, SoundState>>(new Map<number, SoundState>())
+  const sounds = useRef<Map<number, SoundState[]>>(
+    new Map<number, SoundState[]>(),
+  )
   const nonLoopingSounds = useRef<number[]>([])
 
   const hasSound = (id: number): boolean => sounds.current.has(id)
 
   const cleanupSound = (id: number) => {
-    const audio = sounds.current.get(id)?.audio
-    if (audio) {
-      audio.pause()
-      audio.src = ''
+    const soundInstances = sounds.current.get(id)
+    if (soundInstances) {
+      soundInstances.forEach(({ audio }) => {
+        audio.pause()
+        audio.src = ''
+      })
+      sounds.current.delete(id)
     }
-    sounds.current.delete(id)
     const index = nonLoopingSounds.current.indexOf(id)
     if (index !== -1) {
       nonLoopingSounds.current.splice(index, 1)
@@ -65,39 +71,65 @@ export const useSoundManagerLogic = () => {
     const {
       id = sounds.current.size + 1,
       loop = false,
-      duration = DEFAULT_DURATION,
       volume = 1,
+      trailing = false,
+      duration = DEFAULT_DURATION, // 3000
     } = options
 
-    if (!loop) nonLoopingSounds.current.push(id)
+    // Check if the sound with the same ID is already playing
+    if (sounds.current.has(id)) {
+      const soundInstances = sounds.current.get(id)
+      const isAlreadyPlaying =
+        soundInstances && soundInstances.some((sound) => !sound.audio.paused)
 
-    let sound = sounds.current.get(id)
-    if (!sound) {
-      const audio = new Audio(determineSoundFile(interactionType))
-      audio.volume = volume
-      audio.loop = loop
+      // If the sound is already playing and should not repeat, exit early
+      if (isAlreadyPlaying && !loop && !trailing) {
+        return
+      }
 
-      audio.addEventListener('error', (error) => {
-        console.error('Error loading audio:', error)
-        cleanupSound(id) // Cleanup if an error occurs
-      })
-
-      sound = { id, audio, loop }
-      sounds.current.set(id, sound)
+      // If the sound is already playing and should repeat, stop the current instances
+      if (isAlreadyPlaying && !trailing) {
+        soundInstances.forEach(({ audio }) => {
+          audio.pause()
+          audio.currentTime = 0
+        })
+      }
     }
 
-    sound.audio.currentTime = 0
+    let soundInstances = sounds.current.get(id)
+    if (!soundInstances) {
+      soundInstances = []
+      sounds.current.set(id, soundInstances)
+    }
 
-    if (!loop) {
+    const audio = new Audio(determineSoundFile(interactionType))
+    audio.volume = volume
+    audio.loop = loop
+
+    audio.addEventListener('error', (error) => {
+      console.error('Error loading audio:', error)
+      cleanupSound(id) // Cleanup if an error occurs
+    })
+
+    soundInstances.push({ id, audio, loop, trailing })
+
+    audio.currentTime = 0
+
+    if (!loop && !trailing) {
+      audio
+        .play()
+        .catch((error) => console.error('Error playing audio:', error))
+
+      // Pause and cleanup the sound after the specified duration
       setTimeout(() => {
-        sound?.audio.pause()
-        cleanupSound(id) // Cleanup non-looping sound after duration
+        audio.pause()
+        cleanupSound(id)
       }, duration)
+    } else if (trailing) {
+      audio
+        .play()
+        .catch((error) => console.error('Error playing audio:', error))
     }
-
-    sound.audio
-      .play()
-      .catch((error) => console.error('Error playing audio:', error))
   }
 
   const cleanupAllSounds = () => {
