@@ -115,6 +115,7 @@ function processPlayerMovement(
           id: 1,
           volume: 0.5,
           loop: false,
+          trailing: true,
         })
       }
   } else if (
@@ -301,6 +302,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         id: 3,
         volume: 0.5,
         loop: false,
+        trailing: true,
       })
 
     if (playStoneFallingSound)
@@ -308,6 +310,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         id: 4,
         volume: 0.2,
         loop: false,
+        trailing: true,
       })
 
     if (playDiamondFallingSound)
