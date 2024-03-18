@@ -226,6 +226,14 @@ function processPhysics(state: GameState, action: GameAction): GameState {
     return b.x - a.x
   })
 
+  for (let i = 0; i < sortedUpdates.length; i++)
+    for (let j = i + 1; j < sortedUpdates.length; j++)
+      if (
+        sortedUpdates[i].x === sortedUpdates[j].x &&
+        sortedUpdates[i].y === sortedUpdates[j].y
+      )
+        console.log(sortedUpdates[i])
+
   sortedUpdates.forEach(({ x, y }) => {
     gameGridClone.setRelativeCenter(x, y)
     const tile = gameGridClone.getRelative(0, 0)

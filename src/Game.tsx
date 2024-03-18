@@ -102,19 +102,23 @@ export function Game() {
     soundManager,
   ])
 
-  const storedGrid = useRef(gameState.grid)
+  const gameDispatchRef = useRef(gameDispatch)
+  const soundManagerRef = useRef(soundManager)
 
   useEffect(() => {
-    async function gravity() {
-      setTimeout(() => {
-        if (storedGrid.current !== gameState.grid) {
-          gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
-          storedGrid.current = gameState.grid
-        }
-      }, 200)
+    console.log('useEffect', gameDispatchRef.current, soundManagerRef.current)
+
+    const timer = setInterval(() => {
+      gameDispatchRef.current({
+        type: ActionEnum.TIME_STEP,
+        soundManager: soundManagerRef.current,
+      })
+    }, 200)
+
+    return () => {
+      clearInterval(timer)
     }
-    gravity()
-  }, [gameDispatch, gameState, soundManager])
+  }, [])
 
   return (
     <>
