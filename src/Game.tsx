@@ -70,13 +70,17 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
       }, 1000)
 
       return () => {
-        console.log('Time out, time interval stopped.')
+        console.log('Game over, time interval stopped.')
         clearInterval(timeInterval)
       }
     }
   }, [gameState.isGameOver])
 
   useEffect(() => {
+    if (gameState.isGameOver) {
+      return;
+    }
+
     const keyPress = (e: KeyboardEvent) => {
       // console.log(e.code)
 
@@ -95,7 +99,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [gameDispatch, soundManager])
+  }, [gameDispatch, soundManager, gameState.isGameOver])
 
   const storedGrid = useRef(gameState.grid)
 

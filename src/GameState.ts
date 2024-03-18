@@ -68,7 +68,6 @@ function processTime(state: GameState): GameState {
     }
   } else {
     const updatedTime = state.time - 1
-    console.log('time: ', updatedTime)
     return {
       ...state,
       time: updatedTime,
