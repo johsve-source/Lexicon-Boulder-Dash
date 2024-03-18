@@ -68,7 +68,7 @@ export function Game() {
         })
       }
     }
-    if (gameState.playerPos.y > gameState.grid.height / 2) {
+    /* if (gameState.playerPos.y > gameState.grid.height / 2) {
       window.scrollTo({
         top:
           gameState.playerPos.y +
@@ -86,7 +86,7 @@ export function Game() {
           (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
         behavior: 'auto',
       })
-    }
+    } */
 
     window.addEventListener('keydown', keyPress)
 
@@ -118,32 +118,37 @@ export function Game() {
 
   useEffect(() => {
     const width = Math.min(
-      Math.ceil(window.innerWidth / 32),
+      Math.ceil(window.innerWidth / 32) + 2,
       gameState.grid.width,
     )
     const height = Math.min(
-      Math.ceil(window.innerHeight / 32),
+      Math.ceil(window.innerHeight / 32) + 2,
       gameState.grid.height,
     )
 
     const x = Math.max(
       Math.min(
-        Math.floor(gameState.playerPos.x - width / 2),
+        Math.floor(gameState.playerPos.x - Math.ceil(width / 2)),
         gameState.grid.width - width,
       ),
       0,
     )
     const y = Math.max(
       Math.min(
-        Math.floor(gameState.playerPos.y - height / 2),
+        Math.floor(gameState.playerPos.y - Math.ceil(height / 2)),
         gameState.grid.height - height,
       ),
       0,
     )
 
-    console.log(width, height, width * height)
-
     setRenderGrid(gameState.grid.subGrid(x, y, width, height))
+
+    window.scrollTo({
+      top: (y + 1) * 32,
+      left: (x + 1) * 32,
+      //behavior: 'auto',
+      behavior: 'smooth',
+    })
   }, [
     gameState.grid,
     gameState.playerPos.x,
@@ -159,17 +164,16 @@ export function Game() {
           highscores={highscoreTestData}
         />
       ) : (
-        <div className="Game">
+        <div
+          className="Game"
+          style={{
+            width: `${gameState.grid.width * 32}px`,
+            height: `${gameState.grid.height * 32}px`,
+            gridTemplateColumns: `repeat(${gameState.grid.width},1fr)`,
+            gridTemplateRows: `repeat(${gameState.grid.height},1fr)`,
+          }}
+        >
           <ControlsInfo />
-
-          {/* gameState.grid.toItterArray().map(([block, x, y, grid]) => (
-            <Block
-              key={x + y * grid.width}
-              x={1 + y}
-              y={1 + x}
-              image={block.texture}
-            />
-          )) */}
 
           {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
             <Block
