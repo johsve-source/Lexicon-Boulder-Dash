@@ -31,11 +31,10 @@ export function Game() {
       trailing: true,
     })
   }
-
+  const loadLevelCallback = (path: string) => {
+    loadLevel(gameDispatch, path)
+  }
   useEffect(() => {
-    const loadLevelCallback = (path: string) => {
-      loadLevel(gameDispatch, path)
-    }
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
@@ -158,6 +157,62 @@ export function Game() {
     gameState.playerPos.y,
     setRenderGrid,
   ])
+
+
+  const mouseMoveActive = useRef(false)
+  useEffect(() => {
+    const handler = (movementX: number, movementY: number) => {
+      console.log(movementX, movementY)
+      if (movementY < 0) {
+        gameDispatch({
+          type: ActionEnum.MOVE_UP,
+          soundManager,
+          loadLevelCallback,
+        })
+      } else if (movementY > 0) {
+        gameDispatch({
+          type: ActionEnum.MOVE_DOWN,
+          soundManager,
+          loadLevelCallback,
+        })
+      }
+      if (movementX > 0) {
+        gameDispatch({
+          type: ActionEnum.MOVE_RIGHT,
+          soundManager,
+          loadLevelCallback,
+        })
+      } else if (movementX < 0) {
+        gameDispatch({
+          type: ActionEnum.MOVE_LEFT,
+          soundManager,
+          loadLevelCallback,
+        })
+      }
+    }
+    const mouseMove = (e: MouseEvent) => {
+      if (mouseMoveActive.current) {
+        handler(e.movementX, e.movementY)
+      }
+    
+    }
+    const mouseDown = () => {
+      mouseMoveActive.current = true
+
+    }
+    const mouseUp = () => {
+      mouseMoveActive.current = false
+    }
+    window.addEventListener('mousedown', mouseDown)
+    window.addEventListener('mousemove', mouseMove)
+    window.addEventListener('mouseup', mouseUp)
+
+    return () => {
+      window.removeEventListener('mousedown', mouseDown)
+      window.removeEventListener('mousemove', mouseMove)
+      window.removeEventListener('mouseup', mouseUp)
+    }
+  })
 
   return (
     <>
