@@ -109,30 +109,31 @@ export function Game() {
   }, [gameDispatch, gameState, soundManager])
 
 
+  const mouseBounce = useRef(false)
   const mouseMoveActive = useRef(false)
   useEffect(() => {
     const handler = (movementX: number, movementY: number) => {
       console.log(movementX, movementY)
-      if (movementY < 0) {
+      if (movementY < 0 && movementY < Math.abs(movementX)) {
         gameDispatch({
           type: ActionEnum.MOVE_UP,
           soundManager,
           loadLevelCallback,
         })
-      } else if (movementY > 0) {
+      } else if (movementY > 0 && movementY > Math.abs(movementX)) {
         gameDispatch({
           type: ActionEnum.MOVE_DOWN,
           soundManager,
           loadLevelCallback,
         })
       }
-      if (movementX > 0) {
+      if (movementX > 0 && movementX > Math.abs(movementY)) {
         gameDispatch({
           type: ActionEnum.MOVE_RIGHT,
           soundManager,
           loadLevelCallback,
         })
-      } else if (movementX < 0) {
+      } else if (movementX < 0 && movementX < Math.abs(movementY)) {
         gameDispatch({
           type: ActionEnum.MOVE_LEFT,
           soundManager,
@@ -141,8 +142,12 @@ export function Game() {
       }
     }
     const mouseMove = (e: MouseEvent) => {
-      if (mouseMoveActive.current) {
+      if (mouseMoveActive.current && !mouseBounce.current) {
         handler(e.movementX, e.movementY)
+        mouseBounce.current = true
+        setTimeout(() => {
+          mouseBounce.current = false
+        }, 200)
       }
     
     }
