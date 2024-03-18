@@ -92,9 +92,11 @@ function updateArea(
   updateCords: Map<string, { x: number; y: number }>,
   x: number,
   y: number,
+  width: number = 3,
+  height: number = 3,
 ) {
-  for (let iy = -1; iy <= 1; iy++)
-    for (let ix = -1; ix <= 1; ix++) updateCord(updateCords, ix + x, iy + y)
+  for (let iy = y; iy < y + height; iy++)
+    for (let ix = x; ix < x + width; ix++) updateCord(updateCords, ix, iy)
 }
 
 function processPlayerMovement(
@@ -130,7 +132,6 @@ function processPlayerMovement(
 
   // Finish
   if (directinTile === TILES.FINISH) {
-    /* alert('WE HAVE A WINNER!') */
     if (
       typeof action.loadLevelCallback !== 'undefined' &&
       typeof state.nextLevel !== 'undefined'
@@ -192,11 +193,12 @@ function processPlayerMovement(
     return state
   }
 
-  updateArea(state.updateCords, state.playerPos.x, state.playerPos.y)
   updateArea(
     state.updateCords,
-    state.playerPos.x + directionX,
-    state.playerPos.y + directionY,
+    state.playerPos.x - 1 + Math.min(directionX, 0),
+    state.playerPos.y - 1 + Math.min(directionY, 0),
+    3 + Math.abs(directionX),
+    3 + Math.abs(directionY),
   )
 
   return {
@@ -210,6 +212,10 @@ function processPlayerMovement(
 }
 
 function processPhysics(state: GameState, action: GameAction): GameState {
+  if (state.updateCords.size <= 0) return state
+
+  console.log(`Physics: ${state.updateCords.size} items. `)
+
   const gameGridClone = state.grid.clone()
   const nextUpdateCords = new Map<string, { x: number; y: number }>()
 
@@ -217,9 +223,6 @@ function processPhysics(state: GameState, action: GameAction): GameState {
   let playDiamondFallingSound = false
   let playDiamondPickupSound = false
   let playExplosionSound = false
-  console.log('Physics')
-
-  if (state.updateCords.size <= 0) return state
 
   const sortedUpdates = [...state.updateCords.values()].sort((a, b) => {
     if (b.y !== a.y) return b.y - a.y
@@ -254,6 +257,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
     // Remove explosion
     if (tile === TILES.EXPLOSION) {
       gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      updateArea(nextUpdateCords, x - 1, y - 1)
     }
 
     // Falling boulder player kill
@@ -277,7 +281,8 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       gameGridClone.getRelative(0, 1) === TILES.PLAYER
     ) {
       gameGridClone.setRelative(0, 0, TILES.NOTHING)
-      updateArea(nextUpdateCords, x, y)
+      updateArea(nextUpdateCords, x - 1, y - 1)
+
       playDiamondPickupSound = true
     }
 
@@ -290,8 +295,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
       gameGridClone.setRelative(0, 0, TILES.NOTHING)
       gameGridClone.setRelative(0, 1, fallVariant)
-      updateArea(nextUpdateCords, x, y)
-      updateArea(nextUpdateCords, x, y + 1)
+      updateArea(nextUpdateCords, x - 1, y - 1, 3, 4)
 
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
@@ -310,8 +314,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
       gameGridClone.setRelative(0, 0, TILES.NOTHING)
       gameGridClone.setRelative(-1, 0, fallVariant)
-      updateArea(nextUpdateCords, x, y)
-      updateArea(nextUpdateCords, x + 1, y)
+      updateArea(nextUpdateCords, x - 2, y - 1, 4, 3)
 
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
@@ -330,8 +333,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
       gameGridClone.setRelative(0, 0, TILES.NOTHING)
       gameGridClone.setRelative(1, 0, fallVariant)
-      updateArea(nextUpdateCords, x, y)
-      updateArea(nextUpdateCords, x - 1, y)
+      updateArea(nextUpdateCords, x - 1, y - 1, 4, 3)
 
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
