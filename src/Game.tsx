@@ -93,28 +93,26 @@ export function Game() {
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [
-    gameDispatch,
-    gameState.grid.height,
-    gameState.grid.width,
-    gameState.playerPos.x,
-    gameState.playerPos.y,
-    soundManager,
-  ])
+  })
 
   const storedGrid = useRef(gameState.grid)
+  const gravityQueued = useRef(false)
 
   useEffect(() => {
     async function gravity() {
-      setTimeout(() => {
-        if (storedGrid.current !== gameState.grid) {
-          gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
-          storedGrid.current = gameState.grid
-        }
-      }, 200)
+      if (!gravityQueued.current) {
+        gravityQueued.current = true
+        setTimeout(() => {
+          gravityQueued.current = false
+          if (storedGrid.current !== gameState.grid) {
+            gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
+            storedGrid.current = gameState.grid
+          }
+        }, 200)
+      }
     }
     gravity()
-  }, [gameDispatch, gameState, soundManager])
+  })
 
   return (
     <>
