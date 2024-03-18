@@ -7,7 +7,8 @@ export enum ActionEnum {
   MOVE_DOWN = 'MOVE_DOWN',
   MOVE_LEFT = 'MOVE_LEFT',
   MOVE_RIGHT = 'MOVE_RIGHT',
-  TIME_STEP = 'TIME_STEP',
+  TIMER_TICK = 'TIMER_TICK',
+  PHYSICS_TICK = 'PHYSICS_TICK',
   LOAD_LEVEL = 'LOAD_LEVEL',
 }
 
@@ -32,18 +33,34 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.type === ActionEnum.MOVE_LEFT ||
         action.type === ActionEnum.MOVE_RIGHT) {
           return processPlayerMovement(state, action)
-    }
+  }
+
+  else if (action.type === ActionEnum.LOAD_LEVEL) {
+    return processLoadLevel(state)
+  }
+
+  else if (action.type === ActionEnum.TIMER_TICK) {
+    return processTime(state)
+  }
   
-    else if (action.type === ActionEnum.TIME_STEP) {
-      return processPhysics(state, action)
-    }
+  else if (action.type === ActionEnum.PHYSICS_TICK) {
+    return processPhysics(state, action)
+  }
  
   else {
     throw new Error(`Invalid action type "${action.type}"!`)
   }
 }
 
-function processTime(state: GameState): GameState {
+// todo: add new level logic etc, right now only used as 'start game' condition
+function processLoadLevel(state: GameState): GameState {
+  return {
+    ...state,
+    isGameOver: false
+  }
+}
+
+function processTime(state: GameState): GameState {  
   if (state.time === 0) {
     return {
       ...state,
@@ -51,6 +68,7 @@ function processTime(state: GameState): GameState {
     }
   } else {
     const updatedTime = state.time - 1
+    console.log('time: ', updatedTime)
     return {
       ...state,
       time: updatedTime,

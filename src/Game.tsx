@@ -55,25 +55,26 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
     score: 0,
   })
 
-  // change start menu visibility on play button click which in turn sets off 'start game' useEffect
+  // triggers 'start timer' useEffect
   function startGame() {
     setStartMenuVisible(false)
+    gameDispatch({ type: ActionEnum.LOAD_LEVEL })
   }
 
-  // start game
+  // start timer
   useEffect(() => {
-    if (!isStartMenuVisible) {
+    if (!gameState.isGameOver) {
       console.log('New game, time interval started.')
-
       const timeInterval = setInterval(() => {
-        gameDispatch({ type: ActionEnum.TIME_STEP })
+        gameDispatch({ type: ActionEnum.TIMER_TICK })
       }, 1000)
 
       return () => {
+        console.log('Time out, time interval stopped.')
         clearInterval(timeInterval)
       }
     }
-  }, [isStartMenuVisible])
+  }, [gameState.isGameOver])
 
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
@@ -102,7 +103,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
     async function gravity() {
       setTimeout(() => {
         if (storedGrid.current !== gameState.grid) {
-          gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
+          gameDispatch({ type: ActionEnum.PHYSICS_TICK, soundManager })
           storedGrid.current = gameState.grid
         }
       }, 200)
