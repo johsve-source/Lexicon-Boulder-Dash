@@ -109,63 +109,66 @@ export function Game() {
   }, [gameDispatch, gameState, soundManager])
 
 
-  const mouseBounce = useRef(false)
-  const mouseMoveActive = useRef(false)
+  const mouseMoving = useRef(false)
+  const mouseMovement = useRef({x: 0, y: 0})
   useEffect(() => {
-    const handler = (movementX: number, movementY: number) => {
-      console.log(movementX, movementY)
-      if (movementY < 0 && movementY < Math.abs(movementX)) {
+    const handler = () => {
+      if (!mouseMoving.current) return;
+      if (mouseMovement.current.y > 0 && Math.abs(mouseMovement.current.y) > Math.abs(mouseMovement.current.x)) {
         gameDispatch({
           type: ActionEnum.MOVE_UP,
           soundManager,
           loadLevelCallback,
         })
-      } else if (movementY > 0 && movementY > Math.abs(movementX)) {
+      } else if (mouseMovement.current.y < 0 && Math.abs(mouseMovement.current.y) > Math.abs(mouseMovement.current.x)) {
         gameDispatch({
           type: ActionEnum.MOVE_DOWN,
           soundManager,
           loadLevelCallback,
         })
-      }
-      if (movementX > 0 && movementX > Math.abs(movementY)) {
+      } else if (mouseMovement.current.x > 0 && Math.abs(mouseMovement.current.x) > Math.abs(mouseMovement.current.y)) {
         gameDispatch({
           type: ActionEnum.MOVE_RIGHT,
           soundManager,
           loadLevelCallback,
         })
-      } else if (movementX < 0 && movementX < Math.abs(movementY)) {
+      } else if (mouseMovement.current.x < 0 && Math.abs(mouseMovement.current.x) > Math.abs(mouseMovement.current.y)) {
         gameDispatch({
           type: ActionEnum.MOVE_LEFT,
           soundManager,
           loadLevelCallback,
         })
       }
+      setTimeout(() => {
+        handler()
+      }, 200)
     }
+
     const mouseMove = (e: MouseEvent) => {
-      if (mouseMoveActive.current && !mouseBounce.current) {
-        handler(e.movementX, e.movementY)
-        mouseBounce.current = true
-        setTimeout(() => {
-          mouseBounce.current = false
-        }, 200)
-      }
-    
+      mouseMovement.current = {x: e.movementX, y: e.movementY}
     }
     const mouseDown = () => {
-      mouseMoveActive.current = true
-
+      console.log("down")
+      mouseMoving.current = true
+      window.addEventListener("mousemove", mouseMove)
+      handler()
     }
     const mouseUp = () => {
-      mouseMoveActive.current = false
+      console.log("up")
+      mouseMoving.current = false
+      window.removeEventListener("mousemove", mouseMove)
     }
-    window.addEventListener('mousedown', mouseDown)
-    window.addEventListener('mousemove', mouseMove)
-    window.addEventListener('mouseup', mouseUp)
+
+    if (mouseMoving.current) {
+      window.addEventListener("mousemove", mouseMove)
+    }
+    window.addEventListener("mousedown", mouseDown)
+    window.addEventListener("mouseup", mouseUp)
 
     return () => {
-      window.removeEventListener('mousedown', mouseDown)
-      window.removeEventListener('mousemove', mouseMove)
-      window.removeEventListener('mouseup', mouseUp)
+      window.removeEventListener("mousedown", mouseDown)
+      window.removeEventListener("mouseup", mouseUp)
+      window.removeEventListener("mousemove", mouseMove)
     }
   })
 
