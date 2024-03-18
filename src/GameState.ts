@@ -205,6 +205,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
               gameGridClone.setRelative(ix, iy, TILES.EXPLOSION)
 
         playExplosionSound = true
+        state.isGameOver = true
       }
 
       // Falling gem pick up

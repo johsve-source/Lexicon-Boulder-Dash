@@ -51,7 +51,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
 `),
     playerPos: { x: 1, y: 1 },
     isGameOver: true,
-    time: 10,
+    time: 20,
     score: 0,
   })
 
