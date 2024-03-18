@@ -1,11 +1,7 @@
 export class Grid<T> {
   width: number
   height: number
-  //data: T[][]
   data: T[]
-
-  relativeX: number = 0
-  relativeY: number = 0
 
   constructor(width: number = 0, height: number = 0) {
     this.width = width
@@ -19,25 +15,6 @@ export class Grid<T> {
 
   set(x: number, y: number, value: T) {
     return (this.data[x + y * this.width] = value)
-  }
-
-  setRelativeCenter(x: number, y: number) {
-    this.relativeX = x
-    this.relativeY = y
-
-    return this
-  }
-
-  getRelativeCenter() {
-    return [this.relativeX, this.relativeY]
-  }
-
-  getRelative(x: number, y: number) {
-    return this.get(this.relativeX + x, this.relativeY + y)
-  }
-
-  setRelative(x: number, y: number, value: T) {
-    return this.set(this.relativeX + x, this.relativeY + y, value)
   }
 
   forEach(

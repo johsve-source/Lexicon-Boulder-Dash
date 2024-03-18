@@ -114,6 +114,43 @@ export function Game() {
     gravity()
   })
 
+  const [renderGrid, setRenderGrid] = useState(gameState.grid.subGrid(0, 0))
+
+  useEffect(() => {
+    const width = Math.min(
+      Math.ceil(window.innerWidth / 32),
+      gameState.grid.width,
+    )
+    const height = Math.min(
+      Math.ceil(window.innerHeight / 32),
+      gameState.grid.height,
+    )
+
+    const x = Math.max(
+      Math.min(
+        Math.floor(gameState.playerPos.x - width / 2),
+        gameState.grid.width - width,
+      ),
+      0,
+    )
+    const y = Math.max(
+      Math.min(
+        Math.floor(gameState.playerPos.y - height / 2),
+        gameState.grid.height - height,
+      ),
+      0,
+    )
+
+    console.log(width, height, width * height)
+
+    setRenderGrid(gameState.grid.subGrid(x, y, width, height))
+  }, [
+    gameState.grid,
+    gameState.playerPos.x,
+    gameState.playerPos.y,
+    setRenderGrid,
+  ])
+
   return (
     <>
       {isStartMenuVisible ? (
@@ -125,12 +162,21 @@ export function Game() {
         <div className="Game">
           <ControlsInfo />
 
-          {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
+          {/* gameState.grid.toItterArray().map(([block, x, y, grid]) => (
             <Block
               key={x + y * grid.width}
               x={1 + y}
               y={1 + x}
               image={block.texture}
+            />
+          )) */}
+
+          {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
+            <Block
+              key={grid.x + x + (grid.y + y) * grid.width}
+              x={1 + grid.y + y}
+              y={1 + grid.x + x}
+              image={tile.texture}
             />
           ))}
         </div>
