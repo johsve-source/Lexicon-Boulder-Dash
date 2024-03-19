@@ -1,31 +1,14 @@
 import './Game.css'
-import { createContext, useState, useEffect, useReducer } from 'react'
+import { createContext, useState, useEffect, useRef } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
-import Grid from './Grid'
 import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
-import { gameReducer, ActionEnum } from './GameState'
+import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
 
 export const PlayerContext = createContext<number[]>([])
-
-function parseMap(data: string) {
-  const gridData = data
-    .split('\n')
-    .filter((e) => e.length > 0)
-    .map((e) => [...e])
-
-  const height = gridData.length
-  const width = gridData.reduce((acc, row) => Math.max(acc, row.length), 0)
-
-  const grid = new Grid<string>(width, height)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  grid.toItterArray().forEach(([_, x, y]) => grid.set(x, y, gridData[y][x]))
-
-  return grid
-}
 
 export function Game() {
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
@@ -33,23 +16,7 @@ export function Game() {
   const [, setIsGameStarted] = useState<boolean>(false)
 
   const soundManager = useSoundManagerLogic()
-  const [gameState, gameDispatch] = useReducer(gameReducer, {
-    grid: parseMap(`
-bbbbbbbbbb
-bpsndddddb
-bddddddddb
-bddsssdidb
-bdiddddddb
-bdddddiddb
-bddddddddb
-bsssdddddb
-bdddddddfb
-bbbbbbbbbb
-`),
-    playerPos: { x: 1, y: 1 },
-    time: 0,
-    score: 0,
-  })
+  const [gameState, gameDispatch] = GetGameReducer()
 
   function handlePlayClick() {
     setStartMenuVisible(false)
@@ -58,72 +25,94 @@ bbbbbbbbbb
 
     // Play ambiance when I press play
     soundManager.playInteraction('ambiance', {
-      id: 5,
+      id: 7,
       volume: 0.2,
       loop: true,
+      trailing: true,
     })
   }
 
   useEffect(() => {
+    const loadLevelCallback = (path: string) => {
+      loadLevel(gameDispatch, path)
+    }
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
-
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-        gameDispatch({ type: ActionEnum.MOVE_UP, soundManager })
+        e.preventDefault()
+        gameDispatch({
+          type: ActionEnum.MOVE_UP,
+          soundManager,
+          loadLevelCallback,
+        })
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-        gameDispatch({ type: ActionEnum.MOVE_DOWN, soundManager })
+        e.preventDefault()
+        gameDispatch({
+          type: ActionEnum.MOVE_DOWN,
+          soundManager,
+          loadLevelCallback,
+        })
       } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-        gameDispatch({ type: ActionEnum.MOVE_RIGHT, soundManager })
+        e.preventDefault()
+        gameDispatch({
+          type: ActionEnum.MOVE_RIGHT,
+          soundManager,
+          loadLevelCallback,
+        })
       } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
-        gameDispatch({ type: ActionEnum.MOVE_LEFT, soundManager })
+        e.preventDefault()
+        gameDispatch({
+          type: ActionEnum.MOVE_LEFT,
+          soundManager,
+          loadLevelCallback,
+        })
       }
     }
+    if (gameState.playerPos.y > gameState.grid.height / 2) {
+      window.scrollTo({
+        top:
+          gameState.playerPos.y +
+          (32 / gameState.grid.height) * window.innerHeight,
+        left:
+          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
+        behavior: 'auto',
+      })
+    } else {
+      window.scrollTo({
+        top:
+          gameState.playerPos.y -
+          (32 / gameState.grid.height) * window.innerHeight,
+        left:
+          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
+        behavior: 'auto',
+      })
+    }
+
     window.addEventListener('keydown', keyPress)
 
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [gameDispatch, soundManager])
+  })
+
+  const storedGrid = useRef(gameState.grid)
+  const gravityQueued = useRef(false)
 
   useEffect(() => {
-    const gravityInterval = setInterval(() => {
-      gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
-    }, 100)
-
-    return () => {
-      clearInterval(gravityInterval)
-      soundManager.clearSounds()
+    async function gravity() {
+      if (!gravityQueued.current) {
+        gravityQueued.current = true
+        setTimeout(() => {
+          gravityQueued.current = false
+          if (storedGrid.current !== gameState.grid) {
+            gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
+            storedGrid.current = gameState.grid
+          }
+        }, 200)
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [/* gameGrid */ gameDispatch])
-
-  function toImagePath(type: string | null) {
-    if (type === 'b') {
-      return '/textures/pixel/bedrock-2.png'
-    } else if (type === 'd') {
-      return '/textures/pixel/dirt.png'
-    } else if (type === 's') {
-      return '/textures/pixel/dirt-boulder.png'
-    } else if (type === 'S') {
-      return '/textures/pixel/bedrock-boulder.png'
-    } else if (type === '!') {
-      return '/textures/pixel/bedrock-boulder.png'
-    } else if (type === '*') {
-      return '/textures/pixel/boom.gif'
-    } else if (type === 'i') {
-      return '/textures/pixel/dirt-diamond.png'
-    } else if (type === 'I') {
-      return '/textures/pixel/bedrock-diamond.png'
-    } else if (type === 'p') {
-      return '/textures/pixel/player.gif'
-    } else if (type === 'n') {
-      return '/textures/pixel/bedrock.png'
-    } else if (type === 'f') {
-      return '/textures/pixel/finish.gif'
-    } else {
-      return '/textures/pixel/player.gif'
-    }
-  }
+    gravity()
+  })
 
   return (
     <>
@@ -141,7 +130,7 @@ bbbbbbbbbb
               key={x + y * grid.width}
               x={1 + y}
               y={1 + x}
-              image={toImagePath(block)}
+              image={block.texture}
             />
           ))}
         </div>

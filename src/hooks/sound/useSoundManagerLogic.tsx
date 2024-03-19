@@ -1,70 +1,66 @@
 import { useEffect, useRef } from 'react'
 import { determineSoundFile } from './utils/soundUtils'
-
-interface SoundState {
-  id: number
-  audio: HTMLAudioElement
-  loop: boolean
-}
+import { DEFAULT_DURATION } from './constants/soundConstants'
 
 export interface SoundOptions {
   id: number
   duration?: number
   volume?: number
   loop?: boolean
+  trailing?: boolean
 }
 
 export interface SoundManagerHook {
   playInteraction: (interactionType: string, options?: SoundOptions) => void
-  clearSounds: () => void
+  cleanupAllSounds: () => void
   hasSound: (id: number) => boolean
 }
 
 export const useSoundManagerLogic = () => {
-  const sounds = useRef<SoundState[]>([])
+  interface SoundState {
+    id: number
+    audio: HTMLAudioElement
+    loop: boolean
+    trailing: boolean
+  }
 
-  const hasSound = (id: number): boolean => {
-    return sounds.current.some((sound: { id: number }) => sound.id === id)
+  const sounds = useRef<Map<number, SoundState[]>>(
+    new Map<number, SoundState[]>(),
+  )
+  const nonLoopingSounds = useRef<number[]>([])
+
+  const hasSound = (id: number): boolean => sounds.current.has(id)
+
+  const cleanupSound = (id: number) => {
+    const soundInstances = sounds.current.get(id)
+    if (soundInstances) {
+      soundInstances.forEach(({ audio }) => {
+        audio.pause()
+        audio.src = ''
+      })
+      sounds.current.delete(id)
+    }
+    const index = nonLoopingSounds.current.indexOf(id)
+    if (index !== -1) {
+      nonLoopingSounds.current.splice(index, 1)
+    }
   }
 
   useEffect(() => {
-    sounds.current.forEach((sound: SoundState) => {
-      const { audio } = sound
-      if (audio) {
-        // Check if audio is defined
-        audio
-          .play()
-          .catch((error: string) =>
-            console.error('Error playing audio:', error),
-          )
-
-        // If loop is set to true, configure the audio element to loop indefinitely
-        if (!sound.loop) {
-          // Set up event listener for non-looping sounds
-          const audioEndedHandler = () => {
-            sounds.current = sounds.current.filter(
-              (prevSound: { id: number }) => prevSound.id !== sound.id,
-            )
-            // Cleanup
-            audio.removeEventListener('ended', audioEndedHandler)
-            audio.pause()
-            audio.src = ''
-          }
-
-          audio.addEventListener('ended', audioEndedHandler)
-        }
-      }
-    })
-
-    // Cleanup on unmount for all sounds
-    return () => {
-      sounds.current.forEach((sound: SoundState) => {
-        if (sound.audio && !sound.loop) {
-          // Check if audio is defined and not looping
-          sound.audio.pause()
-          sound.audio.src = ''
-        }
+    const cleanupAllSounds = () => {
+      nonLoopingSounds.current.forEach((id) => {
+        cleanupSound(id)
       })
+      sounds.current.forEach((_value, key) => {
+        cleanupSound(key)
+      })
+    }
+
+    window.addEventListener('beforeunload', cleanupAllSounds)
+
+    return () => {
+      cleanupAllSounds()
+      window.removeEventListener('beforeunload', cleanupAllSounds)
     }
   }, [])
 
@@ -72,46 +68,85 @@ export const useSoundManagerLogic = () => {
     interactionType: string,
     options: SoundOptions = { id: 0 },
   ): void => {
-    // Clear all sounds from the state
-    clearSounds()
+    const {
+      id = sounds.current.size + 1,
+      loop = false,
+      volume = 1,
+      trailing = false,
+      duration = DEFAULT_DURATION, // 3000
+    } = options
 
-    const calculatedSoundFile = determineSoundFile(interactionType)
-    const soundId =
-      options.id ||
-      (sounds.current.length > 0
-        ? Math.max(...sounds.current.map((sound) => sound.id)) + 1
-        : 1)
+    // Check if the sound with the same ID is already playing
+    if (sounds.current.has(id)) {
+      const soundInstances = sounds.current.get(id)
+      const isAlreadyPlaying =
+        soundInstances && soundInstances.some((sound) => !sound.audio.paused)
 
-    // Create a new audio instance
-    const audio = new Audio(calculatedSoundFile)
-    audio.volume = options.volume !== undefined ? options.volume : 1
+      // If the sound is already playing and should not repeat, exit early
+      if (isAlreadyPlaying && !loop && !trailing) {
+        return
+      }
 
-    // Set loop property to true if it's not explicitly set to false in options
-    audio.loop = options.loop !== false
+      // If the sound is already playing and should repeat, stop the current instances
+      if (isAlreadyPlaying && !trailing) {
+        soundInstances.forEach(({ audio }) => {
+          audio.pause()
+          audio.currentTime = 0
+        })
+      }
+    }
 
-    // Add the new sound to the list
-    sounds.current = [
-      {
-        id: soundId,
-        audio: audio,
-        loop: options.loop || false, // Set loop property from options or default to false
-      },
-    ]
+    let soundInstances = sounds.current.get(id)
+    if (!soundInstances) {
+      soundInstances = []
+      sounds.current.set(id, soundInstances)
+    }
 
-    // Preload audio before playing
-    audio.preload = 'auto'
-    audio.addEventListener('loadeddata', () => {
+    const audio = new Audio(determineSoundFile(interactionType))
+    audio.volume = volume
+    audio.loop = loop
+
+    audio.addEventListener('error', (error) => {
+      console.error('Error loading audio:', error)
+      cleanupSound(id) // Cleanup if an error occurs
+    })
+
+    soundInstances.push({ id, audio, loop, trailing })
+
+    audio.currentTime = 0
+
+    if (!loop && !trailing) {
       audio
         .play()
         .catch((error) => console.error('Error playing audio:', error))
+
+      // Pause and cleanup the sound after the specified duration
+      setTimeout(() => {
+        audio.pause()
+        cleanupSound(id)
+      }, duration)
+    } else if (trailing) {
+      audio
+        .play()
+        .catch((error) => console.error('Error playing audio:', error))
+    }
+  }
+
+  const cleanupAllSounds = () => {
+    nonLoopingSounds.current.forEach((id) => {
+      cleanupSound(id)
     })
+    nonLoopingSounds.current = []
+    sounds.current.forEach((_value, key) => {
+      cleanupSound(key)
+    })
+    sounds.current.clear()
   }
 
-  const clearSounds = () => {
-    sounds.current = []
-    console.log('Sounds cleared')
+  const out: SoundManagerHook = {
+    playInteraction,
+    hasSound,
+    cleanupAllSounds,
   }
-
-  const out: SoundManagerHook = { playInteraction, clearSounds, hasSound }
   return out
 }
