@@ -105,11 +105,24 @@ function processPlayerMovement(
 ): GameState {
   let directionX = 0
   let directionY = 0
-
-  if (action.type === ActionEnum.MOVE_UP) directionY = -1
-  else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
-  else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
-  else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
+  const player = state.grid.get(state.playerPos.x, state.playerPos.y)
+  if (action.type === ActionEnum.MOVE_UP) {
+    directionY = -1
+    player.animation = "move-up"
+    player.frame = 1
+  } else if (action.type === ActionEnum.MOVE_DOWN) {
+    directionY = 1
+    player.animation = "move-down"
+    player.frame = 0
+  } else if (action.type === ActionEnum.MOVE_LEFT) {
+    directionX = -1
+    player.animation = "move-left"
+    player.frame = 2
+  } else if (action.type === ActionEnum.MOVE_RIGHT) {
+    directionX = 1
+    player.animation = "move-right"
+    player.frame = 3
+  }
 
   const gameGridClone = state.grid.clone()
   const localGrid = gameGridClone.subGrid(state.playerPos.x, state.playerPos.y)
@@ -294,7 +307,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       localGrid.set(0, 0, TILES.NOTHING)
       localGrid.set(0, 1, fallVariant)
       updateArea(nextUpdateCords, x - 1, y - 1, 3, 4)
-      fallVariant.animation = "move-down"
+      fallVariant.animation = 'move-down'
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true
@@ -313,7 +326,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       localGrid.set(0, 0, TILES.NOTHING)
       localGrid.set(-1, 0, fallVariant)
       updateArea(nextUpdateCords, x - 2, y - 1, 4, 3)
-      fallVariant.animation = "move-left-b"
+      fallVariant.animation = 'move-left-b'
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true
@@ -332,7 +345,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       localGrid.set(0, 0, TILES.NOTHING)
       localGrid.set(1, 0, fallVariant)
       updateArea(nextUpdateCords, x - 1, y - 1, 4, 3)
-      fallVariant.animation = "move-right-b"
+      fallVariant.animation = 'move-right-b'
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true

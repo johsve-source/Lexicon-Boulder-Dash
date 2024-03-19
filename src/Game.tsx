@@ -45,9 +45,6 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
-        const player = gameState.grid.get(gameState.playerPos.x, gameState.playerPos.y)
-        player.animation = "move-up"
-        player.texture = "/textures/pixel/player_b.gif"
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
         e.preventDefault()
         gameDispatch({
@@ -55,9 +52,6 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
-        const player = gameState.grid.get(gameState.playerPos.x, gameState.playerPos.y)
-        player.animation = "move-down"
-        player.texture = "/textures/pixel/player.gif"
       } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
         e.preventDefault()
         gameDispatch({
@@ -65,9 +59,6 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
-        const player = gameState.grid.get(gameState.playerPos.x, gameState.playerPos.y)
-        player.animation = "move-right"
-        player.texture = "/textures/pixel/player_r.gif"
       } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
         e.preventDefault()
         gameDispatch({
@@ -75,9 +66,6 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
-        const player = gameState.grid.get(gameState.playerPos.x, gameState.playerPos.y)
-        player.animation = "move-left"
-        player.texture = "/textures/pixel/player_l.gif"
       }
     }
     /* if (gameState.playerPos.y > gameState.grid.height / 2) {
@@ -196,7 +184,8 @@ export function Game() {
               x={1 + grid.y + y}
               y={1 + grid.x + x}
               image={tile.texture}
-              animation={tile.animation}
+              animation={tile.animation || "none"}
+              frame={tile.frame || 0}
             />
           ))}
         </div>

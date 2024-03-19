@@ -2,6 +2,8 @@
   height: var(--game-block-size);
   width: var(--game-block-size);
   position: relative;
+  object-fit: cover;
+  object-position: 0;
 }
 
 @keyframes move-left-b {

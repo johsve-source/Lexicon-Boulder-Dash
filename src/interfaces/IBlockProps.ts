@@ -2,5 +2,6 @@ export default interface IBlockProps {
   x: number
   y: number
   image: string
-  animation?: string
+  animation: string
+  frame: number
 }
