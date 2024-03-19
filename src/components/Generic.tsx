@@ -8,7 +8,10 @@ function Block({ x, y, image }: IBlockProps) {
         src={image}
         alt="A block"
         className="Block"
-        style={{ gridArea: `${x} / ${y}` }}
+        style={{ gridArea: `${y+1} / ${x+1}` }}
+        data-x={x}
+        data-y={y}
+        draggable="false"
       />
     </>
   )
