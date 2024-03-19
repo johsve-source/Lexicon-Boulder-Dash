@@ -131,6 +131,7 @@ export function Game() {
               x={1 + y}
               y={1 + x}
               image={block.texture}
+              animation={block.animation}
             />
           ))}
         </div>
