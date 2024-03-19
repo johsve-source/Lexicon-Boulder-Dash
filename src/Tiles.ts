@@ -3,6 +3,7 @@ export interface Tile {
   texture: string
   symbol?: string
   animation?: string
+  frame?: number
 }
 
 export const TILES: { [name: string]: Tile } = {
@@ -62,21 +63,7 @@ export const TILES: { [name: string]: Tile } = {
     name: 'PLAYER',
     texture: '/textures/pixel/player.gif',
     symbol: 'p',
-    animation: 'move-left',
-  },
-
-  PLAYER_LEFT: {
-    name: 'PLAYER_LEFT',
-    texture: '/textures/pixel/player.gif',
-    symbol: 'l',
-    animation: 'move-left',
-  },
-
-  PLAYER_RIGHT: {
-    name: 'PLAYER_RIGHT',
-    texture: '/textures/pixel/player.gif',
-    symbol: 'r',
-    animation: 'move-right',
+    frame: 0,
   },
 
   FINISH: {

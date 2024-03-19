@@ -1,7 +1,7 @@
 import './Block.css'
 import IBlockProps from '../interfaces/IBlockProps'
 
-function Block({ x, y, image, animation }: IBlockProps) {
+function Block({ x, y, image, animation, frame }: IBlockProps) {
   return (
     <>
       <img
@@ -11,6 +11,7 @@ function Block({ x, y, image, animation }: IBlockProps) {
         style={{
           gridArea: `${x} / ${y}`,
           animation: `0.2s linear forwards running ${animation || 'none'}`,
+          objectPosition: `${-32 * frame}px`,
         }}
       />
     </>
