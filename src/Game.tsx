@@ -113,11 +113,10 @@ export function Game() {
     gravity()
   })
 
-  const clickDebounce = useRef(false)
   useEffect(() => {
     const handler = (x: number | undefined, y: number | undefined) => {
       console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
-      if (x === undefined || y === undefined || clickDebounce.current) return
+      if (x === undefined || y === undefined) return
       if (y < gameState.playerPos.y) {
         console.log('move up')
         gameDispatch({
@@ -132,7 +131,8 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
-      } else if (y > gameState.playerPos.y) {
+      }
+      if (y > gameState.playerPos.y) {
         console.log('move down')
         gameDispatch({
           type: ActionEnum.MOVE_DOWN,
@@ -147,10 +147,6 @@ export function Game() {
           loadLevelCallback,
         })
       }
-      clickDebounce.current = true
-      setTimeout(() => {
-        clickDebounce.current = false
-      }, 50)
     }
     const handleHandler = (e: MouseEvent) => {
       if (e.target instanceof HTMLElement) {
