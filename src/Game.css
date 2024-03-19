@@ -10,6 +10,5 @@ body {
   position: relative;
   margin: auto;
   display: grid;
-  grid-template: var(--game-block-size) / var(--game-block-size)
+  grid-template: var(--game-block-size) / var(--game-block-size);
 }
-
