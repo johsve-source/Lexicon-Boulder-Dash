@@ -1,12 +1,11 @@
 import './App.css'
-/* import Game from './Game' */
-import NameInput from './components/nameInput/NameInput'
+import Game from './Game'
+
 
 function App() {
   return (
     <>
-      <NameInput/>
-{/*       <Game /> */}
+      <Game /> 
     </>
   )
 }
