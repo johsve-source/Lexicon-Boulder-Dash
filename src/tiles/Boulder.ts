@@ -115,3 +115,5 @@ export function boulderPhysics(
   local.set(0, 0, restVariant)
   return false
 }
+
+export default EXPORT
