@@ -179,7 +179,7 @@ function processPlayerMovement(
     gameGridClone.setRelative(directionX, directionY, centerTile)
     gameGridClone.setRelative(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
     // bugged
-    // gameGridClone.getRelative(directionX + 1, directionY).animation = "move-right"
+    gameGridClone.getRelative(directionX + 1, directionY).animation = "move-right"
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
 
     // Pushing boulder left
@@ -191,7 +191,7 @@ function processPlayerMovement(
     gameGridClone.setRelative(directionX, directionY, centerTile)
     gameGridClone.setRelative(directionX - 1, directionY, TILES.BEDROCK_BOULDER)
     // bugged
-    // gameGridClone.getRelative(directionX - 1, directionY).animation = "move-right"
+    gameGridClone.getRelative(directionX - 1, directionY).animation = "move-left"
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else {
     return state
