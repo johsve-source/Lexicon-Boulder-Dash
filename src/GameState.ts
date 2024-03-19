@@ -217,135 +217,39 @@ function processPhysics(state: GameState, action: GameAction): GameState {
   const gameGridClone = state.grid.clone()
   const nextUpdateCords = new Map<string, { x: number; y: number }>()
 
-  let playStoneFallingSound = false
-  let playDiamondFallingSound = false
-  let playDiamondPickupSound = false
-  let playExplosionSound = false
+  const soundList = {
+    stoneFalling: false,
+    diamondFalling: false,
+    diamondPickup: false,
+    explosion: false,
+  }
 
   const sortedUpdates = [...state.updateCords.values()].sort((a, b) => {
     if (b.y !== a.y) return b.y - a.y
     return b.x - a.x
   })
 
-  for (let i = 0; i < sortedUpdates.length; i++)
-    for (let j = i + 1; j < sortedUpdates.length; j++)
-      if (
-        sortedUpdates[i].x === sortedUpdates[j].x &&
-        sortedUpdates[i].y === sortedUpdates[j].y
-      )
-        console.log(sortedUpdates[i])
-
   sortedUpdates.forEach(({ x, y }) => {
     const localGrid = gameGridClone.subGrid(x, y)
     const tile = localGrid.get(0, 0)
 
-    // Check if tile is physics object
-    if (
-      ![
-        TILES.DIRT_BOULDER,
-        TILES.BEDROCK_BOULDER,
-        TILES.FALLING_BOULDER,
-        TILES.EXPLOSION,
-        TILES.DIRT_DIAMOND,
-        TILES.BEDROCK_DIAMOND,
-      ].includes(tile)
-    )
+    if (typeof tile.onPhysics !== 'undefined') {
+      const updateCords = (
+        rx: number,
+        ry: number,
+        width: number = 1,
+        height: number = 1,
+      ) => {
+        updateArea(nextUpdateCords, x + rx, y + ry, width, height)
+      }
+
+      tile.onPhysics(localGrid, updateCords, soundList)
       return
-
-    // Remove explosion
-    if (tile === TILES.EXPLOSION) {
-      localGrid.set(0, 0, TILES.NOTHING)
-      updateArea(nextUpdateCords, x - 1, y - 1)
-    }
-
-    // Falling boulder player kill
-    else if (
-      tile === TILES.FALLING_BOULDER &&
-      localGrid.get(0, 1) === TILES.PLAYER
-    ) {
-      for (let iy = 0; iy <= 2; iy++)
-        for (let ix = -1; ix <= 1; ix++)
-          if (localGrid.get(ix, iy) !== TILES.BEDROCK) {
-            localGrid.set(ix, iy, TILES.EXPLOSION)
-            updateCord(nextUpdateCords, ix + x, iy + y)
-          }
-
-      playExplosionSound = true
-    }
-
-    // Falling gem pick up
-    else if (
-      [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile) &&
-      localGrid.get(0, 1) === TILES.PLAYER
-    ) {
-      localGrid.set(0, 0, TILES.NOTHING)
-      updateArea(nextUpdateCords, x - 1, y - 1)
-
-      playDiamondPickupSound = true
-    }
-
-    // Falling down
-    else if (localGrid.get(0, 1) === TILES.NOTHING) {
-      let fallVariant = tile
-      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-        fallVariant = TILES.FALLING_BOULDER
-      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
-
-      localGrid.set(0, 0, TILES.NOTHING)
-      localGrid.set(0, 1, fallVariant)
-      updateArea(nextUpdateCords, x - 1, y - 1, 3, 4)
-
-      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-        playDiamondFallingSound = true
-      else playStoneFallingSound = true
-    }
-
-    // Falling left
-    else if (
-      localGrid.get(-1, 0) === TILES.NOTHING &&
-      localGrid.get(-1, 1) === TILES.NOTHING
-    ) {
-      let fallVariant = tile
-      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-        fallVariant = TILES.FALLING_BOULDER
-      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
-
-      localGrid.set(0, 0, TILES.NOTHING)
-      localGrid.set(-1, 0, fallVariant)
-      updateArea(nextUpdateCords, x - 2, y - 1, 4, 3)
-
-      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-        playDiamondFallingSound = true
-      else playStoneFallingSound = true
-    }
-
-    // Falling right
-    else if (
-      localGrid.get(1, 0) === TILES.NOTHING &&
-      localGrid.get(1, 1) === TILES.NOTHING
-    ) {
-      let fallVariant = tile
-      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-        fallVariant = TILES.FALLING_BOULDER
-      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
-
-      localGrid.set(0, 0, TILES.NOTHING)
-      localGrid.set(1, 0, fallVariant)
-      updateArea(nextUpdateCords, x - 1, y - 1, 4, 3)
-
-      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-        playDiamondFallingSound = true
-      else playStoneFallingSound = true
-    }
-
-    // Reset falling boulder
-    else if (tile === TILES.FALLING_BOULDER) {
-      localGrid.set(0, 0, TILES.BEDROCK_BOULDER)
     }
   })
 
   if (typeof action.soundManager !== 'undefined') {
-    if (playExplosionSound)
+    if (soundList.explosion)
       action.soundManager.playInteraction('stone-explode', {
         id: 3,
         volume: 0.5,
@@ -353,7 +257,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         trailing: true,
       })
 
-    if (playStoneFallingSound)
+    if (soundList.stoneFalling)
       action.soundManager.playInteraction('falling-stone', {
         id: 4,
         volume: 0.2,
@@ -361,14 +265,14 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         trailing: true,
       })
 
-    if (playDiamondFallingSound)
+    if (soundList.diamondFalling)
       action.soundManager.playInteraction('falling-diamond', {
         id: 5,
         volume: 0.2,
         loop: false,
       })
 
-    if (playDiamondPickupSound)
+    if (soundList.diamondPickup)
       action.soundManager.playInteraction('collecting-diamond', {
         id: 6,
         volume: 0.5,

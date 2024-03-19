@@ -1,10 +1,45 @@
+import { SubGrid } from '../Grid'
+
+export interface SoundList {
+  stoneFalling: boolean
+  diamondFalling: boolean
+  diamondPickup: boolean
+  explosion: boolean
+}
+
 export interface Tile {
   name: string
   texture: string
   symbol?: string
+
+  onPlayerMove?: (
+    grid: SubGrid<Tile>,
+    updateCords: (
+      x: number,
+      y: number,
+      width?: number,
+      height?: number,
+    ) => void,
+    soundList: SoundList,
+  ) => void
+
+  onPhysics?: (
+    grid: SubGrid<Tile>,
+    updateCords: (
+      x: number,
+      y: number,
+      width?: number,
+      height?: number,
+    ) => void,
+    soundList: SoundList,
+  ) => void
 }
 
-let TileCollection: { [name: string]: Tile } = {}
+export interface TileList {
+  [name: string]: Tile
+}
+
+let TileCollection: TileList = {}
 
 import Nothing from './Nothing'
 TileCollection = { ...TileCollection, ...Nothing }
