@@ -1,4 +1,10 @@
 .Block {
   height: var(--game-block-size);
   width: var(--game-block-size);
+  position: relative;
+}
+
+@keyframes move-left {
+  from {left: var(--game-block-size);}
+  to {left: 0;}
 }

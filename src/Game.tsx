@@ -187,7 +187,6 @@ export function Game() {
         <StartMenu
           onPlayClick={handlePlayClick}
           highscores={highscoreTestData}
-         
         />
       ) : (
         <div
@@ -202,7 +201,13 @@ export function Game() {
           <ControlsInfo />
 
           {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
-            <Block key={x + y * grid.width} x={x} y={y} image={block.texture} />
+            <Block
+              key={x + y * grid.width}
+              x={1 + y}
+              y={1 + x}
+              image={block.texture}
+              animation={block.animation}
+            />
           ))}
         </div>
       )}
