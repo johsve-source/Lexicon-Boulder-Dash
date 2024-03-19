@@ -1,11 +1,9 @@
 import './Game.css'
-import { createContext, useState, useEffect, useReducer, useRef } from 'react'
+import { createContext, useState, useEffect, useRef } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
-import Grid from './Grid'
-import { Tile, symbolToTile } from './Tiles'
 import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
-import { gameReducer, ActionEnum } from './GameState'
+import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
@@ -13,52 +11,25 @@ import { GameInfo } from './components/GameInfo'
 
 export const PlayerContext = createContext<number[]>([])
 
-function parseMap(data: string) {
-  const gridData = data
-    .split('\n')
-    .filter((e) => e.length > 0)
-    .map((e) => [...e].map((f) => symbolToTile[f]))
-
-  const height = gridData.length
-  const width = gridData.reduce((acc, row) => Math.max(acc, row.length), 0)
-
-  const grid = new Grid<Tile>(width, height)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  grid.toItterArray().forEach(([_, x, y]) => grid.set(x, y, gridData[y][x]))
-
-  return grid
-}
-
 export function Game() {
   const soundManager = useSoundManagerLogic()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
-  const [gameState, gameDispatch] = useReducer(gameReducer, {
-    grid: parseMap(`
-bbbbbbbbbbbbbbbbbbbbbbbbbb
-bpsnddddddsnddddddsndddddb
-bdddddssssdddddddddddddddb
-bddddddddddddddddddddddddb
-bddddddsdddddddddddddddddb
-bdddddsssddddddddddddddddb
-bbbbbbbbbbbbbbbbbddddddddb
-bddddddddddddddddddddddddb
-bddddddsdddddddddddddddddb
-bdddddsssddddddddddddddddb
-bddddddddddddddddddddddddb
-bdddddiiiidddddddddddddddb
-bddddddddddsssddddddddfddb
-bbbbbbbbbbbbbbbbbbbbbbbbbb
-`),
-    playerPos: { x: 1, y: 1 },
-    isGameOver: true,
-    time: 13,
-    score: 0,
-  })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+  const soundManager = useSoundManagerLogic()
+  const [gameState, gameDispatch] = GetGameReducer()
 
   // triggers 'start timer' useEffect
   function startGame() {
     setStartMenuVisible(false)
     gameDispatch({ type: ActionEnum.LOAD_LEVEL })
+    // Play ambiance when I press play
+    soundManager.playInteraction('ambiance', {
+      id: 7,
+      volume: 0.2,
+      loop: true,
+      trailing: true,
+    })
   }
 
   // start timer
@@ -77,6 +48,9 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
   }, [gameState.isGameOver, soundManager])
 
   useEffect(() => {
+    const loadLevelCallback = (path: string) => {
+      loadLevel(gameDispatch, path)
+    }
     if (gameState.isGameOver) {
       return;
     }
@@ -85,35 +59,80 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
       // console.log(e.code)
 
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-        gameDispatch({ type: ActionEnum.MOVE_UP, soundManager })
+        e.preventDefault()
+        gameDispatch({
+          type: ActionEnum.MOVE_UP,
+          soundManager,
+          loadLevelCallback,
+        })
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
-        gameDispatch({ type: ActionEnum.MOVE_DOWN, soundManager })
+        e.preventDefault()
+        gameDispatch({
+          type: ActionEnum.MOVE_DOWN,
+          soundManager,
+          loadLevelCallback,
+        })
       } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
-        gameDispatch({ type: ActionEnum.MOVE_RIGHT, soundManager })
+        e.preventDefault()
+        gameDispatch({
+          type: ActionEnum.MOVE_RIGHT,
+          soundManager,
+          loadLevelCallback,
+        })
       } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
-        gameDispatch({ type: ActionEnum.MOVE_LEFT, soundManager })
+        e.preventDefault()
+        gameDispatch({
+          type: ActionEnum.MOVE_LEFT,
+          soundManager,
+          loadLevelCallback,
+        })
       }
     }
+    if (gameState.playerPos.y > gameState.grid.height / 2) {
+      window.scrollTo({
+        top:
+          gameState.playerPos.y +
+          (32 / gameState.grid.height) * window.innerHeight,
+        left:
+          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
+        behavior: 'auto',
+      })
+    } else {
+      window.scrollTo({
+        top:
+          gameState.playerPos.y -
+          (32 / gameState.grid.height) * window.innerHeight,
+        left:
+          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
+        behavior: 'auto',
+      })
+    }
+
     window.addEventListener('keydown', keyPress)
 
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [gameDispatch, gameState, soundManager])
+  })
 
   const storedGrid = useRef(gameState.grid)
+  const gravityQueued = useRef(false)
 
   useEffect(() => {
     async function gravity() {
-      setTimeout(() => {
-        if (storedGrid.current !== gameState.grid) {
-          gameDispatch({ type: ActionEnum.PHYSICS_TICK, soundManager })
-          storedGrid.current = gameState.grid
-        }
-      }, 200)
+      if (!gravityQueued.current) {
+        gravityQueued.current = true
+        setTimeout(() => {
+          gravityQueued.current = false
+          if (storedGrid.current !== gameState.grid) {
+            gameDispatch({ type: ActionEnum.PHYSICS_TICK, soundManager })
+            storedGrid.current = gameState.grid
+          }
+        }, 200)
+      }
     }
     gravity()
-  }, [gameState, soundManager])
+  })
 
   return (
     <>

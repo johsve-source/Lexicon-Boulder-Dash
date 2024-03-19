@@ -1,6 +1,8 @@
-import Grid from './Grid'
+import { useEffect, useReducer } from 'react'
 import { SoundManagerHook } from './hooks/sound/useSoundManagerLogic'
+import { loadLevelData, LevelData } from './LevelLoader'
 import { TILES, Tile } from './Tiles'
+import Grid from './Grid'
 
 export enum ActionEnum {
   MOVE_UP = 'MOVE_UP',
@@ -14,16 +16,47 @@ export enum ActionEnum {
 
 export interface GameAction {
   type: ActionEnum
-  //Leveldata?: unknown data type
+  Leveldata?: LevelData
+  loadLevelCallback?: (path: string) => void
   soundManager?: SoundManagerHook
 }
 
 export interface GameState {
   grid: Grid<Tile>
+  updateCords: Map<string, { x: number; y: number }>
   playerPos: { x: number; y: number }
   isGameOver: boolean
   time: number
   score: number
+  curentLevel?: LevelData
+  nextLevel?: string
+}
+
+export async function loadLevel(
+  gameDispatch: React.Dispatch<GameAction>,
+  path: string,
+) {
+  if (!path) return
+
+  return await loadLevelData(`/levels/${path}.json`).then((Leveldata) =>
+    gameDispatch({ type: ActionEnum.LOAD_LEVEL, Leveldata }),
+  )
+}
+
+export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
+  const [gameState, gameDispatch] = useReducer(gameReducer, {
+    grid: new Grid<Tile>(),
+    updateCords: new Map<string, { x: number; y: number }>(),
+    playerPos: { x: 1, y: 1 },
+    time: 0,
+    score: 0,
+  })
+
+  useEffect(() => {
+    loadLevel(gameDispatch, 'level1')
+  }, [])
+
+  return [gameState, gameDispatch]
 }
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
@@ -33,31 +66,43 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.type === ActionEnum.MOVE_LEFT ||
         action.type === ActionEnum.MOVE_RIGHT) {
           return processPlayerMovement(state, action)
+    }
+
+    else if (action.type === ActionEnum.TIMER_TICK) {
+      return processTime(state, action)
+    }
+    
+    else if (action.type === ActionEnum.PHYSICS_TICK) {
+      return processPhysics(state, action)
+    }
+
+  if (
+    action.type === ActionEnum.LOAD_LEVEL &&
+    typeof action.Leveldata !== 'undefined'
+  ) {
+    return applyLevelData(state, action.Leveldata)
   }
 
-  else if (action.type === ActionEnum.LOAD_LEVEL) {
-    return processLoadLevel(state)
-  }
-
-  else if (action.type === ActionEnum.TIMER_TICK) {
-    return processTime(state, action)
-  }
-  
-  else if (action.type === ActionEnum.PHYSICS_TICK) {
-    return processPhysics(state, action)
-  }
- 
-  else {
-    throw new Error(`Invalid action type "${action.type}"!`)
-  }
+  throw new Error(`Invalid action type "${action.type}"!`)
 }
 
-// todo: add new level logic etc, right now only used as 'start game' condition
-function processLoadLevel(state: GameState): GameState {
-  return {
-    ...state,
-    isGameOver: false
-  }
+function updateCord(
+  updateCords: Map<string, { x: number; y: number }>,
+  x: number,
+  y: number,
+) {
+  updateCords.set(x + ',' + y, { x, y })
+}
+
+function updateArea(
+  updateCords: Map<string, { x: number; y: number }>,
+  x: number,
+  y: number,
+  width: number = 3,
+  height: number = 3,
+) {
+  for (let iy = y; iy < y + height; iy++)
+    for (let ix = x; ix < x + width; ix++) updateCord(updateCords, ix, iy)
 }
 
 function processTime(state: GameState, action: GameAction): GameState {
@@ -107,9 +152,9 @@ function processPlayerMovement(
   let directionY = 0
 
   if (action.type === ActionEnum.MOVE_UP) directionY = -1
-  if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
-  if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
-  if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
+  else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
+  else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
+  else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
 
   const gameGridClone = state.grid.clone()
   gameGridClone.setRelativeCenter(state.playerPos.x, state.playerPos.y)
@@ -118,9 +163,31 @@ function processPlayerMovement(
   const directinTile =
     gameGridClone.getRelative(directionX, directionY) ?? TILES.NOTHING
 
+  // Check if the player is alive
+  if (centerTile !== TILES.PLAYER) {
+    if (typeof state.curentLevel !== 'undefined')
+      return applyLevelData(state, state.curentLevel)
+    else return state
+  }
+
+  // Bedrock
   if (directinTile === TILES.BEDROCK) {
     return state
-  } else if (directinTile === TILES.DIRT || directinTile === TILES.NOTHING) {
+  }
+
+  // Finish
+  if (directinTile === TILES.FINISH) {
+    if (
+      typeof action.loadLevelCallback !== 'undefined' &&
+      typeof state.nextLevel !== 'undefined'
+    )
+      action.loadLevelCallback(state.nextLevel)
+
+    return state
+  }
+
+  // Dirt
+  if (directinTile === TILES.DIRT || directinTile === TILES.NOTHING) {
     gameGridClone.setRelative(directionX, directionY, centerTile)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
 
@@ -130,8 +197,11 @@ function processPlayerMovement(
           id: 1,
           volume: 0.5,
           loop: false,
+          trailing: true,
         })
       }
+
+    // Diamond
   } else if (
     [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(directinTile)
   ) {
@@ -144,30 +214,37 @@ function processPlayerMovement(
 
     gameGridClone.setRelative(directionX, directionY, centerTile)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
-  } else if (directinTile === TILES.FINISH) {
-    alert('WE HAVE A WINNER!')
-    return state
+
+    // Pushing boulder right
   } else if (
-    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile) &&
     directionX === 1 &&
-    gameGridClone.getRelative(2, 0) === TILES.NOTHING
+    gameGridClone.getRelative(2, 0) === TILES.NOTHING &&
+    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
   ) {
-    // right
     gameGridClone.setRelative(directionX, directionY, centerTile)
     gameGridClone.setRelative(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
+
+    // Pushing boulder left
   } else if (
-    directinTile === TILES.DIRT_BOULDER &&
     directionX === -1 &&
-    gameGridClone.getRelative(-2, 0) === TILES.NOTHING
+    gameGridClone.getRelative(-2, 0) === TILES.NOTHING &&
+    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
   ) {
-    // left
     gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(directionX - 1, directionY, TILES.DIRT_BOULDER)
+    gameGridClone.setRelative(directionX - 1, directionY, TILES.BEDROCK_BOULDER)
     gameGridClone.setRelative(0, 0, TILES.NOTHING)
   } else {
     return state
   }
+
+  updateArea(
+    state.updateCords,
+    state.playerPos.x - 1 + Math.min(directionX, 0),
+    state.playerPos.y - 1 + Math.min(directionY, 0),
+    3 + Math.abs(directionX),
+    3 + Math.abs(directionY),
+  )
 
   return {
     ...state,
@@ -180,130 +257,140 @@ function processPlayerMovement(
 }
 
 function processPhysics(state: GameState, action: GameAction): GameState {
+  if (state.updateCords.size <= 0) return state
+
+  console.log(`Physics: ${state.updateCords.size} items. `)
+
   const gameGridClone = state.grid.clone()
+  const nextUpdateCords = new Map<string, { x: number; y: number }>()
+
   let playStoneFallingSound = false
   let playDiamondFallingSound = false
   let playDiamondPickupSound = false
   let playExplosionSound = false
-  console.log('Physics')
-  let changed = false
-  gameGridClone
-    .toItterArray()
-    .reverse()
-    .filter(
-      ([, x, y]) =>
-        y > 0 &&
-        y < gameGridClone.height - 1 &&
-        x > 0 &&
-        x < gameGridClone.width - 1,
-    )
-    .filter(([tile]) =>
-      [
+
+  const sortedUpdates = [...state.updateCords.values()].sort((a, b) => {
+    if (b.y !== a.y) return b.y - a.y
+    return b.x - a.x
+  })
+
+  for (let i = 0; i < sortedUpdates.length; i++)
+    for (let j = i + 1; j < sortedUpdates.length; j++)
+      if (
+        sortedUpdates[i].x === sortedUpdates[j].x &&
+        sortedUpdates[i].y === sortedUpdates[j].y
+      )
+        console.log(sortedUpdates[i])
+
+  sortedUpdates.forEach(({ x, y }) => {
+    gameGridClone.setRelativeCenter(x, y)
+    const tile = gameGridClone.getRelative(0, 0)
+
+    // Check if tile is physics object
+    if (
+      ![
         TILES.DIRT_BOULDER,
         TILES.BEDROCK_BOULDER,
         TILES.FALLING_BOULDER,
         TILES.EXPLOSION,
         TILES.DIRT_DIAMOND,
         TILES.BEDROCK_DIAMOND,
-      ].includes(tile),
+      ].includes(tile)
     )
-    .forEach(([tile, x, y]) => {
-      gameGridClone.setRelativeCenter(x, y)
+      return
 
-      // Remove explosion
-      if (tile === TILES.EXPLOSION) {
-        changed = true
-        gameGridClone.setRelative(0, 0, TILES.NOTHING)
-      }
+    // Remove explosion
+    if (tile === TILES.EXPLOSION) {
+      gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      updateArea(nextUpdateCords, x - 1, y - 1)
+    }
 
-      // Falling boulder player kill
-      else if (
-        tile === TILES.FALLING_BOULDER &&
-        gameGridClone.getRelative(0, 1) === TILES.PLAYER
-      ) {
-        changed = true
-        for (let iy = 0; iy <= 2; iy++)
-          for (let ix = -1; ix <= 1; ix++)
-            if (gameGridClone.getRelative(ix, iy) !== TILES.BEDROCK)
-              gameGridClone.setRelative(ix, iy, TILES.EXPLOSION)
+    // Falling boulder player kill
+    else if (
+      tile === TILES.FALLING_BOULDER &&
+      gameGridClone.getRelative(0, 1) === TILES.PLAYER
+    ) {
+      for (let iy = 0; iy <= 2; iy++)
+        for (let ix = -1; ix <= 1; ix++)
+          if (gameGridClone.getRelative(ix, iy) !== TILES.BEDROCK) {
+            gameGridClone.setRelative(ix, iy, TILES.EXPLOSION)
+            updateCord(nextUpdateCords, ix + x, iy + y)
+          }
 
-        playExplosionSound = true
+      playExplosionSound = true
         state.isGameOver = true
-      }
+    }
 
-      // Falling gem pick up
-      else if (
-        [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile) &&
-        gameGridClone.getRelative(0, 1) === TILES.PLAYER
-      ) {
-        changed = true
-        gameGridClone.setRelative(0, 0, TILES.NOTHING)
-        playDiamondPickupSound = true
-      }
+    // Falling gem pick up
+    else if (
+      [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile) &&
+      gameGridClone.getRelative(0, 1) === TILES.PLAYER
+    ) {
+      gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      updateArea(nextUpdateCords, x - 1, y - 1)
 
-      // Falling down
-      else if (gameGridClone.getRelative(0, 1) === TILES.NOTHING) {
-        changed = true
-        let fallVariant = tile
-        if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-          fallVariant = TILES.FALLING_BOULDER
-        else if (tile === TILES.DIRT_DIAMOND)
-          fallVariant = TILES.BEDROCK_DIAMOND
+      playDiamondPickupSound = true
+    }
 
-        gameGridClone.setRelative(0, 0, TILES.NOTHING)
-        gameGridClone.setRelative(0, 1, fallVariant)
+    // Falling down
+    else if (gameGridClone.getRelative(0, 1) === TILES.NOTHING) {
+      let fallVariant = tile
+      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
+        fallVariant = TILES.FALLING_BOULDER
+      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
 
-        if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-          playDiamondFallingSound = true
-        else playStoneFallingSound = true
-      }
+      gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      gameGridClone.setRelative(0, 1, fallVariant)
+      updateArea(nextUpdateCords, x - 1, y - 1, 3, 4)
 
-      // Falling left
-      else if (
-        gameGridClone.getRelative(-1, 0) === TILES.NOTHING &&
-        gameGridClone.getRelative(-1, 1) === TILES.NOTHING
-      ) {
-        changed = true
-        let fallVariant = tile
-        if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-          fallVariant = TILES.FALLING_BOULDER
-        else if (tile === TILES.DIRT_DIAMOND)
-          fallVariant = TILES.BEDROCK_DIAMOND
+      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
+        playDiamondFallingSound = true
+      else playStoneFallingSound = true
+    }
 
-        gameGridClone.setRelative(0, 0, TILES.NOTHING)
-        gameGridClone.setRelative(-1, 0, fallVariant)
+    // Falling left
+    else if (
+      gameGridClone.getRelative(-1, 0) === TILES.NOTHING &&
+      gameGridClone.getRelative(-1, 1) === TILES.NOTHING
+    ) {
+      let fallVariant = tile
+      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
+        fallVariant = TILES.FALLING_BOULDER
+      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
 
-        if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-          playDiamondFallingSound = true
-        else playStoneFallingSound = true
-      }
+      gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      gameGridClone.setRelative(-1, 0, fallVariant)
+      updateArea(nextUpdateCords, x - 2, y - 1, 4, 3)
 
-      // Falling right
-      else if (
-        gameGridClone.getRelative(1, 0) === TILES.NOTHING &&
-        gameGridClone.getRelative(1, 1) === TILES.NOTHING
-      ) {
-        changed = true
-        let fallVariant = tile
-        if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-          fallVariant = TILES.FALLING_BOULDER
-        else if (tile === TILES.DIRT_DIAMOND)
-          fallVariant = TILES.BEDROCK_DIAMOND
+      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
+        playDiamondFallingSound = true
+      else playStoneFallingSound = true
+    }
 
-        gameGridClone.setRelative(0, 0, TILES.NOTHING)
-        gameGridClone.setRelative(1, 0, fallVariant)
+    // Falling right
+    else if (
+      gameGridClone.getRelative(1, 0) === TILES.NOTHING &&
+      gameGridClone.getRelative(1, 1) === TILES.NOTHING
+    ) {
+      let fallVariant = tile
+      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
+        fallVariant = TILES.FALLING_BOULDER
+      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
 
-        if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-          playDiamondFallingSound = true
-        else playStoneFallingSound = true
-      }
+      gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      gameGridClone.setRelative(1, 0, fallVariant)
+      updateArea(nextUpdateCords, x - 1, y - 1, 4, 3)
 
-      // Reset falling boulder
-      else if (tile === TILES.FALLING_BOULDER) {
-        changed = true
-        gameGridClone.setRelative(0, 0, TILES.BEDROCK_BOULDER)
-      }
-    })
+      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
+        playDiamondFallingSound = true
+      else playStoneFallingSound = true
+    }
+
+    // Reset falling boulder
+    else if (tile === TILES.FALLING_BOULDER) {
+      gameGridClone.setRelative(0, 0, TILES.BEDROCK_BOULDER)
+    }
+  })
 
   if (typeof action.soundManager !== 'undefined') {
     if (playExplosionSound)
@@ -311,6 +398,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         id: 3,
         volume: 0.5,
         loop: false,
+        trailing: true,
       })
 
     if (playStoneFallingSound)
@@ -318,6 +406,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         id: 4,
         volume: 0.2,
         loop: false,
+        trailing: true,
       })
 
     if (playDiamondFallingSound)
@@ -335,15 +424,22 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       })
   }
 
-  if (!changed) {
-    return {
-      ...state,
-      grid: state.grid,
-    }
-  }
-
   return {
     ...state,
     grid: gameGridClone,
+    updateCords: nextUpdateCords,
+  }
+}
+
+function applyLevelData(state: GameState, Leveldata: LevelData) {
+  return {
+    ...state,
+    grid: Leveldata.grid.clone(),
+    playerPos: {
+      x: Leveldata.playerPos.x,
+      y: Leveldata.playerPos.y,
+    },
+    curentLevel: Leveldata,
+    nextLevel: Leveldata.nextLevel,
   }
 }
