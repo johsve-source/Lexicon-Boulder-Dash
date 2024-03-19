@@ -296,7 +296,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       gameGridClone.setRelative(0, 0, TILES.NOTHING)
       gameGridClone.setRelative(0, 1, fallVariant)
       updateArea(nextUpdateCords, x - 1, y - 1, 3, 4)
-
+      fallVariant.animation = "move-down"
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true
@@ -315,7 +315,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       gameGridClone.setRelative(0, 0, TILES.NOTHING)
       gameGridClone.setRelative(-1, 0, fallVariant)
       updateArea(nextUpdateCords, x - 2, y - 1, 4, 3)
-
+      fallVariant.animation = "move-left-b"
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true
@@ -334,7 +334,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
       gameGridClone.setRelative(0, 0, TILES.NOTHING)
       gameGridClone.setRelative(1, 0, fallVariant)
       updateArea(nextUpdateCords, x - 1, y - 1, 4, 3)
-
+      fallVariant.animation = "move-right-b"
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true
