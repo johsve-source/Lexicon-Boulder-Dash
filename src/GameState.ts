@@ -48,8 +48,9 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
     grid: new Grid<Tile>(),
     updateCords: new Map<string, { x: number; y: number }>(),
     playerPos: { x: 1, y: 1 },
-    time: 0,
+    time: 20,
     score: 0,
+    isGameOver: false,
   })
 
   useEffect(() => {

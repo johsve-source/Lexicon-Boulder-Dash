@@ -14,22 +14,19 @@ export const PlayerContext = createContext<number[]>([])
 export function Game() {
   const soundManager = useSoundManagerLogic()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
-  const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = GetGameReducer()
 
   // triggers 'start timer' useEffect
   function startGame() {
     setStartMenuVisible(false)
-    gameDispatch({ type: ActionEnum.LOAD_LEVEL })
+
     // Play ambiance when I press play
-    soundManager.playInteraction('ambiance', {
-      id: 7,
-      volume: 0.2,
-      loop: true,
-      trailing: true,
-    })
+    // soundManager.playInteraction('ambiance', {
+    //   id: 7,
+    //   volume: 0.2,
+    //   loop: true,
+    //   trailing: true,
+    // })
   }
 
   // start timer
@@ -45,6 +42,7 @@ export function Game() {
         clearInterval(timeInterval)
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameState.isGameOver, soundManager])
 
   useEffect(() => {
@@ -56,7 +54,7 @@ export function Game() {
     }
 
     const keyPress = (e: KeyboardEvent) => {
-      // console.log(e.code)
+      console.log(e.code)
 
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault()
