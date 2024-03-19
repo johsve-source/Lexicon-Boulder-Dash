@@ -48,7 +48,7 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
     grid: new Grid<Tile>(),
     updateCords: new Map<string, { x: number; y: number }>(),
     playerPos: { x: 1, y: 1 },
-    time: 20,
+    time: 14,
     score: 0,
     isGameOver: false,
   })
@@ -107,41 +107,37 @@ function updateArea(
 }
 
 function processTime(state: GameState, action: GameAction): GameState {
-  let playGameOverSound = false
   let playTimerEndingSound = false
 
-  if (typeof action.soundManager !== 'undefined') {
-    if (playTimerEndingSound) {
-      action.soundManager.playInteraction('timer-ending', {
-        id: 7,
-        volume: 0.2,
-        duration: 9000,
-      })
-    }
-    if (playGameOverSound) {
-      action.soundManager.playInteraction('game-over', {
-        id: 8,
-        volume: 0.2,
-        loop: false
-      })
-    }
+  // Check if the time is below 10 seconds
+  if (state.time < 11) {
+    playTimerEndingSound = true
   }
 
+  // Trigger the sound playback if the flag is set
+  if (playTimerEndingSound && typeof action.soundManager !== 'undefined') {
+    action.soundManager.playInteraction('timer-ending', {
+      id: 7,
+      volume: 0.2,
+      duration: 9000, // You might want to remove this duration parameter if it's not necessary
+    })
+  }
+
+  // Update the time
   const updatedTime = state.time - 1
-  if (state.time === 0) {
-    playGameOverSound = true
+
+  // Check if the game is over
+  if (updatedTime === 0) {
     return {
       ...state,
       isGameOver: true
     }
-  } else {
-    if (updatedTime < 11 && updatedTime > 0) {
-      playTimerEndingSound = true
-    }
-    return {
-      ...state,
-      time: updatedTime,
-    }
+  }
+
+  // Return the updated state
+  return {
+    ...state,
+    time: updatedTime,
   }
 }
 

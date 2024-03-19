@@ -3,7 +3,7 @@ import { determineSoundFile } from './utils/soundUtils'
 import { DEFAULT_DURATION } from './constants/soundConstants'
 
 export interface SoundOptions {
-  id: number
+  id?: number
   duration?: number
   volume?: number
   loop?: boolean
