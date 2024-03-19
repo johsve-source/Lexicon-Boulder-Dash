@@ -143,13 +143,8 @@ export function Game() {
 
     setRenderGrid(gameState.grid.subGrid(x, y, width, height))
 
-    const cameraX = Math.floor(
-      gameState.playerPos.x * 32 - Math.ceil(window.innerWidth / 2),
-    )
-
-    const cameraY = Math.floor(
-      gameState.playerPos.y * 32 - Math.ceil(window.innerHeight / 2),
-    )
+    const cameraX = gameState.playerPos.x * 32 - window.innerWidth / 2
+    const cameraY = gameState.playerPos.y * 32 - window.innerHeight / 2
 
     window.scrollTo({
       left: cameraX,
