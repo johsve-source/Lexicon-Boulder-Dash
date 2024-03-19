@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react'
 import { SoundManagerHook } from './hooks/sound/useSoundManagerLogic'
 import { loadLevelData, LevelData } from './LevelLoader'
-import { TILES, Tile } from './Tiles'
+import { TILES, Tile } from './tiles/Tiles'
 import Grid from './Grid'
 
 export enum ActionEnum {
