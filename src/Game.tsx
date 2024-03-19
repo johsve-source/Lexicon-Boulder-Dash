@@ -31,7 +31,7 @@ export function Game() {
       trailing: true,
     })
   }
-
+  
   useEffect(() => {
     const loadLevelCallback = (path: string) => {
       loadLevel(gameDispatch, path)
@@ -45,6 +45,7 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
+        gameState.grid.get(gameState.playerPos.x, gameState.playerPos.y).animation = "move-up"
       } else if (e.code === 'ArrowDown' || e.code === 'KeyS') {
         e.preventDefault()
         gameDispatch({
@@ -52,6 +53,7 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
+        gameState.grid.get(gameState.playerPos.x, gameState.playerPos.y).animation = "move-down"
       } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
         e.preventDefault()
         gameDispatch({
@@ -59,6 +61,7 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
+        gameState.grid.get(gameState.playerPos.x, gameState.playerPos.y).animation = "move-right"
       } else if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
         e.preventDefault()
         gameDispatch({
@@ -66,6 +69,7 @@ export function Game() {
           soundManager,
           loadLevelCallback,
         })
+        gameState.grid.get(gameState.playerPos.x, gameState.playerPos.y).animation = "move-left"
       }
     }
     if (gameState.playerPos.y > gameState.grid.height / 2) {
