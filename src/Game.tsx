@@ -113,67 +113,52 @@ export function Game() {
     gravity()
   })
 
-
-  const mouseMoving = useRef(false)
-  const mouseMovement = useRef({x: 0, y: 0})
+  const clickDebounce = useRef(false)
   useEffect(() => {
-    const handler = () => {
-      if (!mouseMoving.current) return;
-      if (mouseMovement.current.y > 0 && Math.abs(mouseMovement.current.y) > Math.abs(mouseMovement.current.x)) {
+    const handler = (x: number | undefined, y: number | undefined) => {
+      console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
+      if (x === undefined || y === undefined || clickDebounce.current) return
+      if (y < gameState.playerPos.y) {
+        console.log("move up")
         gameDispatch({
           type: ActionEnum.MOVE_UP,
           soundManager,
           loadLevelCallback,
         })
-      } else if (mouseMovement.current.y < 0 && Math.abs(mouseMovement.current.y) > Math.abs(mouseMovement.current.x)) {
-        gameDispatch({
-          type: ActionEnum.MOVE_DOWN,
-          soundManager,
-          loadLevelCallback,
-        })
-      } else if (mouseMovement.current.x > 0 && Math.abs(mouseMovement.current.x) > Math.abs(mouseMovement.current.y)) {
+      } else if (x > gameState.playerPos.x) {
+        console.log("move right")
         gameDispatch({
           type: ActionEnum.MOVE_RIGHT,
           soundManager,
           loadLevelCallback,
         })
-      } else if (mouseMovement.current.x < 0 && Math.abs(mouseMovement.current.x) > Math.abs(mouseMovement.current.y)) {
+      } else if (y > gameState.playerPos.y) {
+        console.log("move down")
+        gameDispatch({
+          type: ActionEnum.MOVE_DOWN,
+          soundManager,
+          loadLevelCallback,
+        })
+      } else if (x < gameState.playerPos.x) {
+        console.log("move left")
         gameDispatch({
           type: ActionEnum.MOVE_LEFT,
           soundManager,
           loadLevelCallback,
         })
       }
-      setTimeout(() => {
-        handler()
-      }, 200)
+      clickDebounce.current = true
+      setTimeout(() => {clickDebounce.current = false}, 50)
     }
-
-    const mouseMove = (e: MouseEvent) => {
-      mouseMovement.current = {x: e.movementX, y: e.movementY}
+    const handleHandler = (e: MouseEvent) => {
+      if (e.target instanceof HTMLElement) {
+        handler(e.target.dataset.x as number | undefined, e.target.dataset.y as number | undefined)
+      }   
     }
-    const mouseDown = () => {
-      console.log("down")
-      mouseMoving.current = true
-      window.addEventListener("mousemove", mouseMove)
-      handler()
-    }
-    const mouseUp = () => {
-      console.log("up")
-      mouseMoving.current = false
-      window.removeEventListener("mousemove", mouseMove)
-    }
-
-    if (mouseMoving.current) {
-      window.addEventListener("mousemove", mouseMove)
-    }
-    window.addEventListener("mousedown", mouseDown)
-    window.addEventListener("mouseup", mouseUp)
+    window.addEventListener("click", handleHandler)
 
     return () => {
-      window.removeEventListener("mousedown", mouseDown)
-      window.removeEventListener("mouseup", mouseUp)
-      window.removeEventListener("mousemove", mouseMove)
+      window.removeEventListener("click", handleHandler)
     }
   })
 
@@ -191,8 +176,8 @@ export function Game() {
           {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
             <Block
               key={x + y * grid.width}
-              x={1 + y}
-              y={1 + x}
+              x={x}
+              y={y}
               image={block.texture}
             />
           ))}
