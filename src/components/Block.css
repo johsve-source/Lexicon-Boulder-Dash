@@ -5,6 +5,21 @@
 }
 
 @keyframes move-left {
-  from {left: var(--game-block-size);}
-  to {left: 0;}
+  from {left: var(--game-block-size); z-index: 99;}
+  to {left: 0; z-index: 99;}
+}
+
+@keyframes move-right {
+  from {right: var(--game-block-size); z-index: 99;}
+  to {right: 0; z-index: 99;}
+}
+
+@keyframes move-up {
+  from {top: var(--game-block-size); z-index: 99;}
+  to {top: 0; z-index: 99;}
+}
+
+@keyframes move-down {
+  from {bottom: var(--game-block-size); z-index: 99;}
+  to {bottom: 0; z-index: 99;}
 }
