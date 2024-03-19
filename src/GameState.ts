@@ -40,7 +40,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   }
 
   else if (action.type === ActionEnum.TIMER_TICK) {
-    return processTime(state)
+    return processTime(state, action)
   }
   
   else if (action.type === ActionEnum.PHYSICS_TICK) {
@@ -60,14 +60,38 @@ function processLoadLevel(state: GameState): GameState {
   }
 }
 
-function processTime(state: GameState): GameState {  
+function processTime(state: GameState, action: GameAction): GameState {
+  let playGameOverSound = false
+  let playTimerEndingSound = false
+
+  if (typeof action.soundManager !== 'undefined') {
+    if (playTimerEndingSound) {
+      action.soundManager.playInteraction('timer-ending', {
+        id: 7,
+        volume: 0.2,
+        duration: 9000,
+      })
+    }
+    if (playGameOverSound) {
+      action.soundManager.playInteraction('game-over', {
+        id: 8,
+        volume: 0.2,
+        loop: false
+      })
+    }
+  }
+
+  const updatedTime = state.time - 1
   if (state.time === 0) {
+    playGameOverSound = true
     return {
       ...state,
       isGameOver: true
     }
   } else {
-    const updatedTime = state.time - 1
+    if (updatedTime < 11 && updatedTime > 0) {
+      playTimerEndingSound = true
+    }
     return {
       ...state,
       time: updatedTime,

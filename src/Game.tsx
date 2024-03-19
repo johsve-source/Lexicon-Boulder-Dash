@@ -51,7 +51,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
 `),
     playerPos: { x: 1, y: 1 },
     isGameOver: true,
-    time: 20,
+    time: 13,
     score: 0,
   })
 
@@ -66,7 +66,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
     if (!gameState.isGameOver) {
       console.log('New game, time interval started.')
       const timeInterval = setInterval(() => {
-        gameDispatch({ type: ActionEnum.TIMER_TICK })
+        gameDispatch({ type: ActionEnum.TIMER_TICK, soundManager})
       }, 1000)
 
       return () => {
@@ -74,7 +74,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
         clearInterval(timeInterval)
       }
     }
-  }, [gameState.isGameOver])
+  }, [gameState.isGameOver, soundManager])
 
   useEffect(() => {
     if (gameState.isGameOver) {
@@ -99,7 +99,7 @@ bbbbbbbbbbbbbbbbbbbbbbbbbb
     return () => {
       window.removeEventListener('keydown', keyPress)
     }
-  }, [gameDispatch, soundManager, gameState.isGameOver])
+  }, [gameDispatch, gameState, soundManager])
 
   const storedGrid = useRef(gameState.grid)
 
