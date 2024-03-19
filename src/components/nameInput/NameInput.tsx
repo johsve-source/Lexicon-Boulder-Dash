@@ -5,8 +5,8 @@ const NameInput = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [userName, setUserName] = useState("")
     const [letters, setLetters] = useState([
-        { id: 1, letter: "A", active: false },
-        { id: 2, letter: "B", active: true },
+        { id: 1, letter: "A", active: true },
+        { id: 2, letter: "B", active: false },
         { id: 3, letter: "C", active: false },
         { id: 4, letter: "D", active: false },
         { id: 5, letter: "E", active: false },
@@ -38,7 +38,9 @@ const NameInput = () => {
         { id: 31, letter: "6", active: false },
         { id: 32, letter: "7", active: false },
         { id: 33, letter: "8", active: false },
-        { id: 34, letter: "9", active: false }
+        { id: 34, letter: "9", active: false },
+        { id: 35, letter: "Del", active: false},
+        { id: 36, letter: "End", active: false},
     ])
 
     const letterBoxRef = useRef<HTMLDivElement>(null);
@@ -57,7 +59,7 @@ const NameInput = () => {
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'ArrowRight') {
             const activeLetter = letters.find((item) => item.active === true);
-            if (activeLetter && activeLetter.id !== 34) {
+            if (activeLetter && activeLetter.id !== 36) {
                 const activeIndex = letters.indexOf(activeLetter);
                 setLetters((prevLetters) =>
                     prevLetters.map((item, index) =>
@@ -97,9 +99,7 @@ const NameInput = () => {
             }
         } else if (event.key === 'ArrowDown') {
             const activeLetter = letters.find((item) => item.active === true);
-            if (activeLetter && activeLetter.id < 31 && activeLetter.id !== 25
-                && activeLetter.id !== 26 && activeLetter.id !== 27 && activeLetter.id !== 28 
-                && activeLetter.id !== 29 && activeLetter.id !== 30) {
+            if (activeLetter && activeLetter.id < 31 && activeLetter.id !== 29 && activeLetter.id !== 30) {
                     const activeIndex = letters.indexOf(activeLetter);
                 // Set active to false for the currently active letter
                 setLetters((prevLetters) =>
@@ -110,7 +110,7 @@ const NameInput = () => {
              
                 setLetters((prevLetters) =>
                     prevLetters.map((item, index) =>
-                        index === activeIndex + 10 ? { ...item, active: true } : item
+                        index === activeIndex + 8 ? { ...item, active: true } : item
                     )
                 );
                 }
@@ -120,8 +120,7 @@ const NameInput = () => {
             if (activeLetter && activeLetter.id !== 1
                 && activeLetter.id !== 2 && activeLetter.id !== 3 && activeLetter.id !== 4 
                 && activeLetter.id !== 5 && activeLetter.id !== 5 && activeLetter.id !== 6
-                && activeLetter.id !== 7 && activeLetter.id !== 8 && activeLetter.id !== 9
-                && activeLetter.id !== 10) {
+                && activeLetter.id !== 7 && activeLetter.id !== 8) {
                 // Find the index of the active letter in the array
                 const activeIndex = letters.indexOf(activeLetter);
                 // Set active to false for the currently active letter
@@ -133,7 +132,7 @@ const NameInput = () => {
              
                 setLetters((prevLetters) =>
                     prevLetters.map((item, index) =>
-                        index === activeIndex - 10 ? { ...item, active: true } : item
+                        index === activeIndex - 8 ? { ...item, active: true } : item
                     )
                 );
             } else {
@@ -141,11 +140,26 @@ const NameInput = () => {
             }
         } else if (event.key === 'Enter') {
             const activeLetter = letters.find((item) => item.active === true);
+            
             if(activeLetter) {
-                const letter = activeLetter.letter
-                setUserName((prevName) => {
-                    return prevName += letter
-                })
+                if(activeLetter.letter === "Del") {
+                    if(userName.length === 0) return
+                    setUserName((prevName) => {
+                        return prevName.slice(0, -1)
+                    });
+                   
+                    return
+                } else if (activeLetter.letter === "End") {
+                    console.log("Go back to menu")
+                    return
+                } else {
+                    const letter = activeLetter.letter
+                    setUserName((prevName) => {
+                        return prevName += letter
+                    })
+
+                }
+           
          
             }
         

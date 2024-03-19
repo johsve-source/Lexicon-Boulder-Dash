@@ -5,15 +5,15 @@
 
 .name-input {
     font-family: "Arcade classic";
-    color: black;
+    color: white;
    
 
 }
 
 .display {
-    border: 1px solid black;
+    border: 5px solid lightslategrey;
     border-radius: 5px;
-    width: 500px;
+    width: 510px;
     height: 60px;
     margin-bottom: 40px;
     font-size: 32px;
@@ -34,11 +34,12 @@
 .frame {
     border: 5px solid lightslategrey;
     border-radius: 5px;
-    width: 500px;
+    width: 514px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    padding: 12px 0px;
 }
 
 .letter-box {
@@ -48,6 +49,7 @@
     align-items: center;
     flex-wrap: wrap;
     outline: none;
+
     
 }
 
@@ -59,7 +61,8 @@
     justify-content: center;
     height: 40px;
     width: 40px;
-    margin: 6px 5px;
+    margin: 6px 12px;
+   
   
 }
 
