@@ -1,0 +1,101 @@
+@font-face {
+    font-family: "Arcade classic";
+    src: url('../../assets/fonts/ARCADECLASSIC.TTF');
+}
+
+.name-input {
+    font-family: "Arcade classic";
+    color: black;
+   
+
+}
+
+.display {
+    border: 1px solid black;
+    border-radius: 5px;
+    width: 500px;
+    height: 60px;
+    margin-bottom: 40px;
+    font-size: 32px;
+    letter-spacing: 12px;
+    padding-left: 10px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-end;
+}
+
+.heading {
+    padding: 0;
+    margin: 10px 0px;
+    font-size: 28px;
+    word-spacing: 5px;
+}
+
+.frame {
+    border: 5px solid lightslategrey;
+    border-radius: 5px;
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.letter-box {
+    font-size: 32px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: wrap;
+    outline: none;
+    
+}
+
+.letter-frame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 40px;
+    margin: 6px 5px;
+  
+}
+
+.letter {
+
+}
+
+.show {
+    visibility: visible;
+}
+
+.hidden {
+    visibility: hidden;
+}
+
+.arrow{
+    position: absolute;
+    transform: rotate(-90deg);
+    animation: blinc 0.7s linear infinite;
+    top: 5%;
+    margin-top: 27px;
+    left: 50%;
+    width: 30px;
+    margin-left: -15px;
+}
+
+@keyframes blinc {
+    0% {
+        opacity: 0;
+    }
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0;
+    }
+    
+}
