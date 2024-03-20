@@ -13,6 +13,7 @@ export const useHighscoreCounter = (
   updateHighscores: (newHighscores: number[]) => void
   resetHighscores: () => void
   loadPlayerHighscore: (playerId: string) => number | null
+  handleUpdatedHighscore: (currentScore: number) => void
 } => {
   const [highscores, setHighscores] = useState<number[]>([])
 
@@ -70,5 +71,26 @@ export const useHighscoreCounter = (
     return null
   }
 
-  return { highscores, updateHighscores, resetHighscores, loadPlayerHighscore }
+  // Function to calculate the updated highscore
+  const calculateUpdatedHighscore = (
+    currentHighscores: number[],
+    currentScore: number,
+  ): number => {
+    const currentHighscore = Math.max(...currentHighscores, 0) // Get the current highest score or 0 if no highscores
+    return Math.max(currentHighscore, currentScore) // Return the highest of the current highscore and current score
+  }
+
+  // Function to handle diamond pickup and update highscore
+  const handleUpdatedHighscore = (currentScore: number): void => {
+    const updatedHighscore = calculateUpdatedHighscore(highscores, currentScore)
+    updateHighscores([...highscores, updatedHighscore])
+  }
+
+  return {
+    highscores,
+    updateHighscores,
+    resetHighscores,
+    loadPlayerHighscore,
+    handleUpdatedHighscore,
+  }
 }
