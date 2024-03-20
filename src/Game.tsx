@@ -6,10 +6,6 @@ import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
 import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 import { useHighscoreCounter } from './hooks/highscore/useHighscoreCounter'
-import {
-  DEFAULT_KEY_NAME,
-  loadHighscoresFromLocal,
-} from './hooks/highscore/modules/highscore'
 
 export const PlayerContext = createContext<number[]>([])
 
@@ -100,19 +96,6 @@ export function Game() {
     }
   })
 
-  useEffect(() => {
-    // Load highscores from local storage on component mount
-    const storedHighscores = localStorage.getItem(DEFAULT_KEY_NAME)
-    if (storedHighscores) {
-      try {
-        const decryptedHighscores = loadHighscoresFromLocal(storedHighscores)
-        updateHighscores(decryptedHighscores.map((entry) => entry.score))
-      } catch (error) {
-        console.error('Error loading highscores:', error.message)
-      }
-    }
-  }, [updateHighscores])
-
   const storedGrid = useRef(gameState.grid)
   const gravityQueued = useRef(false)
 
@@ -135,10 +118,7 @@ export function Game() {
   return (
     <>
       {isStartMenuVisible ? (
-        <StartMenu
-          onPlayClick={handlePlayClick}
-          highscores={highscoreTestData}
-        />
+        <StartMenu onPlayClick={handlePlayClick} highscores={highscores} />
       ) : (
         <div className="Game">
           <ControlsInfo />

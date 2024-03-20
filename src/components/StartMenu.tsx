@@ -22,22 +22,22 @@ export function StartMenu({ onPlayClick, highscores }: IStartMenuProps) {
 
       <h2>High scores</h2>
 
+      <h2>High scores</h2>
+
       {highscores.length < 1 ? (
         <p>No high scores registered yet.</p>
       ) : (
         <ol>
-          {highscores.map((highscore) => {
-            const dots = calculateDotAmount(
-              highscore.username,
-              highscore.score,
-              30,
-            )
-            return (
-              <li key={highscore.id}>
-                <span>{`${highscore.username}${dots}${highscore.score}`}</span>
-              </li>
-            )
-          })}
+          {highscores.map((score, index) => (
+            <li key={index}>
+              {/* Assuming your high score object has a username property */}
+              <span>{`${score.username}${calculateDotAmount(
+                score.username,
+                score.score,
+                30,
+              )}${score.score}`}</span>
+            </li>
+          ))}
         </ol>
       )}
     </div>
