@@ -16,21 +16,37 @@ export function Game() {
   const [gameState, gameDispatch] = GetGameReducer()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
-  const [startTime, setStartTime] = useState<number>(0)
+  const [timeLeft, setTimeLeft] = useState<number>(gameState.time)
 
   // triggers 'start timer' useEffect
   function startGame() {
     setStartMenuVisible(false)
     setIsGameStarted(true)
-    setStartTime(Date.now())
   }
 
   // start timer
   useEffect(() => {
     if (!isStartMenuVisible && isGameStarted) {
-      
+      gameDispatch({ type: ActionEnum.TIMER_TICK })
+
+      if (timeLeft === 0 || timeLeft < 0) {
+        return;
+      }
+      const timerInterval = setInterval(() => {
+        setTimeLeft((prevTimeLeft) => {
+          const newTimeLeft = prevTimeLeft - 1
+          if (newTimeLeft === 0) {
+            clearInterval(timerInterval)
+          }
+          console.log("time left: ", newTimeLeft)
+          return newTimeLeft
+        })
+      }, 1000)
+  
+      return () => clearInterval(timerInterval)
     }
-  }, [])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStartMenuVisible, isGameStarted])
 
   useEffect(() => {
     const loadLevelCallback = (path: string) => {
@@ -125,7 +141,7 @@ export function Game() {
         <StartMenu onPlayClick={startGame} highscores={highscoreTestData} />
       ) : (
         <>
-          <GameInfo timeRemaining={gameState.time} score={0} />
+          <GameInfo timeRemaining={timeLeft} score={0} />
           <div className="Game">
             <ControlsInfo />
 

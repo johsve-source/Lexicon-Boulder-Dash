@@ -90,7 +90,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 }
 
 function processTime(state: GameState): GameState {  
-  
+  state.startTime = Date.now()
+  const currentTime = setTimeout(() => {
+    
+  })
 }
 
 function updateCord(
