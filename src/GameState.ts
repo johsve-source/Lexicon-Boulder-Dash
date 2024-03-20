@@ -85,7 +85,7 @@ export class GameState {
 
     const localGrid = this.subGrid(this.playerPos.x, this.playerPos.y)
     const centerTile = localGrid.get(0, 0)
-    const directinTile = localGrid.get(directionX, directionY)
+    //const directinTile = localGrid.get(directionX, directionY)
 
     // Check if the player is alive
     if (centerTile !== TILES.PLAYER) {
@@ -94,82 +94,89 @@ export class GameState {
       else return this
     }
 
-    // Bedrock
-    if (directinTile === TILES.BEDROCK) {
-      return this
+    const soundList = {
+      diggingDirt: false,
+      collectingDiamond: false,
+      stoneFalling: false,
+      diamondFalling: false,
+      diamondPickup: false,
+      explosion: false,
     }
 
-    // Finish
-    if (directinTile === TILES.FINISH) {
-      if (
-        typeof action.loadLevelCallback !== 'undefined' &&
-        typeof this.nextLevel !== 'undefined'
-      )
-        action.loadLevelCallback(this.nextLevel)
+    for (let y = this.playerPos.y - 1; y <= this.playerPos.y + 1; y++)
+      for (let x = this.playerPos.x - 1; x <= this.playerPos.x + 1; x++) {
+        if (x === this.playerPos.x && y === this.playerPos.y) continue
 
-      return this
-    }
+        const tile = this.get(x, y)
 
-    // Dirt
-    if (directinTile === TILES.DIRT || directinTile === TILES.NOTHING) {
-      localGrid.set(directionX, directionY, centerTile)
-      localGrid.set(0, 0, TILES.NOTHING)
+        if (typeof tile.onPlayerMove !== 'undefined') {
+          tile.onPlayerMove({
+            local: this.subGrid(x, y),
 
-      if (typeof action.soundManager !== 'undefined')
-        if (directinTile === TILES.DIRT) {
-          action.soundManager.playInteraction('digging-dirt', {
-            id: 1,
-            volume: 0.5,
-            loop: false,
-            trailing: true,
+            updateLocal: (
+              rx: number,
+              ry: number,
+              width: number = 1,
+              height: number = 1,
+            ) => {
+              this.updateArea(x + rx, y + ry, width, height)
+            },
+
+            gameState: this,
+            action,
+            soundList,
+
+            from: { x, y },
+            moveDirection: { x: directionX, y: directionY },
           })
         }
+      }
 
-      // Diamond
-    } else if (
-      [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(directinTile)
-    ) {
-      if (typeof action.soundManager !== 'undefined')
+    const tile = this.get(this.playerPos.x, this.playerPos.y)
+
+    if (typeof tile.onPlayerMove !== 'undefined') {
+      tile.onPlayerMove({
+        local: this.subGrid(this.playerPos.x, this.playerPos.y),
+
+        updateLocal: (
+          rx: number,
+          ry: number,
+          width: number = 1,
+          height: number = 1,
+        ) => {
+          this.updateArea(
+            this.playerPos.x + rx,
+            this.playerPos.y + ry,
+            width,
+            height,
+          )
+        },
+
+        gameState: this,
+        action,
+        soundList,
+
+        from: { x: this.playerPos.x, y: this.playerPos.y },
+        moveDirection: { x: directionX, y: directionY },
+      })
+    }
+
+    if (typeof action.soundManager !== 'undefined') {
+      if (soundList.diggingDirt)
+        action.soundManager.playInteraction('digging-dirt', {
+          id: 1,
+          volume: 0.5,
+          loop: false,
+          trailing: true,
+        })
+
+      if (soundList.diamondPickup)
         action.soundManager.playInteraction('collecting-diamond', {
           id: 2,
           volume: 0.5,
           loop: false,
         })
-      localGrid.set(directionX, directionY, centerTile)
-      localGrid.set(0, 0, TILES.NOTHING)
-
-      // Pushing boulder right
-    } else if (
-      directionX === 1 &&
-      localGrid.get(2, 0) === TILES.NOTHING &&
-      [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
-    ) {
-      localGrid.set(directionX, directionY, centerTile)
-      localGrid.set(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
-      localGrid.set(0, 0, TILES.NOTHING)
-
-      // Pushing boulder left
-    } else if (
-      directionX === -1 &&
-      localGrid.get(-2, 0) === TILES.NOTHING &&
-      [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
-    ) {
-      localGrid.set(directionX, directionY, centerTile)
-      localGrid.set(directionX - 1, directionY, TILES.BEDROCK_BOULDER)
-      localGrid.set(0, 0, TILES.NOTHING)
-    } else {
-      return this
     }
-
-    this.updateArea(
-      this.playerPos.x - 1 + Math.min(directionX, 0),
-      this.playerPos.y - 1 + Math.min(directionY, 0),
-      3 + Math.abs(directionX),
-      3 + Math.abs(directionY),
-    )
-
-    this.playerPos.x += directionX
-    this.playerPos.y += directionY
 
     return this
   }
@@ -180,6 +187,8 @@ export class GameState {
     console.log(`Physics: ${this.updateCords.size} items. `)
 
     const soundList = {
+      diggingDirt: false,
+      collectingDiamond: false,
       stoneFalling: false,
       diamondFalling: false,
       diamondPickup: false,

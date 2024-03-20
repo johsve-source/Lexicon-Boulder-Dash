@@ -1,13 +1,14 @@
 import { SubGrid } from '../Grid'
 
 export interface SoundList {
+  diggingDirt: boolean
   stoneFalling: boolean
   diamondFalling: boolean
   diamondPickup: boolean
   explosion: boolean
 }
 
-export interface updateParams {
+export interface onPhysicsParams {
   local: SubGrid<Tile>
   updateLocal: (x: number, y: number, width?: number, height?: number) => void
   gameState: GameState
@@ -15,12 +16,17 @@ export interface updateParams {
   soundList: SoundList
 }
 
+export interface onPlayerMoveParams extends onPhysicsParams {
+  from: { x: number; y: number }
+  moveDirection: { x: number; y: number }
+}
+
 export interface Tile {
   name: string
   texture: string
   symbol?: string
-  onPlayerMove?: (params: updateParams) => void
-  onPhysics?: (params: updateParams) => void
+  onPlayerMove?: (params: onPlayerMoveParams) => void
+  onPhysics?: (params: onPhysicsParams) => void
 }
 
 export interface TileList {
