@@ -29,6 +29,9 @@ export interface Tile {
   name: string
   texture: string
   symbol?: string
+  animation?: string
+  frame?: number
+
   onPlayerMove?: (params: onPlayerMoveParams) => void
   onPhysics?: (params: onPhysicsParams) => void
 }

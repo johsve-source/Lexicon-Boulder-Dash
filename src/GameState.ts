@@ -127,11 +127,6 @@ export class GameState {
     let directionX = 0
     let directionY = 0
 
-    if (action.type === ActionEnum.MOVE_UP) directionY = -1
-    else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
-    else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
-    else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
-
     const localGrid = this.subGrid(this.playerPos.x, this.playerPos.y)
     const centerTile = localGrid.get(0, 0)
 
@@ -140,6 +135,26 @@ export class GameState {
       if (typeof this.curentLevel !== 'undefined')
         return this.applyLevelData(this.curentLevel)
       else return this
+    }
+
+    const playerTile = centerTile
+
+    if (action.type === ActionEnum.MOVE_UP) {
+      directionY = -1
+      playerTile.animation = 'move-up'
+      playerTile.frame = 1
+    } else if (action.type === ActionEnum.MOVE_DOWN) {
+      directionY = 1
+      playerTile.animation = 'move-down'
+      playerTile.frame = 0
+    } else if (action.type === ActionEnum.MOVE_LEFT) {
+      directionX = -1
+      playerTile.animation = 'move-left'
+      playerTile.frame = 2
+    } else if (action.type === ActionEnum.MOVE_RIGHT) {
+      directionX = 1
+      playerTile.animation = 'move-right'
+      playerTile.frame = 3
     }
 
     const soundList: SoundList = {

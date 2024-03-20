@@ -87,6 +87,8 @@ export function boulderPhysics(
   // Falling down
   if (local.get(0, 1) === TILES.NOTHING) {
     local.set(0, 0, TILES.NOTHING)
+    //fallVariant.animation = 'move-down'
+    fallVariant = { ...fallVariant, animation: 'move-down' }
     local.set(0, 1, fallVariant)
     updateLocal(-1, -1, 3, 4)
     return true
@@ -98,6 +100,8 @@ export function boulderPhysics(
     local.get(-1, 1) === TILES.NOTHING
   ) {
     local.set(0, 0, TILES.NOTHING)
+    //fallVariant.animation = 'move-left-b'
+    fallVariant = { ...fallVariant, animation: 'move-left-b' }
     local.set(-1, 0, fallVariant)
     updateLocal(-2, -1, 4, 3)
     return true
@@ -106,6 +110,8 @@ export function boulderPhysics(
   // Falling right
   if (local.get(1, 0) === TILES.NOTHING && local.get(1, 1) === TILES.NOTHING) {
     local.set(0, 0, TILES.NOTHING)
+    //fallVariant.animation = 'move-right-b'
+    fallVariant = { ...fallVariant, animation: 'move-right-b' }
     local.set(1, 0, fallVariant)
     updateLocal(-1, -1, 4, 3)
     return true
