@@ -31,7 +31,7 @@ export function Game() {
       trailing: true,
     })
   }
-
+  
   useEffect(() => {
     const loadLevelCallback = (path: string) => {
       loadLevel(gameDispatch, path)
@@ -181,10 +181,12 @@ export function Game() {
 
           {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
             <Block
-              key={grid.x + x + (grid.y + y) * grid.width}
+              key={x + y * grid.width}
               x={1 + grid.y + y}
               y={1 + grid.x + x}
               image={tile.texture}
+              animation={tile.animation || "none"}
+              frame={tile.frame || 0}
             />
           ))}
         </div>
