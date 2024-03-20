@@ -17,9 +17,10 @@ export function StartMenu({ onPlayClick, highscores }: IStartMenuProps) {
   return (
     <div className="startMenu">
       <h1>Boulder Dash!</h1>
-
+      <div className='buttons'>
       <button onClick={onPlayClick}>Play</button>
-
+      <button className='name-button'>Enter name</button>
+      </div>
       <h2>High scores</h2>
 
       {highscores.length < 1 ? (
