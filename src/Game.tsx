@@ -113,11 +113,18 @@ export function Game() {
     gravity()
   })
 
+  const mouseRepeat = useRef(false)
+  const mouseDirection = useRef({ x: 0, y: 0 })
+  const timeoutId = useRef(0)
   useEffect(() => {
-    const handler = (x: number | undefined, y: number | undefined) => {
+    const handler = (
+      x: number | undefined = mouseDirection.current.x,
+      y: number | undefined = mouseDirection.current.y,
+    ) => {
       console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
       if (x === undefined || y === undefined) return
       if (y < gameState.playerPos.y) {
+        console.log('move up')
         console.log('move up')
         gameDispatch({
           type: ActionEnum.MOVE_UP,
@@ -126,13 +133,13 @@ export function Game() {
         })
       } else if (x > gameState.playerPos.x) {
         console.log('move right')
+        console.log('move right')
         gameDispatch({
           type: ActionEnum.MOVE_RIGHT,
           soundManager,
           loadLevelCallback,
         })
-      }
-      if (y > gameState.playerPos.y) {
+      } else if (y > gameState.playerPos.y) {
         console.log('move down')
         gameDispatch({
           type: ActionEnum.MOVE_DOWN,
@@ -141,25 +148,44 @@ export function Game() {
         })
       } else if (x < gameState.playerPos.x) {
         console.log('move left')
+        console.log('move left')
         gameDispatch({
           type: ActionEnum.MOVE_LEFT,
           soundManager,
           loadLevelCallback,
         })
       }
+      if (mouseRepeat.current) {
+        timeoutId.current = setTimeout(handler, 200)
+      }
     }
     const handleHandler = (e: MouseEvent) => {
       if (e.target instanceof HTMLElement) {
+        mouseDirection.current = {
+          x: Number(e.target.dataset.x),
+          y: Number(e.target.dataset.y),
+        }
         handler(
           e.target.dataset.x as number | undefined,
           e.target.dataset.y as number | undefined,
         )
       }
     }
-    window.addEventListener('click', handleHandler)
+    function mousedown(e: MouseEvent) {
+      mouseRepeat.current = true
+      handleHandler(e)
+    }
+    function mouseup() {
+      mouseRepeat.current = false
+      console.log(timeoutId)
+      clearTimeout(timeoutId.current)
+    }
+    window.addEventListener('mousedown', mousedown)
+    window.addEventListener('mouseup', mouseup)
 
     return () => {
-      window.removeEventListener('click', handleHandler)
+      window.removeEventListener('mousedown', mousedown)
+      window.removeEventListener('mouseup', mouseup)
     }
   })
 
@@ -182,7 +208,7 @@ export function Game() {
         >
           <ControlsInfo />
 
-          {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
+          {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
             <Block key={x + y * grid.width} x={x} y={y} image={block.texture} />
           ))}
         </div>
