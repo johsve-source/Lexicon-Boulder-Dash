@@ -1,13 +1,15 @@
 import './App.css'
-import Game from './Game'
-import { SpeedInsights } from '@vercel/speed-insights/react'
+import NameInput from './components/nameInput/NameInput'
+/* import Game from './Game'
+import { SpeedInsights } from '@vercel/speed-insights/react' */
 
 
 function App() {
   return (
     <>
-      <SpeedInsights />
-      <Game />
+   {/*    <SpeedInsights />
+      <Game /> */}
+      <NameInput/>
     </>
   )
 }
