@@ -164,7 +164,10 @@ export function Game() {
     }
     const handleHandler = (e: MouseEvent) => {
       if (e.target instanceof HTMLElement) {
-        mouseDirection.current = {x: Number(e.target.dataset.x), y: Number(e.target.dataset.y)}
+        mouseDirection.current = {
+          x: Number(e.target.dataset.x),
+          y: Number(e.target.dataset.y),
+        }
         handler(
           e.target.dataset.x as number | undefined,
           e.target.dataset.y as number | undefined,
@@ -177,7 +180,7 @@ export function Game() {
     }
     function mouseup() {
       mouseRepeat.current = false
-      clearTimeout(timeoutId.current);
+      clearTimeout(timeoutId.current)
     }
     window.addEventListener('mousedown', mousedown)
     window.addEventListener('mouseup', mouseup)
@@ -240,8 +243,9 @@ export function Game() {
           highscores={highscoreTestData}
           handleEnterNameClick={handleEnterNameClick}
         />
-      ) : isEnterNameVisible ? <NameInput setNameClickFalse={setNameClickFalse}/> 
-      :(
+      ) : isEnterNameVisible ? (
+        <NameInput setNameClickFalse={setNameClickFalse} />
+      ) : (
         <div
           className="Game"
           style={{
@@ -259,13 +263,12 @@ export function Game() {
               x={grid.y + y}
               y={grid.x + x}
               image={tile.texture}
-              animation={tile.animation || "none"}
+              animation={tile.animation || 'none'}
               frame={tile.frame || 0}
             />
           ))}
         </div>
       )}
-  
     </>
   )
 }

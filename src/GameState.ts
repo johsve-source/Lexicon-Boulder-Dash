@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react'
 import { SoundManagerHook } from './hooks/sound/useSoundManagerLogic'
 import { loadLevelData, LevelData } from './LevelLoader'
-import { TILES, Tile } from './Tiles'
+import { TILES, Tile, SoundList } from './tiles/Tiles'
 import Grid from './Grid'
 
 export enum ActionEnum {
@@ -20,16 +20,6 @@ export interface GameAction {
   soundManager?: SoundManagerHook
 }
 
-export interface GameState {
-  grid: Grid<Tile>
-  updateCords: Map<string, { x: number; y: number }>
-  playerPos: { x: number; y: number }
-  time: number
-  score: number
-  curentLevel?: LevelData
-  nextLevel?: string
-}
-
 export async function loadLevel(
   gameDispatch: React.Dispatch<GameAction>,
   path: string,
@@ -42,13 +32,7 @@ export async function loadLevel(
 }
 
 export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
-  const [gameState, gameDispatch] = useReducer(gameReducer, {
-    grid: new Grid<Tile>(),
-    updateCords: new Map<string, { x: number; y: number }>(),
-    playerPos: { x: 1, y: 1 },
-    time: 0,
-    score: 0,
-  })
+  const [gameState, gameDispatch] = useReducer(gameReducer, new GameState())
 
   useEffect(() => {
     loadLevel(gameDispatch, 'level1')
@@ -63,348 +47,245 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.type === ActionEnum.MOVE_DOWN ||
         action.type === ActionEnum.MOVE_LEFT ||
         action.type === ActionEnum.MOVE_RIGHT) {
-          return processPlayerMovement(state, action)
+          return state.clone().processPlayerMovement(action)
     }
 
   if (action.type === ActionEnum.TIME_STEP) {
-    return processPhysics(state, action)
+    if (state.updateCords.size <= 0) return state
+    else return state.clone().processPhysics(action)
   }
 
   if (
     action.type === ActionEnum.LOAD_LEVEL &&
     typeof action.Leveldata !== 'undefined'
   ) {
-    return applyLevelData(state, action.Leveldata)
+    return state.applyLevelData(action.Leveldata)
   }
 
   throw new Error(`Invalid action type "${action.type}"!`)
 }
 
-function updateCord(
-  updateCords: Map<string, { x: number; y: number }>,
-  x: number,
-  y: number,
-) {
-  updateCords.set(x + ',' + y, { x, y })
+function playAudio(action: GameAction, soundList: SoundList) {
+  if (typeof action.soundManager === 'undefined') return
+
+  if (soundList.diggingDirt)
+    action.soundManager.playInteraction('digging-dirt', {
+      id: 1,
+      volume: 0.5,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.diamondPickup)
+    action.soundManager.playInteraction('collecting-diamond', {
+      id: 2,
+      volume: 0.5,
+      loop: false,
+    })
+
+  if (soundList.explosion)
+    action.soundManager.playInteraction('stone-explode', {
+      id: 3,
+      volume: 0.5,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.stoneFalling)
+    action.soundManager.playInteraction('falling-stone', {
+      id: 4,
+      volume: 0.2,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.diamondFalling)
+    action.soundManager.playInteraction('falling-diamond', {
+      id: 5,
+      volume: 0.2,
+      loop: false,
+    })
+
+  if (soundList.diamondPickup)
+    action.soundManager.playInteraction('collecting-diamond', {
+      id: 6,
+      volume: 0.5,
+      loop: false,
+    })
 }
 
-function updateArea(
-  updateCords: Map<string, { x: number; y: number }>,
-  x: number,
-  y: number,
-  width: number = 3,
-  height: number = 3,
-) {
-  for (let iy = y; iy < y + height; iy++)
-    for (let ix = x; ix < x + width; ix++) updateCord(updateCords, ix, iy)
-}
+export class GameState {
+  grid = new Grid<Tile>()
+  updateCords = new Map<string, { x: number; y: number }>()
+  playerPos = { x: 0, y: 0 }
+  time = 0
+  score = 0
+  curentLevel?: LevelData
+  nextLevel?: string
 
-function processPlayerMovement(
-  state: GameState,
-  action: GameAction,
-): GameState {
-  let directionX = 0
-  let directionY = 0
-  const player = state.grid.get(state.playerPos.x, state.playerPos.y)
-  if (action.type === ActionEnum.MOVE_UP) {
-    directionY = -1
-    player.animation = "move-up"
-    player.frame = 1
-  } else if (action.type === ActionEnum.MOVE_DOWN) {
-    directionY = 1
-    player.animation = "move-down"
-    player.frame = 0
-  } else if (action.type === ActionEnum.MOVE_LEFT) {
-    directionX = -1
-    player.animation = "move-left"
-    player.frame = 2
-  } else if (action.type === ActionEnum.MOVE_RIGHT) {
-    directionX = 1
-    player.animation = "move-right"
-    player.frame = 3
-  }
+  processPlayerMovement(action: GameAction): GameState {
+    const localGrid = this.subGrid(this.playerPos.x, this.playerPos.y)
+    const playerTile = localGrid.get(0, 0)
 
-  const gameGridClone = state.grid.clone()
-  const localGrid = gameGridClone.subGrid(state.playerPos.x, state.playerPos.y)
+    // Check if the player is alive
+    if (playerTile !== TILES.PLAYER) {
+      if (typeof this.curentLevel !== 'undefined')
+        return this.applyLevelData(this.curentLevel)
+      else return this
+    }
 
-  const centerTile = localGrid.get(0, 0)
-  const directinTile = localGrid.get(directionX, directionY)
+    let directionX = 0
+    let directionY = 0
 
-  // Check if the player is alive
-  if (centerTile !== TILES.PLAYER) {
-    if (typeof state.curentLevel !== 'undefined')
-      return applyLevelData(state, state.curentLevel)
-    else return state
-  }
+    if (action.type === ActionEnum.MOVE_UP) directionY = -1
+    else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
+    else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
+    else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
 
-  // Bedrock
-  if (directinTile === TILES.BEDROCK) {
-    return state
-  }
+    const soundList: SoundList = {
+      diggingDirt: false,
+      stoneFalling: false,
+      diamondFalling: false,
+      diamondPickup: false,
+      explosion: false,
+    }
 
-  // Finish
-  if (directinTile === TILES.FINISH) {
-    if (
-      typeof action.loadLevelCallback !== 'undefined' &&
-      typeof state.nextLevel !== 'undefined'
-    )
-      action.loadLevelCallback(state.nextLevel)
+    const update = (x: number, y: number) => {
+      const tile = this.get(x, y)
 
-    return state
-  }
+      if (typeof tile.onPlayerMove !== 'undefined') {
+        tile.onPlayerMove({
+          x,
+          y,
+          tile,
+          local: this.subGrid(x, y),
 
-  // Dirt
-  if (directinTile === TILES.DIRT || directinTile === TILES.NOTHING) {
-    localGrid.set(directionX, directionY, centerTile)
-    localGrid.set(0, 0, TILES.NOTHING)
+          updateLocal: (
+            rx: number,
+            ry: number,
+            width: number = 1,
+            height: number = 1,
+          ) => {
+            this.updateArea(x + rx, y + ry, width, height)
+          },
 
-    if (typeof action.soundManager !== 'undefined')
-      if (directinTile === TILES.DIRT) {
-        action.soundManager.playInteraction('digging-dirt', {
-          id: 1,
-          volume: 0.5,
-          loop: false,
-          trailing: true,
+          gameState: this,
+          action,
+          soundList,
+
+          from: { x, y },
+          moveDirection: { x: directionX, y: directionY },
         })
       }
+    }
 
-    // Diamond
-  } else if (
-    [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(directinTile)
-  ) {
-    if (typeof action.soundManager !== 'undefined')
-      action.soundManager.playInteraction('collecting-diamond', {
-        id: 2,
-        volume: 0.5,
-        loop: false,
-      })
-    localGrid.set(directionX, directionY, centerTile)
-    localGrid.set(0, 0, TILES.NOTHING)
+    for (let y = this.playerPos.y - 1; y <= this.playerPos.y + 1; y++)
+      for (let x = this.playerPos.x - 1; x <= this.playerPos.x + 1; x++)
+        if (!(x === this.playerPos.x && y === this.playerPos.y)) update(x, y)
 
-    // Pushing boulder right
-  } else if (
-    directionX === 1 &&
-    localGrid.get(2, 0) === TILES.NOTHING &&
-    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
-  ) {
-    localGrid.set(directionX, directionY, centerTile)
-    localGrid.set(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
-    localGrid.set(0, 0, TILES.NOTHING)
+    update(this.playerPos.x, this.playerPos.y)
 
-    // Pushing boulder left
-  } else if (
-    directionX === -1 &&
-    localGrid.get(-2, 0) === TILES.NOTHING &&
-    [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
-  ) {
-    localGrid.set(directionX, directionY, centerTile)
-    localGrid.set(directionX - 1, directionY, TILES.BEDROCK_BOULDER)
-    localGrid.set(0, 0, TILES.NOTHING)
-  } else {
-    return state
+    playAudio(action, soundList)
+
+    return this
   }
 
-  updateArea(
-    state.updateCords,
-    state.playerPos.x - 1 + Math.min(directionX, 0),
-    state.playerPos.y - 1 + Math.min(directionY, 0),
-    3 + Math.abs(directionX),
-    3 + Math.abs(directionY),
-  )
+  processPhysics(action: GameAction): GameState {
+    if (this.updateCords.size <= 0) return this
 
-  return {
-    ...state,
-    grid: gameGridClone,
-    playerPos: {
-      x: state.playerPos.x + directionX,
-      y: state.playerPos.y + directionY,
-    },
-  }
-}
+    console.log(`Physics: ${this.updateCords.size} items. `)
 
-function processPhysics(state: GameState, action: GameAction): GameState {
-  if (state.updateCords.size <= 0) return state
-
-  console.log(`Physics: ${state.updateCords.size} items. `)
-
-  const gameGridClone = state.grid.clone()
-  const nextUpdateCords = new Map<string, { x: number; y: number }>()
-
-  let playStoneFallingSound = false
-  let playDiamondFallingSound = false
-  let playDiamondPickupSound = false
-  let playExplosionSound = false
-
-  const sortedUpdates = [...state.updateCords.values()].sort((a, b) => {
-    if (b.y !== a.y) return b.y - a.y
-    return b.x - a.x
-  })
-
-  for (let i = 0; i < sortedUpdates.length; i++)
-    for (let j = i + 1; j < sortedUpdates.length; j++)
-      if (
-        sortedUpdates[i].x === sortedUpdates[j].x &&
-        sortedUpdates[i].y === sortedUpdates[j].y
-      )
-        console.log(sortedUpdates[i])
-
-  sortedUpdates.forEach(({ x, y }) => {
-    const localGrid = gameGridClone.subGrid(x, y)
-    const tile = localGrid.get(0, 0)
-
-    // Check if tile is physics object
-    if (
-      ![
-        TILES.DIRT_BOULDER,
-        TILES.BEDROCK_BOULDER,
-        TILES.FALLING_BOULDER,
-        TILES.EXPLOSION,
-        TILES.DIRT_DIAMOND,
-        TILES.BEDROCK_DIAMOND,
-      ].includes(tile)
-    )
-      return
-
-    // Remove explosion
-    if (tile === TILES.EXPLOSION) {
-      localGrid.set(0, 0, TILES.NOTHING)
-      updateArea(nextUpdateCords, x - 1, y - 1)
+    const soundList: SoundList = {
+      diggingDirt: false,
+      stoneFalling: false,
+      diamondFalling: false,
+      diamondPickup: false,
+      explosion: false,
     }
 
-    // Falling boulder player kill
-    else if (
-      tile === TILES.FALLING_BOULDER &&
-      localGrid.get(0, 1) === TILES.PLAYER
-    ) {
-      for (let iy = 0; iy <= 2; iy++)
-        for (let ix = -1; ix <= 1; ix++)
-          if (localGrid.get(ix, iy) !== TILES.BEDROCK) {
-            localGrid.set(ix, iy, TILES.EXPLOSION)
-            updateCord(nextUpdateCords, ix + x, iy + y)
-          }
+    const sortedUpdates = [...this.updateCords.values()].sort((a, b) => {
+      if (b.y !== a.y) return b.y - a.y
+      return b.x - a.x
+    })
+    this.updateCords = new Map<string, { x: number; y: number }>()
 
-      playExplosionSound = true
-    }
+    sortedUpdates.forEach(({ x, y }) => {
+      const tile = this.get(x, y)
 
-    // Falling gem pick up
-    else if (
-      [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile) &&
-      localGrid.get(0, 1) === TILES.PLAYER
-    ) {
-      localGrid.set(0, 0, TILES.NOTHING)
-      updateArea(nextUpdateCords, x - 1, y - 1)
+      if (typeof tile.onPhysics !== 'undefined') {
+        tile.onPhysics({
+          x,
+          y,
+          tile,
+          local: this.subGrid(x, y),
 
-      playDiamondPickupSound = true
-    }
+          updateLocal: (
+            rx: number,
+            ry: number,
+            width: number = 1,
+            height: number = 1,
+          ) => {
+            this.updateArea(x + rx, y + ry, width, height)
+          },
 
-    // Falling down
-    else if (localGrid.get(0, 1) === TILES.NOTHING) {
-      let fallVariant = tile
-      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-        fallVariant = TILES.FALLING_BOULDER
-      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
+          gameState: this,
+          action,
+          soundList,
+        })
+      }
+    })
 
-      localGrid.set(0, 0, TILES.NOTHING)
-      localGrid.set(0, 1, fallVariant)
-      updateArea(nextUpdateCords, x - 1, y - 1, 3, 4)
-      fallVariant.animation = 'move-down'
-      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-        playDiamondFallingSound = true
-      else playStoneFallingSound = true
-    }
+    playAudio(action, soundList)
 
-    // Falling left
-    else if (
-      localGrid.get(-1, 0) === TILES.NOTHING &&
-      localGrid.get(-1, 1) === TILES.NOTHING
-    ) {
-      let fallVariant = tile
-      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-        fallVariant = TILES.FALLING_BOULDER
-      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
-
-      localGrid.set(0, 0, TILES.NOTHING)
-      localGrid.set(-1, 0, fallVariant)
-      updateArea(nextUpdateCords, x - 2, y - 1, 4, 3)
-      fallVariant.animation = 'move-left-b'
-      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-        playDiamondFallingSound = true
-      else playStoneFallingSound = true
-    }
-
-    // Falling right
-    else if (
-      localGrid.get(1, 0) === TILES.NOTHING &&
-      localGrid.get(1, 1) === TILES.NOTHING
-    ) {
-      let fallVariant = tile
-      if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
-        fallVariant = TILES.FALLING_BOULDER
-      else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
-
-      localGrid.set(0, 0, TILES.NOTHING)
-      localGrid.set(1, 0, fallVariant)
-      updateArea(nextUpdateCords, x - 1, y - 1, 4, 3)
-      fallVariant.animation = 'move-right-b'
-      if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
-        playDiamondFallingSound = true
-      else playStoneFallingSound = true
-    }
-
-    // Reset falling boulder
-    else if (tile === TILES.FALLING_BOULDER) {
-      localGrid.set(0, 0, TILES.BEDROCK_BOULDER)
-    }
-  })
-
-  if (typeof action.soundManager !== 'undefined') {
-    if (playExplosionSound)
-      action.soundManager.playInteraction('stone-explode', {
-        id: 3,
-        volume: 0.5,
-        loop: false,
-        trailing: true,
-      })
-
-    if (playStoneFallingSound)
-      action.soundManager.playInteraction('falling-stone', {
-        id: 4,
-        volume: 0.2,
-        loop: false,
-        trailing: true,
-      })
-
-    if (playDiamondFallingSound)
-      action.soundManager.playInteraction('falling-diamond', {
-        id: 5,
-        volume: 0.2,
-        loop: false,
-      })
-
-    if (playDiamondPickupSound)
-      action.soundManager.playInteraction('collecting-diamond', {
-        id: 6,
-        volume: 0.5,
-        loop: false,
-      })
+    return this
   }
 
-  return {
-    ...state,
-    grid: gameGridClone,
-    updateCords: nextUpdateCords,
+  get(x: number, y: number) {
+    return this.grid.get(x, y)
   }
-}
 
-function applyLevelData(state: GameState, Leveldata: LevelData) {
-  return {
-    ...state,
-    grid: Leveldata.grid.clone(),
-    playerPos: {
-      x: Leveldata.playerPos.x,
-      y: Leveldata.playerPos.y,
-    },
-    curentLevel: Leveldata,
-    nextLevel: Leveldata.nextLevel,
+  set(x: number, y: number, value: Tile) {
+    return this.grid.set(x, y, value)
+  }
+
+  subGrid(x: number, y: number, width: number = 1, height: number = 1) {
+    return this.grid.subGrid(x, y, width, height)
+  }
+
+  updateCord(x: number, y: number) {
+    this.updateCords.set(x + ',' + y, { x, y })
+  }
+
+  updateArea(x: number, y: number, width: number = 3, height: number = 3) {
+    for (let iy = y; iy < y + height; iy++)
+      for (let ix = x; ix < x + width; ix++) this.updateCord(ix, iy)
+  }
+
+  applyLevelData(Leveldata: LevelData) {
+    const clone = new GameState()
+
+    clone.grid = Leveldata.grid.clone()
+    clone.updateCords = this.updateCords
+    clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
+    clone.time = this.time
+    clone.score = this.score
+    clone.curentLevel = Leveldata
+    clone.nextLevel = Leveldata.nextLevel
+
+    return clone
+  }
+
+  clone() {
+    const clone = new GameState()
+
+    clone.grid = this.grid.clone()
+    clone.updateCords = this.updateCords
+    clone.playerPos = { x: this.playerPos.x, y: this.playerPos.y }
+    clone.time = this.time
+    clone.score = this.score
+    clone.curentLevel = this.curentLevel
+    clone.nextLevel = this.nextLevel
+
+    return clone
   }
 }
