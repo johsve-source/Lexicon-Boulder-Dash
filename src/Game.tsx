@@ -124,28 +124,24 @@ export function Game() {
       console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
       if (x === undefined || y === undefined) return
       if (y < gameState.playerPos.y) {
-        console.log('move up')
         gameDispatch({
           type: ActionEnum.MOVE_UP,
           soundManager,
           loadLevelCallback,
         })
       } else if (x > gameState.playerPos.x) {
-        console.log('move right')
         gameDispatch({
           type: ActionEnum.MOVE_RIGHT,
           soundManager,
           loadLevelCallback,
         })
       } else if (y > gameState.playerPos.y) {
-        console.log('move down')
         gameDispatch({
           type: ActionEnum.MOVE_DOWN,
           soundManager,
           loadLevelCallback,
         })
       } else if (x < gameState.playerPos.x) {
-        console.log('move left')
         gameDispatch({
           type: ActionEnum.MOVE_LEFT,
           soundManager,
@@ -171,7 +167,6 @@ export function Game() {
     }
     function mouseup() {
       mouseRepeat.current = false
-      console.log(timeoutId)
       clearTimeout(timeoutId.current);
     }
     window.addEventListener('mousedown', mousedown)
