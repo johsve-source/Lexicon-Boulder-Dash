@@ -9,10 +9,13 @@ function Block({ x, y, image, animation, frame }: IBlockProps) {
         alt="A block"
         className="Block"
         style={{
-          gridArea: `${x} / ${y}`,
+          gridArea: `${x + 1} / ${y + 1}`,
           animation: `0.2s linear forwards running ${animation || 'none'}`,
-          objectPosition: `${-32 * frame}px`
+          objectPosition: `${-32 * frame}px`,
         }}
+        data-x={y} // ???
+        data-y={x} // ???
+        draggable="false"
       />
     </>
   )

@@ -39,11 +39,10 @@ export function Game() {
       trailing: true,
     })
   }
-  
+  const loadLevelCallback = (path: string) => {
+    loadLevel(gameDispatch, path)
+  }
   useEffect(() => {
-    const loadLevelCallback = (path: string) => {
-      loadLevel(gameDispatch, path)
-    }
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
@@ -122,6 +121,70 @@ export function Game() {
     gravity()
   })
 
+  const mouseRepeat = useRef(false)
+  const mouseDirection = useRef({ x: 0, y: 0 })
+  const timeoutId = useRef(0)
+  useEffect(() => {
+    const handler = (
+      x: number | undefined = mouseDirection.current.x,
+      y: number | undefined = mouseDirection.current.y,
+    ) => {
+      console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
+      if (x === undefined || y === undefined) return
+      if (y < gameState.playerPos.y) {
+        gameDispatch({
+          type: ActionEnum.MOVE_UP,
+          soundManager,
+          loadLevelCallback,
+        })
+      } else if (x > gameState.playerPos.x) {
+        gameDispatch({
+          type: ActionEnum.MOVE_RIGHT,
+          soundManager,
+          loadLevelCallback,
+        })
+      } else if (y > gameState.playerPos.y) {
+        gameDispatch({
+          type: ActionEnum.MOVE_DOWN,
+          soundManager,
+          loadLevelCallback,
+        })
+      } else if (x < gameState.playerPos.x) {
+        gameDispatch({
+          type: ActionEnum.MOVE_LEFT,
+          soundManager,
+          loadLevelCallback,
+        })
+      }
+      if (mouseRepeat.current) {
+        timeoutId.current = setTimeout(handler, 200)
+      }
+    }
+    const handleHandler = (e: MouseEvent) => {
+      if (e.target instanceof HTMLElement) {
+        mouseDirection.current = {x: Number(e.target.dataset.x), y: Number(e.target.dataset.y)}
+        handler(
+          e.target.dataset.x as number | undefined,
+          e.target.dataset.y as number | undefined,
+        )
+      }
+    }
+    function mousedown(e: MouseEvent) {
+      mouseRepeat.current = true
+      handleHandler(e)
+    }
+    function mouseup() {
+      mouseRepeat.current = false
+      clearTimeout(timeoutId.current);
+    }
+    window.addEventListener('mousedown', mousedown)
+    window.addEventListener('mouseup', mouseup)
+
+    return () => {
+      window.removeEventListener('mousedown', mousedown)
+      window.removeEventListener('mouseup', mouseup)
+    }
+  })
   const [renderGrid, setRenderGrid] = useState(gameState.grid.subGrid(0, 0))
 
   useEffect(() => {
@@ -191,8 +254,8 @@ export function Game() {
           {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
             <Block
               key={x + y * grid.width}
-              x={1 + grid.y + y}
-              y={1 + grid.x + x}
+              x={grid.y + y}
+              y={grid.x + x}
               image={tile.texture}
               animation={tile.animation || "none"}
               frame={tile.frame || 0}
