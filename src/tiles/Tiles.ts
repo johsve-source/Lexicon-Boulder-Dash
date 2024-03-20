@@ -1,5 +1,5 @@
 import { SubGrid } from '../Grid'
-import { GameAction, GameState } from '../OldGameState'
+import { GameAction, GameState } from '../GameState'
 
 export interface SoundList {
   diggingDirt: boolean
