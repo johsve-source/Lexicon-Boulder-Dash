@@ -5,12 +5,17 @@ import ControlsInfo from './components/ControlsInfo'
 import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
 import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
-// remove import after highscore caching is finished
-import { highscoreTestData } from './assets/highscoreData'
+import { useHighscoreCounter } from './hooks/highscore/useHighscoreCounter'
+import {
+  DEFAULT_KEY_NAME,
+  loadHighscoresFromLocal,
+} from './hooks/highscore/modules/highscore'
 
 export const PlayerContext = createContext<number[]>([])
 
 export function Game() {
+  const { highscores, updateHighscores, resetHighscores, loadPlayerHighscore } =
+    useHighscoreCounter()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [, setIsGameStarted] = useState<boolean>(false)
@@ -94,6 +99,19 @@ export function Game() {
       window.removeEventListener('keydown', keyPress)
     }
   })
+
+  useEffect(() => {
+    // Load highscores from local storage on component mount
+    const storedHighscores = localStorage.getItem(DEFAULT_KEY_NAME)
+    if (storedHighscores) {
+      try {
+        const decryptedHighscores = loadHighscoresFromLocal(storedHighscores)
+        updateHighscores(decryptedHighscores.map((entry) => entry.score))
+      } catch (error) {
+        console.error('Error loading highscores:', error.message)
+      }
+    }
+  }, [updateHighscores])
 
   const storedGrid = useRef(gameState.grid)
   const gravityQueued = useRef(false)

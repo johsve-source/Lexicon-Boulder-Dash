@@ -11,6 +11,7 @@ export enum ActionEnum {
   MOVE_RIGHT = 'MOVE_RIGHT',
   TIME_STEP = 'TIME_STEP',
   LOAD_LEVEL = 'LOAD_LEVEL',
+  UPDATE_HIGHSCORES = 'UPDATE_HIGHSCORES',
 }
 
 export interface GameAction {
@@ -75,6 +76,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     typeof action.Leveldata !== 'undefined'
   ) {
     return applyLevelData(state, action.Leveldata)
+  }
+  if (action.type === ActionEnum.UPDATE_HIGHSCORES) {
+    return {
+      ...state,
+      highscores: action.highscores,
+    }
   }
 
   throw new Error(`Invalid action type "${action.type}"!`)
