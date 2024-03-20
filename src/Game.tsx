@@ -21,9 +21,11 @@ export function Game() {
   const [gameState, gameDispatch] = GetGameReducer()
 
   function handleEnterNameClick() {
-    console.log('hello')
     setEnterNameVisible(true)
-    console.log(isEnterNameVisible)
+  }
+
+  function setNameClickFalse() {
+    setEnterNameVisible(false)
   }
 
   function handlePlayClick() {
@@ -175,7 +177,7 @@ export function Game() {
           highscores={highscoreTestData}
           handleEnterNameClick={handleEnterNameClick}
         />
-      ) : isEnterNameVisible ? <NameInput /> 
+      ) : isEnterNameVisible ? <NameInput setNameClickFalse={setNameClickFalse}/> 
       :(
         <div
           className="Game"
