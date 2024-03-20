@@ -9,6 +9,9 @@ export interface SoundList {
 }
 
 export interface onPhysicsParams {
+  x: number
+  y: number
+  tile: Tile
   local: SubGrid<Tile>
   updateLocal: (x: number, y: number, width?: number, height?: number) => void
   gameState: GameState

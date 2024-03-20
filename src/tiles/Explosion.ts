@@ -1,17 +1,16 @@
-import { SubGrid } from '../Grid'
-import { TILES, Tile, TileList } from './Tiles'
+import { TILES, TileList, onPhysicsParams } from './Tiles'
 
 export function explode(
-  grid: SubGrid<Tile>,
-  updateCords: (x: number, y: number, width?: number, height?: number) => void,
+  { local, updateLocal }: onPhysicsParams,
   x: number = 0,
   y: number = 0,
+  radius: number = 1,
 ) {
-  for (let iy = y - 1; iy <= y + 1; iy++)
-    for (let ix = x - 1; ix <= x + 1; ix++)
-      if (grid.get(ix, iy) !== TILES.BEDROCK) {
-        grid.set(ix, iy, TILES.EXPLOSION)
-        updateCords(ix + x, iy + y)
+  for (let iy = y - radius; iy <= y + radius; iy++)
+    for (let ix = x - radius; ix <= x + radius; ix++)
+      if (local.get(ix, iy) !== TILES.BEDROCK) {
+        local.set(ix, iy, TILES.EXPLOSION)
+        updateLocal(ix + x, iy + y)
       }
 }
 

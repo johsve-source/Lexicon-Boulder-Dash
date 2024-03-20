@@ -1,7 +1,7 @@
 import { useEffect, useReducer } from 'react'
 import { SoundManagerHook } from './hooks/sound/useSoundManagerLogic'
 import { loadLevelData, LevelData } from './LevelLoader'
-import { TILES, Tile } from './tiles/Tiles'
+import { TILES, Tile, SoundList } from './tiles/Tiles'
 import Grid from './Grid'
 
 export enum ActionEnum {
@@ -65,6 +65,55 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   throw new Error(`Invalid action type "${action.type}"!`)
 }
 
+function playAudio(action: GameAction, soundList: SoundList) {
+  if (typeof action.soundManager === 'undefined') return
+
+  if (soundList.diggingDirt)
+    action.soundManager.playInteraction('digging-dirt', {
+      id: 1,
+      volume: 0.5,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.diamondPickup)
+    action.soundManager.playInteraction('collecting-diamond', {
+      id: 2,
+      volume: 0.5,
+      loop: false,
+    })
+
+  if (soundList.explosion)
+    action.soundManager.playInteraction('stone-explode', {
+      id: 3,
+      volume: 0.5,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.stoneFalling)
+    action.soundManager.playInteraction('falling-stone', {
+      id: 4,
+      volume: 0.2,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.diamondFalling)
+    action.soundManager.playInteraction('falling-diamond', {
+      id: 5,
+      volume: 0.2,
+      loop: false,
+    })
+
+  if (soundList.diamondPickup)
+    action.soundManager.playInteraction('collecting-diamond', {
+      id: 6,
+      volume: 0.5,
+      loop: false,
+    })
+}
+
 export class GameState {
   grid = new Grid<Tile>()
   updateCords = new Map<string, { x: number; y: number }>()
@@ -85,7 +134,6 @@ export class GameState {
 
     const localGrid = this.subGrid(this.playerPos.x, this.playerPos.y)
     const centerTile = localGrid.get(0, 0)
-    //const directinTile = localGrid.get(directionX, directionY)
 
     // Check if the player is alive
     if (centerTile !== TILES.PLAYER) {
@@ -94,89 +142,50 @@ export class GameState {
       else return this
     }
 
-    const soundList = {
+    const soundList: SoundList = {
       diggingDirt: false,
-      collectingDiamond: false,
       stoneFalling: false,
       diamondFalling: false,
       diamondPickup: false,
       explosion: false,
     }
 
-    for (let y = this.playerPos.y - 1; y <= this.playerPos.y + 1; y++)
-      for (let x = this.playerPos.x - 1; x <= this.playerPos.x + 1; x++) {
-        if (x === this.playerPos.x && y === this.playerPos.y) continue
+    const update = (x: number, y: number) => {
+      const tile = this.get(x, y)
 
-        const tile = this.get(x, y)
+      if (typeof tile.onPlayerMove !== 'undefined') {
+        tile.onPlayerMove({
+          x,
+          y,
+          tile,
+          local: this.subGrid(x, y),
 
-        if (typeof tile.onPlayerMove !== 'undefined') {
-          tile.onPlayerMove({
-            local: this.subGrid(x, y),
+          updateLocal: (
+            rx: number,
+            ry: number,
+            width: number = 1,
+            height: number = 1,
+          ) => {
+            this.updateArea(x + rx, y + ry, width, height)
+          },
 
-            updateLocal: (
-              rx: number,
-              ry: number,
-              width: number = 1,
-              height: number = 1,
-            ) => {
-              this.updateArea(x + rx, y + ry, width, height)
-            },
+          gameState: this,
+          action,
+          soundList,
 
-            gameState: this,
-            action,
-            soundList,
-
-            from: { x, y },
-            moveDirection: { x: directionX, y: directionY },
-          })
-        }
+          from: { x, y },
+          moveDirection: { x: directionX, y: directionY },
+        })
       }
-
-    const tile = this.get(this.playerPos.x, this.playerPos.y)
-
-    if (typeof tile.onPlayerMove !== 'undefined') {
-      tile.onPlayerMove({
-        local: this.subGrid(this.playerPos.x, this.playerPos.y),
-
-        updateLocal: (
-          rx: number,
-          ry: number,
-          width: number = 1,
-          height: number = 1,
-        ) => {
-          this.updateArea(
-            this.playerPos.x + rx,
-            this.playerPos.y + ry,
-            width,
-            height,
-          )
-        },
-
-        gameState: this,
-        action,
-        soundList,
-
-        from: { x: this.playerPos.x, y: this.playerPos.y },
-        moveDirection: { x: directionX, y: directionY },
-      })
     }
 
-    if (typeof action.soundManager !== 'undefined') {
-      if (soundList.diggingDirt)
-        action.soundManager.playInteraction('digging-dirt', {
-          id: 1,
-          volume: 0.5,
-          loop: false,
-          trailing: true,
-        })
+    for (let y = this.playerPos.y - 1; y <= this.playerPos.y + 1; y++)
+      for (let x = this.playerPos.x - 1; x <= this.playerPos.x + 1; x++)
+        if (!(x === this.playerPos.x && y === this.playerPos.y)) update(x, y)
 
-      if (soundList.diamondPickup)
-        action.soundManager.playInteraction('collecting-diamond', {
-          id: 2,
-          volume: 0.5,
-          loop: false,
-        })
-    }
+    update(this.playerPos.x, this.playerPos.y)
+
+    playAudio(action, soundList)
 
     return this
   }
@@ -186,9 +195,8 @@ export class GameState {
 
     console.log(`Physics: ${this.updateCords.size} items. `)
 
-    const soundList = {
+    const soundList: SoundList = {
       diggingDirt: false,
-      collectingDiamond: false,
       stoneFalling: false,
       diamondFalling: false,
       diamondPickup: false,
@@ -206,6 +214,9 @@ export class GameState {
 
       if (typeof tile.onPhysics !== 'undefined') {
         tile.onPhysics({
+          x,
+          y,
+          tile,
           local: this.subGrid(x, y),
 
           updateLocal: (
@@ -224,37 +235,7 @@ export class GameState {
       }
     })
 
-    if (typeof action.soundManager !== 'undefined') {
-      if (soundList.explosion)
-        action.soundManager.playInteraction('stone-explode', {
-          id: 3,
-          volume: 0.5,
-          loop: false,
-          trailing: true,
-        })
-
-      if (soundList.stoneFalling)
-        action.soundManager.playInteraction('falling-stone', {
-          id: 4,
-          volume: 0.2,
-          loop: false,
-          trailing: true,
-        })
-
-      if (soundList.diamondFalling)
-        action.soundManager.playInteraction('falling-diamond', {
-          id: 5,
-          volume: 0.2,
-          loop: false,
-        })
-
-      if (soundList.diamondPickup)
-        action.soundManager.playInteraction('collecting-diamond', {
-          id: 6,
-          volume: 0.5,
-          loop: false,
-        })
-    }
+    playAudio(action, soundList)
 
     return this
   }

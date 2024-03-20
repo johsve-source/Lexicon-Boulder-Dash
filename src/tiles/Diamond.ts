@@ -16,14 +16,17 @@ const EXPORT: TileList = {
     },
 
     onPhysics: (params) => {
-      if (params.local.get(0, 1) === TILES.PLAYER) {
-        params.local.set(0, 0, TILES.NOTHING)
-        params.soundList.diamondPickup = true
+      const { local, updateLocal, soundList } = params
+
+      if (local.get(0, 1) === TILES.PLAYER) {
+        local.set(0, 0, TILES.NOTHING)
+        updateLocal(-1, -1, 3, 3)
+        soundList.diamondPickup = true
         return
       }
 
       if (boulderPhysics(params, TILES.BEDROCK_DIAMOND, TILES.DIRT_DIAMOND))
-        params.soundList.diamondFalling = true
+        soundList.diamondFalling = true
     },
   },
 
@@ -41,14 +44,17 @@ const EXPORT: TileList = {
     },
 
     onPhysics: (params) => {
-      if (params.local.get(0, 1) === TILES.PLAYER) {
-        params.local.set(0, 0, TILES.NOTHING)
-        params.soundList.diamondPickup = true
+      const { local, updateLocal, soundList } = params
+
+      if (local.get(0, 1) === TILES.PLAYER) {
+        local.set(0, 0, TILES.NOTHING)
+        updateLocal(-1, -1, 3, 3)
+        soundList.diamondPickup = true
         return
       }
 
       if (boulderPhysics(params, TILES.BEDROCK_DIAMOND, TILES.BEDROCK_DIAMOND))
-        params.soundList.diamondFalling = true
+        soundList.diamondFalling = true
     },
   },
 }

@@ -7,6 +7,62 @@ import {
 } from './Tiles'
 import { explode } from './Explosion'
 
+const EXPORT: TileList = {
+  DIRT_BOULDER: {
+    name: 'DIRT_BOULDER',
+    texture: '/textures/pixel/dirt-boulder.png',
+    symbol: 'O',
+
+    onPlayerMove(params) {
+      boulderPush(params, TILES.BEDROCK_BOULDER)
+    },
+
+    onPhysics: (params) => {
+      const { soundList } = params
+
+      if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.DIRT_BOULDER))
+        soundList.stoneFalling = true
+    },
+  },
+
+  BEDROCK_BOULDER: {
+    name: 'BEDROCK_BOULDER',
+    texture: '/textures/pixel/bedrock-boulder.png',
+    symbol: 'o',
+
+    onPlayerMove(params) {
+      boulderPush(params, TILES.BEDROCK_BOULDER)
+    },
+
+    onPhysics: (params) => {
+      const { soundList } = params
+
+      if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.BEDROCK_BOULDER))
+        soundList.stoneFalling = true
+    },
+  },
+
+  FALLING_BOULDER: {
+    name: 'FALLING_BOULDER',
+    texture: '/textures/pixel/bedrock-boulder.png',
+
+    onPhysics: (params) => {
+      const { local, soundList } = params
+
+      if (local.get(0, 1) === TILES.PLAYER) {
+        explode(params, 0, 1)
+        soundList.explosion = true
+        return
+      }
+
+      if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.BEDROCK_BOULDER))
+        soundList.stoneFalling = true
+    },
+  },
+}
+
+export default EXPORT
+
 export function boulderPush(
   { local, moveDirection }: onPlayerMoveParams,
   pushVariant: Tile,
@@ -59,53 +115,3 @@ export function boulderPhysics(
   local.set(0, 0, restVariant)
   return false
 }
-
-const EXPORT: TileList = {
-  DIRT_BOULDER: {
-    name: 'DIRT_BOULDER',
-    texture: '/textures/pixel/dirt-boulder.png',
-    symbol: 'O',
-
-    onPlayerMove(params) {
-      boulderPush(params, TILES.BEDROCK_BOULDER)
-    },
-
-    onPhysics: (params) => {
-      if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.DIRT_BOULDER))
-        params.soundList.stoneFalling = true
-    },
-  },
-
-  BEDROCK_BOULDER: {
-    name: 'BEDROCK_BOULDER',
-    texture: '/textures/pixel/bedrock-boulder.png',
-    symbol: 'o',
-
-    onPlayerMove(params) {
-      boulderPush(params, TILES.BEDROCK_BOULDER)
-    },
-
-    onPhysics: (params) => {
-      if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.BEDROCK_BOULDER))
-        params.soundList.stoneFalling = true
-    },
-  },
-
-  FALLING_BOULDER: {
-    name: 'FALLING_BOULDER',
-    texture: '/textures/pixel/bedrock-boulder.png',
-
-    onPhysics: (params) => {
-      if (params.local.get(0, 1) === TILES.PLAYER) {
-        explode(params.local, params.updateLocal, 0, 1)
-        params.soundList.explosion = true
-        return
-      }
-
-      if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.BEDROCK_BOULDER))
-        params.soundList.stoneFalling = true
-    },
-  },
-}
-
-export default EXPORT
