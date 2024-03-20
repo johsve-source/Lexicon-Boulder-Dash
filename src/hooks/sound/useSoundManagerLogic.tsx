@@ -1,9 +1,29 @@
+/*
+* import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
+*
+* const soundManager = useSoundManagerLogic()
+*
+* soundManager.playInteraction('ambiance', {
+*   id: 7,
+*   volume: 0.2,
+*   loop: true,
+*   trailing: true,
+* })
+* 
+* Optional:
+*   ID       - Default: Self-Assignable
+*   Duration - Default: 3000ms
+*   Volume   - Default: 1.0
+*   Loop     - Default: False
+*   Trailing - Default: False
+*/
+
 import { useEffect, useRef } from 'react'
 import { determineSoundFile } from './utils/soundUtils'
 import { DEFAULT_DURATION } from './constants/soundConstants'
 
 export interface SoundOptions {
-  id: number
+  id?: number
   duration?: number
   volume?: number
   loop?: boolean

@@ -7,16 +7,24 @@ import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
+import NameInput from './components/nameInput/NameInput'
 
 export const PlayerContext = createContext<number[]>([])
 
 export function Game() {
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
+  const [isEnterNameVisible, setEnterNameVisible] = useState<boolean>(false)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [, setIsGameStarted] = useState<boolean>(false)
 
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = GetGameReducer()
+
+  function handleEnterNameClick() {
+    console.log('hello')
+    setEnterNameVisible(true)
+    console.log(isEnterNameVisible)
+  }
 
   function handlePlayClick() {
     setStartMenuVisible(false)
@@ -67,7 +75,7 @@ export function Game() {
         })
       }
     }
-    if (gameState.playerPos.y > gameState.grid.height / 2) {
+    /* if (gameState.playerPos.y > gameState.grid.height / 2) {
       window.scrollTo({
         top:
           gameState.playerPos.y +
@@ -85,7 +93,7 @@ export function Game() {
           (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
         behavior: 'auto',
       })
-    }
+    } */
 
     window.addEventListener('keydown', keyPress)
 
@@ -177,23 +185,85 @@ export function Game() {
       window.removeEventListener('mouseup', mouseup)
     }
   })
+  const [renderGrid, setRenderGrid] = useState(gameState.grid.subGrid(0, 0))
+
+  useEffect(() => {
+    const width = Math.min(
+      Math.ceil(window.innerWidth / 32) + 2,
+      gameState.grid.width,
+    )
+    const height = Math.min(
+      Math.ceil(window.innerHeight / 32) + 2,
+      gameState.grid.height,
+    )
+
+    const x = Math.max(
+      Math.min(
+        Math.floor(gameState.playerPos.x - Math.ceil(width / 2)),
+        gameState.grid.width - width,
+      ),
+      0,
+    )
+    const y = Math.max(
+      Math.min(
+        Math.floor(gameState.playerPos.y - Math.ceil(height / 2)),
+        gameState.grid.height - height,
+      ),
+      0,
+    )
+
+    setRenderGrid(gameState.grid.subGrid(x, y, width, height))
+
+    const cameraX = gameState.playerPos.x * 32 - window.innerWidth / 2
+    const cameraY = gameState.playerPos.y * 32 - window.innerHeight / 2
+
+    window.scrollTo({
+      left: cameraX,
+      top: cameraY,
+      behavior: 'instant',
+      //behavior: 'smooth',
+    })
+  }, [
+    gameState.grid,
+    gameState.playerPos.x,
+    gameState.playerPos.y,
+    setRenderGrid,
+  ])
 
   return (
     <>
-      {isStartMenuVisible ? (
+      {isStartMenuVisible && isEnterNameVisible === false ? (
         <StartMenu
           onPlayClick={handlePlayClick}
           highscores={highscoreTestData}
+          handleEnterNameClick={handleEnterNameClick}
         />
-      ) : (
-        <div className="Game">
+      ) : isEnterNameVisible ? <NameInput /> 
+      :(
+        <div
+          className="Game"
+          style={{
+            width: `${gameState.grid.width * 32}px`,
+            height: `${gameState.grid.height * 32}px`,
+            gridTemplateColumns: `repeat(${gameState.grid.width},1fr)`,
+            gridTemplateRows: `repeat(${gameState.grid.height},1fr)`,
+          }}
+        >
           <ControlsInfo />
 
-          {gameState.grid.toItterArray().map(([block, x, y, grid]) => (
-            <Block key={x + y * grid.width} x={x} y={y} image={block.texture} />
+          {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
+            <Block
+              key={x + y * grid.width}
+              x={grid.y + y}
+              y={grid.x + x}
+              image={tile.texture}
+              animation={tile.animation || "none"}
+              frame={tile.frame || 0}
+            />
           ))}
         </div>
       )}
+  
     </>
   )
 }

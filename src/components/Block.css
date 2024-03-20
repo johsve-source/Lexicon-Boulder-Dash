@@ -1,4 +1,101 @@
 .Block {
   height: var(--game-block-size);
   width: var(--game-block-size);
+  position: relative;
+  object-fit: cover;
+  object-position: 0;
+}
+
+@keyframes move-left-b {
+  from {
+    left: var(--game-block-size);
+    z-index: 99;
+    rotate: 360deg;
+  }
+  to {
+    left: 0;
+    z-index: 99;
+    rotate: 0deg;
+  }
+}
+
+@keyframes move-right-b {
+  from {
+    right: var(--game-block-size);
+    z-index: 99;
+    rotate: 360deg;
+  }
+  to {
+    right: 0;
+    rotate: 0deg;
+    z-index: 99;
+  }
+}
+
+@keyframes move-up-b {
+  from {
+    top: var(--game-block-size);
+    z-index: 99;
+  }
+  to {
+    top: 0;
+    z-index: 99;
+  }
+}
+
+@keyframes move-down-b {
+  from {
+    bottom: var(--game-block-size);
+    z-index: 99;
+    rotate: 360deg;
+  }
+  to {
+    rotate: 0deg;
+    bottom: 0;
+    z-index: 99;
+  }
+}
+
+@keyframes move-left {
+  from {
+    left: var(--game-block-size);
+    z-index: 99;
+  }
+  to {
+    left: 0;
+    z-index: 99;
+  }
+}
+
+@keyframes move-right {
+  from {
+    right: var(--game-block-size);
+    z-index: 99;
+  }
+  to {
+    right: 0;
+    z-index: 99;
+  }
+}
+
+@keyframes move-up {
+  from {
+    top: var(--game-block-size);
+    z-index: 99;
+  }
+  to {
+    top: 0;
+    z-index: 99;
+  }
+}
+
+@keyframes move-down {
+  from {
+    bottom: var(--game-block-size);
+    z-index: 99;
+  }
+  to {
+    bottom: 0;
+    z-index: 99;
+  }
 }

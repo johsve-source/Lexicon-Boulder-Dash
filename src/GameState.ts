@@ -105,18 +105,30 @@ function processPlayerMovement(
 ): GameState {
   let directionX = 0
   let directionY = 0
-
-  if (action.type === ActionEnum.MOVE_UP) directionY = -1
-  else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
-  else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
-  else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
+  const player = state.grid.get(state.playerPos.x, state.playerPos.y)
+  if (action.type === ActionEnum.MOVE_UP) {
+    directionY = -1
+    player.animation = "move-up"
+    player.frame = 1
+  } else if (action.type === ActionEnum.MOVE_DOWN) {
+    directionY = 1
+    player.animation = "move-down"
+    player.frame = 0
+  } else if (action.type === ActionEnum.MOVE_LEFT) {
+    directionX = -1
+    player.animation = "move-left"
+    player.frame = 2
+  } else if (action.type === ActionEnum.MOVE_RIGHT) {
+    directionX = 1
+    player.animation = "move-right"
+    player.frame = 3
+  }
 
   const gameGridClone = state.grid.clone()
-  gameGridClone.setRelativeCenter(state.playerPos.x, state.playerPos.y)
+  const localGrid = gameGridClone.subGrid(state.playerPos.x, state.playerPos.y)
 
-  const centerTile = gameGridClone.getRelative(0, 0) ?? TILES.NOTHING
-  const directinTile =
-    gameGridClone.getRelative(directionX, directionY) ?? TILES.NOTHING
+  const centerTile = localGrid.get(0, 0)
+  const directinTile = localGrid.get(directionX, directionY)
 
   // Check if the player is alive
   if (centerTile !== TILES.PLAYER) {
@@ -143,8 +155,8 @@ function processPlayerMovement(
 
   // Dirt
   if (directinTile === TILES.DIRT || directinTile === TILES.NOTHING) {
-    gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(0, 0, TILES.NOTHING)
+    localGrid.set(directionX, directionY, centerTile)
+    localGrid.set(0, 0, TILES.NOTHING)
 
     if (typeof action.soundManager !== 'undefined')
       if (directinTile === TILES.DIRT) {
@@ -166,29 +178,28 @@ function processPlayerMovement(
         volume: 0.5,
         loop: false,
       })
-
-    gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(0, 0, TILES.NOTHING)
+    localGrid.set(directionX, directionY, centerTile)
+    localGrid.set(0, 0, TILES.NOTHING)
 
     // Pushing boulder right
   } else if (
     directionX === 1 &&
-    gameGridClone.getRelative(2, 0) === TILES.NOTHING &&
+    localGrid.get(2, 0) === TILES.NOTHING &&
     [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
   ) {
-    gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
-    gameGridClone.setRelative(0, 0, TILES.NOTHING)
+    localGrid.set(directionX, directionY, centerTile)
+    localGrid.set(directionX + 1, directionY, TILES.BEDROCK_BOULDER)
+    localGrid.set(0, 0, TILES.NOTHING)
 
     // Pushing boulder left
   } else if (
     directionX === -1 &&
-    gameGridClone.getRelative(-2, 0) === TILES.NOTHING &&
+    localGrid.get(-2, 0) === TILES.NOTHING &&
     [TILES.DIRT_BOULDER, TILES.BEDROCK_BOULDER].includes(directinTile)
   ) {
-    gameGridClone.setRelative(directionX, directionY, centerTile)
-    gameGridClone.setRelative(directionX - 1, directionY, TILES.BEDROCK_BOULDER)
-    gameGridClone.setRelative(0, 0, TILES.NOTHING)
+    localGrid.set(directionX, directionY, centerTile)
+    localGrid.set(directionX - 1, directionY, TILES.BEDROCK_BOULDER)
+    localGrid.set(0, 0, TILES.NOTHING)
   } else {
     return state
   }
@@ -238,8 +249,8 @@ function processPhysics(state: GameState, action: GameAction): GameState {
         console.log(sortedUpdates[i])
 
   sortedUpdates.forEach(({ x, y }) => {
-    gameGridClone.setRelativeCenter(x, y)
-    const tile = gameGridClone.getRelative(0, 0)
+    const localGrid = gameGridClone.subGrid(x, y)
+    const tile = localGrid.get(0, 0)
 
     // Check if tile is physics object
     if (
@@ -256,19 +267,19 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
     // Remove explosion
     if (tile === TILES.EXPLOSION) {
-      gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      localGrid.set(0, 0, TILES.NOTHING)
       updateArea(nextUpdateCords, x - 1, y - 1)
     }
 
     // Falling boulder player kill
     else if (
       tile === TILES.FALLING_BOULDER &&
-      gameGridClone.getRelative(0, 1) === TILES.PLAYER
+      localGrid.get(0, 1) === TILES.PLAYER
     ) {
       for (let iy = 0; iy <= 2; iy++)
         for (let ix = -1; ix <= 1; ix++)
-          if (gameGridClone.getRelative(ix, iy) !== TILES.BEDROCK) {
-            gameGridClone.setRelative(ix, iy, TILES.EXPLOSION)
+          if (localGrid.get(ix, iy) !== TILES.BEDROCK) {
+            localGrid.set(ix, iy, TILES.EXPLOSION)
             updateCord(nextUpdateCords, ix + x, iy + y)
           }
 
@@ -278,25 +289,25 @@ function processPhysics(state: GameState, action: GameAction): GameState {
     // Falling gem pick up
     else if (
       [TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile) &&
-      gameGridClone.getRelative(0, 1) === TILES.PLAYER
+      localGrid.get(0, 1) === TILES.PLAYER
     ) {
-      gameGridClone.setRelative(0, 0, TILES.NOTHING)
+      localGrid.set(0, 0, TILES.NOTHING)
       updateArea(nextUpdateCords, x - 1, y - 1)
 
       playDiamondPickupSound = true
     }
 
     // Falling down
-    else if (gameGridClone.getRelative(0, 1) === TILES.NOTHING) {
+    else if (localGrid.get(0, 1) === TILES.NOTHING) {
       let fallVariant = tile
       if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
         fallVariant = TILES.FALLING_BOULDER
       else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
 
-      gameGridClone.setRelative(0, 0, TILES.NOTHING)
-      gameGridClone.setRelative(0, 1, fallVariant)
+      localGrid.set(0, 0, TILES.NOTHING)
+      localGrid.set(0, 1, fallVariant)
       updateArea(nextUpdateCords, x - 1, y - 1, 3, 4)
-
+      fallVariant.animation = 'move-down'
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true
@@ -304,18 +315,18 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
     // Falling left
     else if (
-      gameGridClone.getRelative(-1, 0) === TILES.NOTHING &&
-      gameGridClone.getRelative(-1, 1) === TILES.NOTHING
+      localGrid.get(-1, 0) === TILES.NOTHING &&
+      localGrid.get(-1, 1) === TILES.NOTHING
     ) {
       let fallVariant = tile
       if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
         fallVariant = TILES.FALLING_BOULDER
       else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
 
-      gameGridClone.setRelative(0, 0, TILES.NOTHING)
-      gameGridClone.setRelative(-1, 0, fallVariant)
+      localGrid.set(0, 0, TILES.NOTHING)
+      localGrid.set(-1, 0, fallVariant)
       updateArea(nextUpdateCords, x - 2, y - 1, 4, 3)
-
+      fallVariant.animation = 'move-left-b'
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true
@@ -323,18 +334,18 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
     // Falling right
     else if (
-      gameGridClone.getRelative(1, 0) === TILES.NOTHING &&
-      gameGridClone.getRelative(1, 1) === TILES.NOTHING
+      localGrid.get(1, 0) === TILES.NOTHING &&
+      localGrid.get(1, 1) === TILES.NOTHING
     ) {
       let fallVariant = tile
       if (tile === TILES.DIRT_BOULDER || tile === TILES.BEDROCK_BOULDER)
         fallVariant = TILES.FALLING_BOULDER
       else if (tile === TILES.DIRT_DIAMOND) fallVariant = TILES.BEDROCK_DIAMOND
 
-      gameGridClone.setRelative(0, 0, TILES.NOTHING)
-      gameGridClone.setRelative(1, 0, fallVariant)
+      localGrid.set(0, 0, TILES.NOTHING)
+      localGrid.set(1, 0, fallVariant)
       updateArea(nextUpdateCords, x - 1, y - 1, 4, 3)
-
+      fallVariant.animation = 'move-right-b'
       if ([TILES.DIRT_DIAMOND, TILES.BEDROCK_DIAMOND].includes(tile))
         playDiamondFallingSound = true
       else playStoneFallingSound = true
@@ -342,7 +353,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
 
     // Reset falling boulder
     else if (tile === TILES.FALLING_BOULDER) {
-      gameGridClone.setRelative(0, 0, TILES.BEDROCK_BOULDER)
+      localGrid.set(0, 0, TILES.BEDROCK_BOULDER)
     }
   })
 
