@@ -6,5 +6,8 @@ interface IHighscores {
 
 export interface IStartMenuProps {
   onPlayClick: () => void
+  handleEnterNameClick: () => void
   highscores: IHighscores[]
 }
+
+
