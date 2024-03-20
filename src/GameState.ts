@@ -9,7 +9,7 @@ export enum ActionEnum {
   MOVE_DOWN = 'MOVE_DOWN',
   MOVE_LEFT = 'MOVE_LEFT',
   MOVE_RIGHT = 'MOVE_RIGHT',
-  TIMER_TICK = 'TIMER_TICK',
+  START_TIMER = 'START_TIMER',
   PHYSICS_TICK = 'PHYSICS_TICK',
   LOAD_LEVEL = 'LOAD_LEVEL',
 }
@@ -26,7 +26,7 @@ export interface GameState {
   updateCords: Map<string, { x: number; y: number }>
   playerPos: { x: number; y: number }
   isGameOver: boolean
-  time: number
+  timeLeft: number
   startTime: number
   score: number
   curentLevel?: LevelData
@@ -49,10 +49,10 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
     grid: new Grid<Tile>(),
     updateCords: new Map<string, { x: number; y: number }>(),
     playerPos: { x: 1, y: 1 },
-    time: 15,
+    timeLeft: 10,
     startTime: 0,
     score: 0,
-    isGameOver: false,
+    isGameOver: true,
   })
 
   useEffect(() => {
@@ -71,7 +71,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           return processPlayerMovement(state, action)
     }
 
-    else if (action.type === ActionEnum.TIMER_TICK) {
+    else if (action.type === ActionEnum.START_TIMER) {
       return processTime(state)
     }
     
@@ -89,11 +89,25 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   throw new Error(`Invalid action type "${action.type}"!`)
 }
 
-function processTime(state: GameState): GameState {  
-  state.startTime = Date.now()
-  const currentTime = setTimeout(() => {
+function processTime(state: GameState): GameState {
+  const startTime = performance.now()
+  const updateTime = () => {
+    const now = performance.now()
+    const timeLeft = startTime - now
+    if (timeLeft === 0) {
+      console.log("GS - time out")
+      return {
+        ...state,
+        isGameOver: true
+      }
+    }
     
-  })
+    return {
+      ...state,
+      timeLeft: now
+    }
+  }
+  updateTime()
 }
 
 function updateCord(
@@ -289,7 +303,7 @@ function processPhysics(state: GameState, action: GameAction): GameState {
           }
 
       playExplosionSound = true
-        state.isGameOver = true
+      state.isGameOver = true
     }
 
     // Falling gem pick up

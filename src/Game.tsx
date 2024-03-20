@@ -16,7 +16,7 @@ export function Game() {
   const [gameState, gameDispatch] = GetGameReducer()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
-  const [timeLeft, setTimeLeft] = useState<number>(gameState.time)
+  const [timeLeft, setTimeLeft] = useState<number>(gameState.timeLeft)
 
   // triggers 'start timer' useEffect
   function startGame() {
@@ -24,36 +24,38 @@ export function Game() {
     setIsGameStarted(true)
   }
 
-  // start timer
   useEffect(() => {
     if (!isStartMenuVisible && isGameStarted) {
-      gameDispatch({ type: ActionEnum.TIMER_TICK })
+      gameDispatch({ type: ActionEnum.START_TIMER })
 
-      if (timeLeft === 0 || timeLeft < 0) {
-        return;
-      }
       const timerInterval = setInterval(() => {
-        setTimeLeft((prevTimeLeft) => {
-          const newTimeLeft = prevTimeLeft - 1
-          if (newTimeLeft === 0) {
+        setTimeLeft(prevTimeLeft => {
+          const updatedTime = prevTimeLeft - 1
+          if (updatedTime <= 0) {
+            console.log("updatedTime <= 0, stopped.")
             clearInterval(timerInterval)
+            return 0
+          } else {
+            console.log("new time: ", updatedTime)
+            return updatedTime
           }
-          console.log("time left: ", newTimeLeft)
-          return newTimeLeft
         })
       }, 1000)
   
-      return () => clearInterval(timerInterval)
+      return () => {
+        console.log("component unmounted, stopped.");
+        clearInterval(timerInterval);
+      };
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStartMenuVisible, isGameStarted])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isStartMenuVisible, isGameStarted]);
 
   useEffect(() => {
     const loadLevelCallback = (path: string) => {
       loadLevel(gameDispatch, path)
     }
-    if (gameState.isGameOver) {
-      return;
+    if (!gameState.isGameActive) {
+      return
     }
 
     const keyPress = (e: KeyboardEvent) => {
