@@ -1,4 +1,5 @@
 import { SubGrid } from '../Grid'
+import { GameAction, GameState } from '../GameState'
 
 export interface SoundList {
   diggingDirt: boolean
@@ -36,50 +37,56 @@ export interface TileList {
   [name: string]: Tile
 }
 
-let TileCollection: TileList = {}
+export const TILES: TileList = {}
+export const symbolToTile: { [symbol: string]: Tile } = {}
+export default TILES
+
+function addTiles(tiles: TileList) {
+  Object.entries(tiles).forEach(([NAME, DATA]) => {
+    if (NAME in TILES) {
+      console.error(`ERROR: Tile name '${NAME}' is already defined!`)
+      return
+    }
+
+    TILES[NAME] = DATA
+
+    if (typeof DATA.symbol !== 'undefined') {
+      if (DATA.symbol in symbolToTile) {
+        const conflictedData = symbolToTile[DATA.symbol]
+        console.error(
+          `ERROR: Tile '${DATA.name}' with symbol '${DATA.symbol}' collides with '${conflictedData.name}'!`,
+        )
+        return
+      }
+
+      symbolToTile[DATA.symbol] = DATA
+    }
+  })
+}
 
 import Nothing from './Nothing'
-TileCollection = { ...TileCollection, ...Nothing }
+addTiles(Nothing)
 
 import Bedrock from './Bedrock'
-TileCollection = { ...TileCollection, ...Bedrock }
+addTiles(Bedrock)
 
 import Dirt from './Dirt'
-TileCollection = { ...TileCollection, ...Dirt }
+addTiles(Dirt)
 
 import Boulder from './Boulder'
-TileCollection = { ...TileCollection, ...Boulder }
+addTiles(Boulder)
 
 import Diamond from './Diamond'
-TileCollection = { ...TileCollection, ...Diamond }
+addTiles(Diamond)
 
 import Explosion from './Explosion'
-TileCollection = { ...TileCollection, ...Explosion }
+addTiles(Explosion)
 
 import Player from './Player'
-TileCollection = { ...TileCollection, ...Player }
+addTiles(Player)
 
 import Finish from './Finish'
-import { GameAction, GameState } from '../GameState'
-TileCollection = { ...TileCollection, ...Finish }
+addTiles(Finish)
 
-export const TILES = TileCollection
-export default TILES
 Object.freeze(TILES)
-
-export const symbolToTile: { [symbol: string]: Tile } = Object.values(
-  TILES,
-).reduce<{ [symbol: string]: Tile }>((symbolList, tileData) => {
-  if (typeof tileData.symbol === 'undefined') return symbolList
-  if (tileData.symbol in symbolList) {
-    const conflictedData = symbolList[tileData.symbol]
-    console.error(
-      `ERROR: Tile '${tileData.name}' with symbol '${tileData.symbol}' collides with '${conflictedData.name}'!`,
-    )
-    return symbolList
-  }
-
-  symbolList[tileData.symbol] = tileData
-  return symbolList
-}, {})
 Object.freeze(symbolToTile)
