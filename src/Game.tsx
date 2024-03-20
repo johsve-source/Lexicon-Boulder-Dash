@@ -187,6 +187,7 @@ export function Game() {
         <StartMenu
           onPlayClick={handlePlayClick}
           highscores={highscoreTestData}
+         
         />
       ) : (
         <div

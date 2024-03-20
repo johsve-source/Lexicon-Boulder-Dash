@@ -18,6 +18,7 @@
 
 .startMenu button {
   font-size: 24px;
+  width: 180px;
 }
 
 .startMenu h2 {
@@ -38,4 +39,16 @@
   font-size: 14px;
   margin-bottom: 10px;
   max-width: min-content;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.name-button {
+  margin-top: 20px;
 }
