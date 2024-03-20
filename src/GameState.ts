@@ -27,6 +27,7 @@ export interface GameState {
   playerPos: { x: number; y: number }
   isGameOver: boolean
   time: number
+  startTime: number
   score: number
   curentLevel?: LevelData
   nextLevel?: string
@@ -48,7 +49,8 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
     grid: new Grid<Tile>(),
     updateCords: new Map<string, { x: number; y: number }>(),
     playerPos: { x: 1, y: 1 },
-    time: 14,
+    time: 15,
+    startTime: 0,
     score: 0,
     isGameOver: false,
   })
@@ -70,7 +72,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
     else if (action.type === ActionEnum.TIMER_TICK) {
-      return processTime(state, action)
+      return processTime(state)
     }
     
     else if (action.type === ActionEnum.PHYSICS_TICK) {
@@ -85,6 +87,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   }
 
   throw new Error(`Invalid action type "${action.type}"!`)
+}
+
+function processTime(state: GameState): GameState {  
+  
 }
 
 function updateCord(
@@ -104,41 +110,6 @@ function updateArea(
 ) {
   for (let iy = y; iy < y + height; iy++)
     for (let ix = x; ix < x + width; ix++) updateCord(updateCords, ix, iy)
-}
-
-function processTime(state: GameState, action: GameAction): GameState {
-  let playTimerEndingSound = false
-
-  // Check if the time is below 10 seconds
-  if (state.time < 11) {
-    playTimerEndingSound = true
-  }
-
-  // Trigger the sound playback if the flag is set
-  if (playTimerEndingSound && typeof action.soundManager !== 'undefined') {
-    action.soundManager.playInteraction('timer-ending', {
-      id: 7,
-      volume: 0.2,
-      duration: 9000, // You might want to remove this duration parameter if it's not necessary
-    })
-  }
-
-  // Update the time
-  const updatedTime = state.time - 1
-
-  // Check if the game is over
-  if (updatedTime === 0) {
-    return {
-      ...state,
-      isGameOver: true
-    }
-  }
-
-  // Return the updated state
-  return {
-    ...state,
-    time: updatedTime,
-  }
 }
 
 function processPlayerMovement(

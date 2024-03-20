@@ -13,37 +13,24 @@ export const PlayerContext = createContext<number[]>([])
 
 export function Game() {
   const soundManager = useSoundManagerLogic()
-  const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   const [gameState, gameDispatch] = GetGameReducer()
+  const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
+  const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
+  const [startTime, setStartTime] = useState<number>(0)
 
   // triggers 'start timer' useEffect
   function startGame() {
     setStartMenuVisible(false)
-
-    // Play ambiance when I press play
-    // soundManager.playInteraction('ambiance', {
-    //   id: 7,
-    //   volume: 0.2,
-    //   loop: true,
-    //   trailing: true,
-    // })
+    setIsGameStarted(true)
+    setStartTime(Date.now())
   }
 
   // start timer
   useEffect(() => {
-    if (!gameState.isGameOver) {
-      console.log('New game, time interval started.')
-      const timeInterval = setInterval(() => {
-        gameDispatch({ type: ActionEnum.TIMER_TICK, soundManager})
-      }, 1000)
-
-      return () => {
-        console.log('Game over, time interval stopped.')
-        clearInterval(timeInterval)
-      }
+    if (!isStartMenuVisible && isGameStarted) {
+      
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameState.isGameOver, soundManager])
+  }, [])
 
   useEffect(() => {
     const loadLevelCallback = (path: string) => {
@@ -54,7 +41,7 @@ export function Game() {
     }
 
     const keyPress = (e: KeyboardEvent) => {
-      console.log(e.code)
+      // console.log(e.code)
 
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault()
