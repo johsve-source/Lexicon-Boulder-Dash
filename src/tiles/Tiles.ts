@@ -7,32 +7,20 @@ export interface SoundList {
   explosion: boolean
 }
 
+export interface updateParams {
+  local: SubGrid<Tile>
+  updateLocal: (x: number, y: number, width?: number, height?: number) => void
+  gameState: GameState
+  action: GameAction
+  soundList: SoundList
+}
+
 export interface Tile {
   name: string
   texture: string
   symbol?: string
-
-  onPlayerMove?: (
-    grid: SubGrid<Tile>,
-    updateCords: (
-      x: number,
-      y: number,
-      width?: number,
-      height?: number,
-    ) => void,
-    soundList: SoundList,
-  ) => void
-
-  onPhysics?: (
-    grid: SubGrid<Tile>,
-    updateCords: (
-      x: number,
-      y: number,
-      width?: number,
-      height?: number,
-    ) => void,
-    soundList: SoundList,
-  ) => void
+  onPlayerMove?: (params: updateParams) => void
+  onPhysics?: (params: updateParams) => void
 }
 
 export interface TileList {
@@ -63,6 +51,7 @@ import Player from './Player'
 TileCollection = { ...TileCollection, ...Player }
 
 import Finish from './Finish'
+import { GameAction, GameState } from '../GameState'
 TileCollection = { ...TileCollection, ...Finish }
 
 export const TILES = TileCollection

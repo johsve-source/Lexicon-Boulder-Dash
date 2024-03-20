@@ -20,9 +20,9 @@ const EXPORT: TileList = {
     name: 'EXPLOSION',
     texture: '/textures/pixel/boom.gif',
 
-    onPhysics: (grid, updateCords, soundList) => {
-      grid.set(0, 0, TILES.NOTHING)
-      updateCords(-1, -1, 3, 3)
+    onPhysics: ({ local, updateLocal /* , soundList */ }) => {
+      local.set(0, 0, TILES.NOTHING)
+      updateLocal(-1, -1, 3, 3)
       //soundList.explosion = true
     },
   },

@@ -7,17 +7,17 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/dirt-diamond.png',
     symbol: 'D',
 
-    onPhysics: (grid, updateCords, soundList) => {
-      if (grid.get(0, 1) === TILES.PLAYER) {
-        grid.set(0, 0, TILES.NOTHING)
+    onPhysics: ({ local, updateLocal, soundList }) => {
+      if (local.get(0, 1) === TILES.PLAYER) {
+        local.set(0, 0, TILES.NOTHING)
         soundList.diamondPickup = true
         return
       }
 
       if (
         boulderPhysics(
-          grid,
-          updateCords,
+          local,
+          updateLocal,
           TILES.BEDROCK_DIAMOND,
           TILES.DIRT_DIAMOND,
         )
@@ -31,17 +31,17 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/bedrock-diamond.png',
     symbol: 'd',
 
-    onPhysics: (grid, updateCords, soundList) => {
-      if (grid.get(0, 1) === TILES.PLAYER) {
-        grid.set(0, 0, TILES.NOTHING)
+    onPhysics: ({ local, updateLocal, soundList }) => {
+      if (local.get(0, 1) === TILES.PLAYER) {
+        local.set(0, 0, TILES.NOTHING)
         soundList.diamondPickup = true
         return
       }
 
       if (
         boulderPhysics(
-          grid,
-          updateCords,
+          local,
+          updateLocal,
           TILES.BEDROCK_DIAMOND,
           TILES.BEDROCK_DIAMOND,
         )

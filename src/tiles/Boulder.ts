@@ -43,11 +43,11 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/dirt-boulder.png',
     symbol: 'O',
 
-    onPhysics: (grid, updateCords, soundList) => {
+    onPhysics: ({ local, updateLocal, soundList }) => {
       if (
         boulderPhysics(
-          grid,
-          updateCords,
+          local,
+          updateLocal,
           TILES.FALLING_BOULDER,
           TILES.DIRT_BOULDER,
         )
@@ -61,11 +61,11 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/bedrock-boulder.png',
     symbol: 'o',
 
-    onPhysics: (grid, updateCords, soundList) => {
+    onPhysics: ({ local, updateLocal, soundList }) => {
       if (
         boulderPhysics(
-          grid,
-          updateCords,
+          local,
+          updateLocal,
           TILES.FALLING_BOULDER,
           TILES.BEDROCK_BOULDER,
         )
@@ -78,17 +78,17 @@ const EXPORT: TileList = {
     name: 'FALLING_BOULDER',
     texture: '/textures/pixel/bedrock-boulder.png',
 
-    onPhysics: (grid, updateCords, soundList) => {
-      if (grid.get(0, 1) === TILES.PLAYER) {
-        explode(grid, updateCords, 0, 1)
+    onPhysics: ({ local, updateLocal, soundList }) => {
+      if (local.get(0, 1) === TILES.PLAYER) {
+        explode(local, updateLocal, 0, 1)
         soundList.explosion = true
         return
       }
 
       if (
         boulderPhysics(
-          grid,
-          updateCords,
+          local,
+          updateLocal,
           TILES.FALLING_BOULDER,
           TILES.BEDROCK_BOULDER,
         )
