@@ -11,3 +11,7 @@ export interface IStartMenuProps {
 }
 
 
+export interface nameInputInterface {
+  setNameClickFalse: () => void
+}
+

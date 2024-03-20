@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, FC } from 'react'
 import './nameInput.css'
+import { nameInputInterface } from '../../interfaces/IStartMenuProps'
 
-const NameInput = () => {
+const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [userName, setUserName] = useState('')
   const [letters, setLetters] = useState([
@@ -45,8 +46,6 @@ const NameInput = () => {
 
   const letterBoxRef = useRef<HTMLDivElement>(null)
 
-
-
   useEffect(() => {
     // Focus on the letter box when the component mounts
     if (letterBoxRef.current) {
@@ -54,12 +53,9 @@ const NameInput = () => {
     }
   }, [])
 
-  useEffect(() => {
-  
-  }, [userName])
+  useEffect(() => {}, [userName])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-  
     if (event.key === 'ArrowRight') {
       const activeLetter = letters.find((item) => item.active === true)
       if (activeLetter && activeLetter.id !== 36) {
@@ -163,7 +159,7 @@ const NameInput = () => {
 
           return
         } else if (activeLetter.letter === 'End') {
-          console.log('Go back to menu')
+          setNameClickFalse()
           return
         } else {
           const letter = activeLetter.letter
@@ -206,7 +202,6 @@ const NameInput = () => {
           })}
         </div>
       </div>
-
     </div>
   )
 }
