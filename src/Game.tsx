@@ -48,7 +48,7 @@ export function Game() {
     const keyPress = (e: KeyboardEvent) => {
       console.log(e.code)
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
-        e.preventDefault()
+        e.preventDefault() // prevents scrolling
         gameDispatch({
           type: ActionEnum.MOVE_UP,
           soundManager,
@@ -100,12 +100,13 @@ export function Game() {
     window.addEventListener('keydown', keyPress)
 
     return () => {
+      // removes event listener to prevent multiple event listeners from being added on rerender
       window.removeEventListener('keydown', keyPress)
     }
   })
 
   const storedGrid = useRef(gameState.grid)
-  const gravityQueued = useRef(false)
+  const gravityQueued = useRef(false) // prevents gravity from being queed when gamestate updates quickly
 
   useEffect(() => {
     async function gravity() {
@@ -125,14 +126,14 @@ export function Game() {
 
   const mouseRepeat = useRef(false)
   const mouseDirection = useRef({ x: 0, y: 0 })
-  const timeoutId = useRef(0)
+  const timeoutId = useRef(0) // prevent id from expiring on rerender
   useEffect(() => {
     const handler = (
       x: number | undefined = mouseDirection.current.x,
       y: number | undefined = mouseDirection.current.y,
     ) => {
       console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
-      if (x === undefined || y === undefined) return
+      if (x === undefined || y === undefined) return // when not clicking on tile
       if (y < gameState.playerPos.y) {
         gameDispatch({
           type: ActionEnum.MOVE_UP,
@@ -159,7 +160,7 @@ export function Game() {
         })
       }
       if (mouseRepeat.current) {
-        timeoutId.current = setTimeout(handler, 200)
+        timeoutId.current = setTimeout(handler, 200) // repeat when mouse down
       }
     }
     const handleHandler = (e: MouseEvent) => {
@@ -180,7 +181,7 @@ export function Game() {
     }
     function mouseup() {
       mouseRepeat.current = false
-      clearTimeout(timeoutId.current)
+      clearTimeout(timeoutId.current) // prevent movement after mouse up
     }
     window.addEventListener('mousedown', mousedown)
     window.addEventListener('mouseup', mouseup)
@@ -192,6 +193,7 @@ export function Game() {
   })
   const [renderGrid, setRenderGrid] = useState(gameState.grid.subGrid(0, 0))
 
+  // calculates and renders only visible game area
   useEffect(() => {
     const width = Math.min(
       Math.ceil(window.innerWidth / 32) + 2,

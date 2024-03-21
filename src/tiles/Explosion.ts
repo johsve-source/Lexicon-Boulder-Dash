@@ -1,5 +1,6 @@
 import { TILES, TileList, onPhysicsParams } from './Tiles'
 
+/**A helper function for explotion. */
 export function explode(
   { local, updateLocal }: onPhysicsParams,
   x: number = 0,

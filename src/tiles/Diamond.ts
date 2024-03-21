@@ -18,6 +18,7 @@ const EXPORT: TileList = {
     onPhysics: (params) => {
       const { local, updateLocal, soundList } = params
 
+      // If the player is bellow then pick up.
       if (local.get(0, 1) === TILES.PLAYER) {
         local.set(0, 0, TILES.NOTHING)
         updateLocal(-1, -1, 3, 3)

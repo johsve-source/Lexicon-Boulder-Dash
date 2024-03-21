@@ -3,8 +3,9 @@ import './nameInput.css'
 import { nameInputInterface } from '../../interfaces/IStartMenuProps'
 
 const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [userName, setUserName] = useState('')
+
+  //Array with letter for input name. If active true, the arrow will point on that one
   const [letters, setLetters] = useState([
     { id: 1, letter: 'A', active: true },
     { id: 2, letter: 'B', active: false },
@@ -53,25 +54,32 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
     }
   }, [])
 
+  // Updates the page when userName changes
   useEffect(() => {}, [userName])
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    //If user press right arrow, the cursor moves one to the right, so if "A" is active, it moves to "B"
+
     if (event.key === 'ArrowRight') {
       const activeLetter = letters.find((item) => item.active === true)
       if (activeLetter && activeLetter.id !== 36) {
         const activeIndex = letters.indexOf(activeLetter)
+
+        //Finds what letter is active now and make it not active
         setLetters((prevLetters) =>
           prevLetters.map((item, index) =>
             index === activeIndex ? { ...item, active: false } : item,
           ),
         )
 
+        //Makes the cursor focus on the letter one step forward
         setLetters((prevLetters) =>
           prevLetters.map((item, index) =>
             index === activeIndex + 1 ? { ...item, active: true } : item,
           ),
         )
       } else {
+        //You can't go one step to the right if you are on the last element (id: 36)
         return
       }
     } else if (event.key === 'ArrowLeft') {
@@ -86,12 +94,14 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
           ),
         )
 
+        //Makes the cursor focus on the letter one step back
         setLetters((prevLetters) =>
           prevLetters.map((item, index) =>
             index === activeIndex - 1 ? { ...item, active: true } : item,
           ),
         )
       } else {
+        //You can't go one step back if you are on letter with id 1
         return
       }
     } else if (event.key === 'ArrowDown') {
@@ -110,6 +120,7 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
           ),
         )
 
+        //The letter 8 steps forward gets active. It's the letter direct under the current
         setLetters((prevLetters) =>
           prevLetters.map((item, index) =>
             index === activeIndex + 8 ? { ...item, active: true } : item,
@@ -139,6 +150,7 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
           ),
         )
 
+        //The letter 8 steps back from the current will activate
         setLetters((prevLetters) =>
           prevLetters.map((item, index) =>
             index === activeIndex - 8 ? { ...item, active: true } : item,
@@ -148,6 +160,9 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
         return
       }
     } else if (event.key === 'Enter') {
+      //If user presses enter and Del is active, it will slice the last letter
+      //from the userName. If End is active, you will stop showing this component
+      //otherwise the letter will be added to the userName
       const activeLetter = letters.find((item) => item.active === true)
 
       if (activeLetter) {
