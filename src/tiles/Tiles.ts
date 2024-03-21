@@ -109,16 +109,23 @@ export default TILES
  */
 export const symbolToTile: { [symbol: string]: Tile } = {}
 
+/**The addTiles adds all the tiles in the _tiles_ TileList.
+ *
+ * It manages the adding to _TILES_ TileList and _symbolToTile_ list.
+ */
 function addTiles(tiles: TileList) {
   Object.entries(tiles).forEach(([NAME, DATA]) => {
+    // Checks if the tile variable name is allready defined.
     if (NAME in TILES) {
       console.error(`ERROR: Tile name '${NAME}' is already defined!`)
       return
     }
 
+    // Adds the tile.
     TILES[NAME] = DATA
 
     if (typeof DATA.symbol !== 'undefined') {
+      // Checks if the level character symbol is allready defined.
       if (DATA.symbol in symbolToTile) {
         const conflictedData = symbolToTile[DATA.symbol]
         console.error(
@@ -127,11 +134,13 @@ function addTiles(tiles: TileList) {
         return
       }
 
+      // Adds the level character symbol.
       symbolToTile[DATA.symbol] = DATA
     }
   })
 }
 
+// Adding all the tiles.
 import Nothing from './Nothing'
 addTiles(Nothing)
 
@@ -156,5 +165,6 @@ addTiles(Player)
 import Finish from './Finish'
 addTiles(Finish)
 
+// Freeze the definitions.
 Object.freeze(TILES)
 Object.freeze(symbolToTile)

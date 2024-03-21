@@ -1,26 +1,32 @@
+/**The _Grid_ class stores and handles data in a 2 dimentional space. */
 export class Grid<T> {
+  /**The _width_ of the grid. */
   width: number
+  /**The _height_ of the grid. */
   height: number
+  /**The data stored in the grid. */
   data: T[]
 
+  /**Creates a new _Grid_. */
   constructor(width: number = 0, height: number = 0) {
     this.width = width
     this.height = height
     this.data = new Array(width * height)
   }
 
-  // get tile at position indicated by x and y
+  /**Gets the grid data at **x** **y**. */
   get(x: number, y: number) {
     return this.data[x + y * this.width]
   }
 
-  // set tile at position indicated by x and y
+  /**Sets the grid data at **x** **y**. */
   set(x: number, y: number, value: T) {
     return (this.data[x + y * this.width] = value)
   }
 
-  /**
-   * Runs callback on all tiles
+  /**Runs the _callback_ function on all entries of the grid with **element**, **x**, **y** and **grid**.
+   *
+   * Similar to `array.forEach`.
    */
   forEach(
     callbackfn: (element: T, x: number, y: number, grid: Grid<T>) => void,
@@ -30,9 +36,7 @@ export class Grid<T> {
         callbackfn(this.get(x, y), x, y, this)
   }
 
-  /**
-   * Collects all tiles, coordinates, and the grid where the tile is
-   */
+  /** Returns a array with all entries of the grid with **element**, **x**, **y** and **grid**. */
   toItterArray(): [T, number, number, Grid<T>][] {
     const acc: [T, number, number, Grid<T>][] = new Array(this.data.length)
 
@@ -43,9 +47,7 @@ export class Grid<T> {
     return acc
   }
 
-  /**
-   * Clones the grid
-   */
+  /**Creates a shallow clone of the grid. */
   clone(): Grid<T> {
     const clone = new Grid<T>()
     clone.width = this.width
@@ -55,22 +57,20 @@ export class Grid<T> {
     return clone
   }
 
-  /**
-   * Creates a child grid consiting of tiles from parent
-   */
+  /**Returns a _SubGrid_ of the grid. */
   subGrid(x: number, y: number, width: number = 1, height: number = 1) {
     return new SubGrid(this, x, y, width, height)
   }
 }
 
+/**The _SubGrid_ class provides a more convenient way of access a subregion of a _Grid_. */
 export class SubGrid<T> {
-  /**
-   * The parent grid
-   */
+  /**The parent grid. */
   parent: Grid<T>
   /**
    * Coordinates in parent grid
    */
+  /**The subgrid **0x** coordinates */
   x: number
   y: number
   /**

@@ -164,9 +164,7 @@ export class GameState {
       explosion: false,
     }
 
-    /**
-     * Updates subgrid based on player movement
-     */
+    /**Updates subgrid based on player movement. */
     const update = (x: number, y: number) => {
       const tile = this.get(x, y)
 
@@ -196,9 +194,7 @@ export class GameState {
       }
     }
 
-    /**
-     * Updates the 8 tiles around the player
-     */
+    // Updates the 8 tiles around the player
     for (let y = this.playerPos.y - 1; y <= this.playerPos.y + 1; y++)
       for (let x = this.playerPos.x - 1; x <= this.playerPos.x + 1; x++)
         if (!(x === this.playerPos.x && y === this.playerPos.y)) update(x, y)
@@ -210,9 +206,7 @@ export class GameState {
     return this
   }
 
-  /**
-   * Updates all coordinates in updateCords
-   */
+  /**Processes all the game physics. */
   processPhysics(action: GameAction): GameState {
     if (this.updateCords.size <= 0) return this
 
@@ -226,18 +220,19 @@ export class GameState {
       explosion: false,
     }
 
-    /**
-     *
-     */
+    // Turn all the updateCords in to an array and sort them bottom upp.
     const sortedUpdates = [...this.updateCords.values()].sort((a, b) => {
       if (b.y !== a.y) return b.y - a.y
       return b.x - a.x
     })
+    // Clear the updateCords
     this.updateCords = new Map<string, { x: number; y: number }>()
 
+    // Itterate thru all the tiles in the sorted update list
     sortedUpdates.forEach(({ x, y }) => {
       const tile = this.get(x, y)
 
+      // Check if the tile has a onPhysics function and run it.
       if (typeof tile.onPhysics !== 'undefined') {
         tile.onPhysics({
           x,
@@ -266,27 +261,33 @@ export class GameState {
     return this
   }
 
+  /**A shorthand function for `this.grid.get(x, y)`*/
   get(x: number, y: number) {
     return this.grid.get(x, y)
   }
 
+  /**A shorthand function for `this.grid.set(x, y, value)`*/
   set(x: number, y: number, value: Tile) {
     return this.grid.set(x, y, value)
   }
 
+  /**A shorthand function for `this.grid.subGrid(x, y, width, height)`*/
   subGrid(x: number, y: number, width: number = 1, height: number = 1) {
     return this.grid.subGrid(x, y, width, height)
   }
 
+  /**Adds the **x** **y** coordinates to be uppdated in _processPhysics_. */
   updateCord(x: number, y: number) {
     this.updateCords.set(x + ',' + y, { x, y })
   }
 
+  /**Adds a region coordinates to be uppdated in _processPhysics_. */
   updateArea(x: number, y: number, width: number = 3, height: number = 3) {
     for (let iy = y; iy < y + height; iy++)
       for (let ix = x; ix < x + width; ix++) this.updateCord(ix, iy)
   }
 
+  /**Applies the leveldata to the GameState. */
   applyLevelData(Leveldata: LevelData) {
     const clone = new GameState()
 
@@ -301,6 +302,10 @@ export class GameState {
     return clone
   }
 
+  /**Creates a clone of GameState.
+   *
+   * **NOTE:** Some properties are shallowedly copied.
+   */
   clone() {
     const clone = new GameState()
 
