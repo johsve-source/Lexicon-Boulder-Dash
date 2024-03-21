@@ -4,9 +4,7 @@ import { loadLevelData, LevelData } from './LevelLoader'
 import { TILES, Tile, SoundList } from './tiles/Tiles'
 import Grid from './Grid'
 
-/**
- * Supported actions
- */
+/**A list of supported _gameReducer_ actions. */
 export enum ActionEnum {
   MOVE_UP = 'MOVE_UP',
   MOVE_DOWN = 'MOVE_DOWN',
@@ -16,16 +14,31 @@ export enum ActionEnum {
   LOAD_LEVEL = 'LOAD_LEVEL',
 }
 
+/**A interface defining _gameReducer_ action params. */
 export interface GameAction {
+  /**The type of action. */
   type: ActionEnum
+
+  /**The Leveldata when loading a level.
+   *
+   * _**NOTE:** is required by the **LOAD_LEVEL** action._
+   */
   Leveldata?: LevelData
+
+  /**The callback function for requesting to load different a level.
+   *
+   * _**NOTE:** is required by the **MOVE_UP**, **MOVE_DOWN**, **MOVE_LEFT**, **MOVE_RIGHT** and **TIME_STEP** action._
+   */
   loadLevelCallback?: (path: string) => void
+
+  /**The SoundManagerHook hook.
+   *
+   * _**NOTE:** is required by the **MOVE_UP**, **MOVE_DOWN**, **MOVE_LEFT**, **MOVE_RIGHT** and **TIME_STEP** action._
+   */
   soundManager?: SoundManagerHook
 }
 
-/**
- * Sets the gamestate based on the loaded level
- */
+/**Loads and sets the gamestate based on provided level name. */
 export async function loadLevel(
   gameDispatch: React.Dispatch<GameAction>,
   path: string,
@@ -37,8 +50,9 @@ export async function loadLevel(
   )
 }
 
-/**
- * Creates and returns gameState and gameDispatch
+/**A shorthand funtion tu setup a gameReducer with all the data set.
+ *
+ * Returns gameState and gameDispatch.
  */
 export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
   const [gameState, gameDispatch] = useReducer(gameReducer, new GameState())
@@ -50,10 +64,12 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
   return [gameState, gameDispatch]
 }
 
-/**
- * Runs reduction function based on action type
+/**The reducer function for gameReducer.
+ *
+ * Runs reduction function based on action type.
  */
 export function gameReducer(state: GameState, action: GameAction): GameState {
+  // Player movement.
   // prettier-ignore
   if (action.type === ActionEnum.MOVE_UP ||
         action.type === ActionEnum.MOVE_DOWN ||
@@ -62,11 +78,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           return state.clone().processPlayerMovement(action)
     }
 
+  // Physics update.
   if (action.type === ActionEnum.TIME_STEP) {
     if (state.updateCords.size <= 0) return state
     else return state.clone().processPhysics(action)
   }
 
+  // Load level.
   if (
     action.type === ActionEnum.LOAD_LEVEL &&
     typeof action.Leveldata !== 'undefined'
@@ -77,6 +95,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
   throw new Error(`Invalid action type "${action.type}"!`)
 }
 
+/**A helper funtion for playing audio from a _SoundList_. */
 function playAudio(action: GameAction, soundList: SoundList) {
   if (typeof action.soundManager === 'undefined') return
 
@@ -126,16 +145,30 @@ function playAudio(action: GameAction, soundList: SoundList) {
     })
 }
 
+/**A lcass to conatin all the _GameState_ data and logic. */
 export class GameState {
+  /**Contains the curent state of the game level. */
   grid = new Grid<Tile>()
+
+  /**A Map/Hashmap containing all the coordinates awaiting physics update.
+   *
+   * _**NOTE:** every coordinate in the list is unique._
+   */
   updateCords = new Map<string, { x: number; y: number }>()
+
+  /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
+  /**The current _time_ position. */
   time = 0
+  /**The current _score_ position. */
   score = 0
+  /**The _LevelData_ current level. */
   curentLevel?: LevelData
+  /**The name of the next level. */
   nextLevel?: string
 
   processPlayerMovement(action: GameAction): GameState {
+    /**A local grid centered a round the player */
     const localGrid = this.subGrid(this.playerPos.x, this.playerPos.y)
     const playerTile = localGrid.get(0, 0)
 
@@ -146,7 +179,9 @@ export class GameState {
       else return this
     }
 
+    /**The movment **x** component. */
     let directionX = 0
+    /**The movment **y** component. */
     let directionY = 0
 
     // updates player coordinates
@@ -164,10 +199,11 @@ export class GameState {
       explosion: false,
     }
 
-    /**Updates subgrid based on player movement. */
+    /**A shrorthand function to update the grid based on player movement. */
     const update = (x: number, y: number) => {
       const tile = this.get(x, y)
 
+      // Check if the tile has a onPlayerMove function and run it.
       if (typeof tile.onPlayerMove !== 'undefined') {
         tile.onPlayerMove({
           x,
@@ -199,6 +235,7 @@ export class GameState {
       for (let x = this.playerPos.x - 1; x <= this.playerPos.x + 1; x++)
         if (!(x === this.playerPos.x && y === this.playerPos.y)) update(x, y)
 
+    // Update the player
     update(this.playerPos.x, this.playerPos.y)
 
     playAudio(action, soundList)
