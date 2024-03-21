@@ -7,9 +7,13 @@ body {
 }
 
 .Game {
+  user-select: none;
   position: relative;
   margin: auto;
   display: grid;
-  grid-template: var(--game-block-size) / var(--game-block-size)
+  grid-template: var(--game-block-size) / var(--game-block-size);
+  background-image: url(textures/pixel/bedrock.png);
+  background-repeat: repeat;
+  background-color: greenyellow;
+  background-size: 32px;
 }
-

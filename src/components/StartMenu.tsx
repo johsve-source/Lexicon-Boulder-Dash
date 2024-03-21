@@ -1,7 +1,7 @@
 import { IStartMenuProps } from '../interfaces/IStartMenuProps'
 import './StartMenu.css'
 
-export function StartMenu({ onPlayClick, highscores }: IStartMenuProps) {
+export function StartMenu({ handleEnterNameClick ,onPlayClick, highscores,  }: IStartMenuProps) {
   function calculateDotAmount(
     username: string,
     score: number,
@@ -17,9 +17,10 @@ export function StartMenu({ onPlayClick, highscores }: IStartMenuProps) {
   return (
     <div className="startMenu">
       <h1>Boulder Dash!</h1>
-
+      <div className='buttons'>
       <button onClick={onPlayClick}>Play</button>
-
+      <button className='name-button' onClick={handleEnterNameClick}>Enter name</button>
+      </div>
       <h2>High scores</h2>
 
       {highscores.length < 1 ? (
