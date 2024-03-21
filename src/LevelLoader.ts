@@ -1,4 +1,4 @@
-import { Tile, TILES, symbolToTile } from './Tiles'
+import { Tile, TILES, symbolToTile } from './tiles/Tiles'
 import Grid from './Grid'
 
 interface LevelFileData {
