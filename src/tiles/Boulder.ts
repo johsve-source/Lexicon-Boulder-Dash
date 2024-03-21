@@ -49,7 +49,7 @@ const EXPORT: TileList = {
     onPhysics: (params) => {
       const { local, soundList } = params
 
-      // If the player is bellow then kill.
+      // If the player is bellow then explode.
       if (local.get(0, 1) === TILES.PLAYER) {
         explode(params, 0, 1)
         soundList.explosion = true
