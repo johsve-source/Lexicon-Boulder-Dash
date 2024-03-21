@@ -13,12 +13,10 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/dirt-boulder.png',
     symbol: 'O',
 
-    // runs on tiles in a 3x3 radius around the player when the player moves
     onPlayerMove(params) {
       boulderPush(params, TILES.BEDROCK_BOULDER)
     },
 
-    // runs when physics updates
     onPhysics: (params) => {
       const { soundList } = params
 
@@ -51,6 +49,7 @@ const EXPORT: TileList = {
     onPhysics: (params) => {
       const { local, soundList } = params
 
+      // If the player is bellow then kill.
       if (local.get(0, 1) === TILES.PLAYER) {
         explode(params, 0, 1)
         soundList.explosion = true
@@ -65,6 +64,10 @@ const EXPORT: TileList = {
 
 export default EXPORT
 
+/**A helper function for pushing.
+ *
+ * When pushed the tile is converted to the _pushVariant_.
+ */
 export function boulderPush(
   { local, moveDirection }: onPlayerMoveParams,
   pushVariant: Tile,
@@ -81,6 +84,12 @@ export function boulderPush(
   return false
 }
 
+/**A helper function for boulder fall physics.
+ *
+ * When falling the tile is converted to the _fallVariant_.
+ *
+ * Otherwise the tile is converted to the _restVariant_.
+ */
 export function boulderPhysics(
   { local, updateLocal }: onPhysicsParams,
   fallVariant: Tile,
