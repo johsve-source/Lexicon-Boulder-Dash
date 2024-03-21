@@ -388,3 +388,4 @@ export class GameState {
     return clone
   }
 }
+
