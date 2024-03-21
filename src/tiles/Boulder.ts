@@ -13,10 +13,12 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/dirt-boulder.png',
     symbol: 'O',
 
+    // runs on tiles in a 3x3 radius around the player when the player moves
     onPlayerMove(params) {
       boulderPush(params, TILES.BEDROCK_BOULDER)
     },
 
+    // runs when physics updates
     onPhysics: (params) => {
       const { soundList } = params
 

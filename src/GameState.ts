@@ -4,6 +4,9 @@ import { loadLevelData, LevelData } from './LevelLoader'
 import { TILES, Tile, SoundList } from './tiles/Tiles'
 import Grid from './Grid'
 
+/**
+ * Supported actions
+ */
 export enum ActionEnum {
   MOVE_UP = 'MOVE_UP',
   MOVE_DOWN = 'MOVE_DOWN',
@@ -20,6 +23,9 @@ export interface GameAction {
   soundManager?: SoundManagerHook
 }
 
+/**
+ * Sets the gamestate based on the loaded level
+ */
 export async function loadLevel(
   gameDispatch: React.Dispatch<GameAction>,
   path: string,
@@ -31,6 +37,9 @@ export async function loadLevel(
   )
 }
 
+/**
+ * Creates and returns gameState and gameDispatch
+ */
 export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
   const [gameState, gameDispatch] = useReducer(gameReducer, new GameState())
 
@@ -41,6 +50,9 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
   return [gameState, gameDispatch]
 }
 
+/**
+ * Runs reduction function based on action type
+ */
 export function gameReducer(state: GameState, action: GameAction): GameState {
   // prettier-ignore
   if (action.type === ActionEnum.MOVE_UP ||
@@ -130,18 +142,20 @@ export class GameState {
     // Check if the player is alive
     if (playerTile !== TILES.PLAYER) {
       if (typeof this.curentLevel !== 'undefined')
-        return this.applyLevelData(this.curentLevel)
+        return this.applyLevelData(this.curentLevel) // restart
       else return this
     }
 
     let directionX = 0
     let directionY = 0
 
+    // updates player coordinates
     if (action.type === ActionEnum.MOVE_UP) directionY = -1
     else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
     else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
     else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
 
+    // which sounds that should be played
     const soundList: SoundList = {
       diggingDirt: false,
       stoneFalling: false,
@@ -150,6 +164,9 @@ export class GameState {
       explosion: false,
     }
 
+    /**
+     * Updates subgrid based on player movement
+     */
     const update = (x: number, y: number) => {
       const tile = this.get(x, y)
 
@@ -179,6 +196,9 @@ export class GameState {
       }
     }
 
+    /**
+     * Updates the 8 tiles around the player
+     */
     for (let y = this.playerPos.y - 1; y <= this.playerPos.y + 1; y++)
       for (let x = this.playerPos.x - 1; x <= this.playerPos.x + 1; x++)
         if (!(x === this.playerPos.x && y === this.playerPos.y)) update(x, y)
@@ -190,6 +210,9 @@ export class GameState {
     return this
   }
 
+  /**
+   * Updates all coordinates in updateCords
+   */
   processPhysics(action: GameAction): GameState {
     if (this.updateCords.size <= 0) return this
 
@@ -203,6 +226,9 @@ export class GameState {
       explosion: false,
     }
 
+    /**
+     *
+     */
     const sortedUpdates = [...this.updateCords.values()].sort((a, b) => {
       if (b.y !== a.y) return b.y - a.y
       return b.x - a.x

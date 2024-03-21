@@ -14,10 +14,16 @@ export interface LevelData {
 }
 
 export async function loadLevelData(path: string): Promise<LevelData> {
+  /**
+   * Fetches level file from path url
+   */
   const data: LevelFileData = await fetch(path).then(
     async (data) => await data.json(),
   )
 
+  /**
+   * Converts character symbols to tiles
+   */
   const levelData = data.layout.map((row) =>
     [...row].map((f) => symbolToTile[f]),
   )
@@ -28,6 +34,7 @@ export async function loadLevelData(path: string): Promise<LevelData> {
   grid.data = levelData.reduce((acc, row) => [...acc, ...row], [])
 
   let playerPos = { x: 1, y: 1 }
+  // sets player position at the player symbol
   const playerIndex = grid.data.indexOf(TILES.PLAYER)
   if (playerIndex >= 0)
     playerPos = {
