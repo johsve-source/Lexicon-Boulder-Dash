@@ -24,7 +24,7 @@ export class Grid<T> {
     return (this.data[x + y * this.width] = value)
   }
 
-  /**Runs the _callback_ function on all entries of the grid with **element**, **x**, **y** and **grid**.
+  /**Runs the _callback_ function on all entries of the _Grid_ with **element**, **x**, **y** and **Grid**.
    *
    * Similar to `array.forEach`.
    */
@@ -36,7 +36,7 @@ export class Grid<T> {
         callbackfn(this.get(x, y), x, y, this)
   }
 
-  /** Returns a array with all entries of the grid with **element**, **x**, **y** and **grid**. */
+  /** Returns a array with all entries of the _Grid_ with **element**, **x**, **y** and **Grid**. */
   toItterArray(): [T, number, number, Grid<T>][] {
     const acc: [T, number, number, Grid<T>][] = new Array(this.data.length)
 
@@ -67,18 +67,18 @@ export class Grid<T> {
 export class SubGrid<T> {
   /**The parent grid. */
   parent: Grid<T>
-  /**
-   * Coordinates in parent grid
-   */
-  /**The subgrid **0x** coordinates */
+
+  /**The _SubGrid_ **x** coordinates in the parent grid. */
   x: number
+  /**The _SubGrid_ **y** coordinates in the parent grid. */
   y: number
-  /**
-   * Subgrid size
-   */
+
+  /**The width of the _SubGrid_. */
   width: number
+  /**The height of the _SubGrid_. */
   height: number
 
+  /**Creates a new _SubGrid_. */
   constructor(
     parent: Grid<T>,
     x: number,
@@ -93,22 +93,19 @@ export class SubGrid<T> {
     this.height = height
   }
 
-  /**
-   * Returns type at coordinates
-   */
+  /**Gets the subgrid data at **x** **y**. */
   get(x: number, y: number) {
     return this.parent.get(this.x + x, this.y + y)
   }
 
-  /**
-   * Sets type at coordinates
-   */
+  /**Sets the subgrid data at **x** **y**. */
   set(x: number, y: number, value: T) {
     return this.parent.set(this.x + x, this.y + y, value)
   }
 
-  /**
-   * Runs callback on all tiles on subgrid
+  /**Runs the _callback_ function on all entries of the _SubGrid_ with **element**, **x**, **y** and **SubGrid**.
+   *
+   * Similar to `array.forEach`.
    */
   forEach(
     callbackfn: (element: T, x: number, y: number, grid: SubGrid<T>) => void,
@@ -118,9 +115,7 @@ export class SubGrid<T> {
         callbackfn(this.get(x, y), x, y, this)
   }
 
-  /**
-   * Collects all tiles, coordinates, and the grid where the tile is on the subgrid
-   */
+  /** Returns a array with all entries of the _SubGrid_ with **element**, **x**, **y** and **SubGrid**. */
   toItterArray(): [T, number, number, SubGrid<T>][] {
     const acc: [T, number, number, SubGrid<T>][] = new Array(
       this.width * this.height,
@@ -133,9 +128,7 @@ export class SubGrid<T> {
     return acc
   }
 
-  /**
-   * Creates new subgrid
-   */
+  /**Returns a new _SubGrid_ of the subgrid. */
   subGrid(x: number, y: number, width: number = 1, height: number = 1) {
     return new SubGrid(this.parent, this.x + x, this.y + y, width, height)
   }
