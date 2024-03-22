@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, FC } from 'react'
 import './nameInput.css'
 import { nameInputInterface } from '../../interfaces/IStartMenuProps'
 
+
 const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
   const [userName, setUserName] = useState('')
 
@@ -44,6 +45,8 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
     { id: 35, letter: 'Del', active: false },
     { id: 36, letter: 'End', active: false },
   ])
+
+  
 
   const letterBoxRef = useRef<HTMLDivElement>(null)
 
