@@ -10,8 +10,8 @@ export interface SoundList {
   explosion: boolean
 }
 
-/**onPhysicsParams contains all the variables that a tile can access on _onPhysics_. */
-export interface onPhysicsParams {
+/**onLoadParams contains all the variables that a tile can access on _onLoad_. */
+export interface onLoadParams {
   /**The tile _globa position_ x. */
   x: number
   /**The tile _globa position_ y. */
@@ -40,7 +40,10 @@ export interface onPhysicsParams {
    * Can be mutated in order to change the gamestate.
    */
   gameState: GameState
+}
 
+/**onPhysicsParams contains all the variables that a tile can access on _onPhysics_. */
+export interface onPhysicsParams extends onLoadParams {
   /**The GameAction passed for the uppdate incase external dependencies are needed. */
   action: GameAction
 
@@ -85,6 +88,9 @@ export interface Tile {
   animation?: string
   /**Optional animation frame. */
   frame?: number
+
+  /**Optional function that is called on the tile when the level is loaded. */
+  onLoad?: (params: onLoadParams) => void
 
   /**Optional function that is called when the player moves nearby. */
   onPlayerMove?: (params: onPlayerMoveParams) => void
@@ -164,6 +170,12 @@ addTiles(Player)
 
 import Finish from './Finish'
 addTiles(Finish)
+
+import LineEnemy from './LineEnemy'
+addTiles(LineEnemy)
+
+import WallEnemy from './WallEnemy'
+addTiles(WallEnemy)
 
 // Freeze the definitions.
 Object.freeze(TILES)

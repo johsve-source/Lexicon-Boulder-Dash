@@ -298,6 +298,33 @@ export class GameState {
     return this
   }
 
+  onLevelLoad() {
+    this.grid.forEach((tile, x, y) => {
+      // Check if the tile has a onLoad function and run it.
+      if (typeof tile.onLoad !== 'undefined') {
+        tile.onLoad({
+          x,
+          y,
+          tile,
+          local: this.subGrid(x, y),
+
+          updateLocal: (
+            rx: number,
+            ry: number,
+            width: number = 1,
+            height: number = 1,
+          ) => {
+            this.updateArea(x + rx, y + ry, width, height)
+          },
+
+          gameState: this,
+        })
+      }
+    })
+
+    return this
+  }
+
   /**A shorthand function for `this.grid.get(x, y)`*/
   get(x: number, y: number) {
     return this.grid.get(x, y)
@@ -336,7 +363,7 @@ export class GameState {
     clone.curentLevel = Leveldata
     clone.nextLevel = Leveldata.nextLevel
 
-    return clone
+    return clone.onLevelLoad()
   }
 
   /**Creates a clone of GameState.
