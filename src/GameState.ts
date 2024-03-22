@@ -75,13 +75,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.type === ActionEnum.MOVE_DOWN ||
         action.type === ActionEnum.MOVE_LEFT ||
         action.type === ActionEnum.MOVE_RIGHT) {
-          return state.clone().processPlayerMovement(action)
+          return state.processPlayerMovement(action)
     }
 
   // Physics update.
   if (action.type === ActionEnum.TIME_STEP) {
-    if (state.updateCords.size <= 0) return state
-    else return state.clone().processPhysics(action)
+    return state.processPhysics(action)
   }
 
   // Load level.
@@ -184,13 +183,16 @@ export class GameState {
     /**The movment **y** component. */
     let directionY = 0
 
-    // updates player coordinates
+    // Updates player coordinates.
     if (action.type === ActionEnum.MOVE_UP) directionY = -1
     else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
     else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
     else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
 
-    // which sounds that should be played
+    // Create the next gamestate.
+    const nextGameState = this.clone()
+
+    // Which sounds that should be played.
     const soundList: SoundList = {
       diggingDirt: false,
       stoneFalling: false,
@@ -209,7 +211,7 @@ export class GameState {
           x,
           y,
           tile,
-          local: this.subGrid(x, y),
+          local: nextGameState.subGrid(x, y),
 
           updateLocal: (
             rx: number,
@@ -217,10 +219,10 @@ export class GameState {
             width: number = 1,
             height: number = 1,
           ) => {
-            this.updateArea(x + rx, y + ry, width, height)
+            nextGameState.updateArea(x + rx, y + ry, width, height)
           },
 
-          gameState: this,
+          gameState: nextGameState,
           action,
           soundList,
 
@@ -240,7 +242,7 @@ export class GameState {
 
     playAudio(action, soundList)
 
-    return this
+    return nextGameState
   }
 
   /**Processes all the game physics. */
@@ -248,6 +250,9 @@ export class GameState {
     if (this.updateCords.size <= 0) return this
 
     console.log(`Physics: ${this.updateCords.size} items. `)
+
+    // Create the next gamestate.
+    const nextGameState = this.clone()
 
     const soundList: SoundList = {
       diggingDirt: false,
@@ -263,7 +268,7 @@ export class GameState {
       return b.x - a.x
     })
     // Clear the updateCords
-    this.updateCords = new Map<string, { x: number; y: number }>()
+    nextGameState.updateCords = new Map<string, { x: number; y: number }>()
 
     // Itterate thru all the tiles in the sorted update list
     sortedUpdates.forEach(({ x, y }) => {
@@ -275,7 +280,7 @@ export class GameState {
           x,
           y,
           tile,
-          local: this.subGrid(x, y),
+          local: nextGameState.subGrid(x, y),
 
           updateLocal: (
             rx: number,
@@ -283,10 +288,10 @@ export class GameState {
             width: number = 1,
             height: number = 1,
           ) => {
-            this.updateArea(x + rx, y + ry, width, height)
+            nextGameState.updateArea(x + rx, y + ry, width, height)
           },
 
-          gameState: this,
+          gameState: nextGameState,
           action,
           soundList,
         })
@@ -295,9 +300,10 @@ export class GameState {
 
     playAudio(action, soundList)
 
-    return this
+    return nextGameState
   }
 
+  /**Calls the _onLoad_ function on all the tiles. */
   onLevelLoad() {
     this.grid.forEach((tile, x, y) => {
       // Check if the tile has a onLoad function and run it.

@@ -6,6 +6,7 @@ import {
   onPhysicsParams,
 } from './Tiles'
 import { explode } from './Explosion'
+import { isLineEnemy } from './LineEnemy'
 
 const EXPORT: TileList = {
   DIRT_BOULDER: {
@@ -49,10 +50,10 @@ const EXPORT: TileList = {
     onPhysics: (params) => {
       const { local, soundList } = params
 
-      // If the player is bellow then explode.
-      if (local.get(0, 1) === TILES.PLAYER) {
+      // If the player is below then explode.
+      const below = local.get(0, 1)
+      if (below === TILES.PLAYER || isLineEnemy(below)) {
         explode(params, 0, 1)
-        soundList.explosion = true
         return
       }
 
