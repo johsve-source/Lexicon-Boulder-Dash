@@ -195,6 +195,7 @@ export function Game() {
 
   // calculates and renders only visible game area
   useEffect(() => {
+    console.log("test")
     const width = Math.min(
       Math.ceil(window.innerWidth / 32) + 2,
       gameState.grid.width,
@@ -261,7 +262,7 @@ export function Game() {
 
           {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
             <Block
-              key={x + y * grid.width}
+              key={`${x}, ${y}`}
               x={grid.y + y}
               y={grid.x + x}
               image={tile.texture}
