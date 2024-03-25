@@ -5,7 +5,7 @@ import { nameInputInterface } from '../../interfaces/IStartMenuProps'
 const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
   const [userName, setUserName] = useState('')
 
-  //Array with letter for input name. If active true, the arrow will point on that one
+  //Array with letter for input name. If active true, the arrow will point on that one.
   const [letters, setLetters] = useState([
     { id: 1, letter: 'A', active: true },
     { id: 2, letter: 'B', active: false },
