@@ -12,6 +12,7 @@ enum HEADING {
   NORTH_WEST = 7,
 }
 
+/**Converts heading in to a relative **x** and **y** coordinate. */
 function getHeadingCords(heading: HEADING): [number, number] {
   heading = (heading + 800) % 8
 
@@ -37,14 +38,17 @@ function getHeadingCords(heading: HEADING): [number, number] {
   }
 }
 
+/**Gets a relavive tile based on heading. */
 function getHeading(params: onPhysicsParams, heading: HEADING) {
   return params.local.get(...getHeadingCords(heading))
 }
 
+/**Sets a relavive tile based on heading. */
 function setHeading(params: onPhysicsParams, heading: HEADING, data: Tile) {
   return params.local.set(...getHeadingCords(heading), data)
 }
 
+/**Marks physics update based on heading */
 function updateHeading(params: onPhysicsParams, heading: HEADING) {
   const [x, y] = getHeadingCords(heading)
   params.updateLocal(
@@ -65,7 +69,7 @@ function wallEnemyLogic(
   counterRotationType: Tile,
   backwardType: Tile,
 ) {
-  const { local } = params
+  const { local, updateLocal } = params
   const rotation = clockwise ? 2 : -2
   const corner = clockwise ? 1 : -1
 
@@ -103,7 +107,6 @@ function wallEnemyLogic(
     getHeading(params, heading - rotation) !== TILES.NOTHING
   ) {
     local.set(0, 0, TILES.NOTHING)
-    console.log(getHeadingCords(heading))
     explode(params, ...getHeadingCords(heading))
     return
   }
@@ -140,7 +143,7 @@ function wallEnemyLogic(
     return
   }
 
-  // Kill on dead end .
+  // Kill on dead end.
   if (
     getHeading(params, heading) !== TILES.NOTHING &&
     getHeading(params, heading + rotation) !== TILES.NOTHING &&
@@ -152,7 +155,7 @@ function wallEnemyLogic(
     return
   }
 
-  // Turn on dead end .
+  // Turn on dead end.
   if (
     getHeading(params, heading) !== TILES.NOTHING &&
     getHeading(params, heading + rotation) !== TILES.NOTHING &&
@@ -164,6 +167,21 @@ function wallEnemyLogic(
     updateHeading(params, heading + 4)
     return
   }
+
+  // Trapped.
+  if (getHeading(params, heading + 4) !== TILES.NOTHING) return
+  if (
+    getHeading(params, heading + 1) === TILES.NOTHING &&
+    getHeading(params, heading + rotation + 1) === TILES.NOTHING &&
+    getHeading(params, heading - rotation + 1) === TILES.NOTHING &&
+    getHeading(params, heading + 4 + 1) === TILES.NOTHING
+  ) {
+    return
+  }
+
+  // Rotate
+  local.set(0, 0, rotationType)
+  updateLocal(0, 0)
 }
 
 const EXPORT: TileList = {
@@ -171,6 +189,7 @@ const EXPORT: TileList = {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
     symbol: 'w',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -192,6 +211,7 @@ const EXPORT: TileList = {
   WALL_ENEMY_CLOCKWISE_RIGHT: {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -213,6 +233,7 @@ const EXPORT: TileList = {
   WALL_ENEMY_CLOCKWISE_DOWN: {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -234,6 +255,7 @@ const EXPORT: TileList = {
   WALL_ENEMY_CLOCKWISE_LEFT: {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -256,6 +278,7 @@ const EXPORT: TileList = {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
     symbol: 'W',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -277,6 +300,7 @@ const EXPORT: TileList = {
   WALL_ENEMY_COUNTERCLOCKWISE_RIGHT: {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -298,6 +322,7 @@ const EXPORT: TileList = {
   WALL_ENEMY_COUNTERCLOCKWISE_DOWN: {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -319,6 +344,7 @@ const EXPORT: TileList = {
   WALL_ENEMY_COUNTERCLOCKWISE_LEFT: {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)

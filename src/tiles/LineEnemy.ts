@@ -1,6 +1,36 @@
 import { TILES, Tile, TileList, onPhysicsParams } from './Tiles'
 import { explode } from './Explosion'
 
+function getAnimation(tile: Tile, xDir: number, yDir: number) {
+  if (yDir < 0) {
+    return {
+      ...tile,
+      animation: 'move-up',
+      //frame = 1
+    }
+  } else if (yDir > 0) {
+    return {
+      ...tile,
+      animation: 'move-down',
+      //frame = 0
+    }
+  } else if (xDir < 0) {
+    return {
+      ...tile,
+      animation: 'move-left',
+      //frame = 2
+    }
+  } else if (xDir > 0) {
+    return {
+      ...tile,
+      animation: 'move-right',
+      //frame = 3
+    }
+  }
+
+  return tile
+}
+
 /**_lineEnemyLogic_ is a function that encapsulate the logic for the _LINE_ENEMY_ type. */
 function lineEnemyLogic(
   params: onPhysicsParams,
@@ -21,7 +51,7 @@ function lineEnemyLogic(
   // If nothing in front then move forward.
   if (local.get(xDir, yDir) === TILES.NOTHING) {
     local.set(0, 0, TILES.NOTHING)
-    local.set(xDir, yDir, forwardType)
+    local.set(xDir, yDir, getAnimation(forwardType, xDir, yDir))
     updateLocal(
       -1 + Math.min(xDir, 0),
       -1 + Math.min(yDir, 0),
@@ -31,10 +61,17 @@ function lineEnemyLogic(
     return
   }
 
+  // If player in behind then kill.
+  if (local.get(-xDir, -yDir) === TILES.PLAYER) {
+    local.set(0, 0, TILES.NOTHING)
+    explode(params, -xDir, -yDir)
+    return
+  }
+
   // If nothing in behind then turn around.
   if (local.get(-xDir, -yDir) === TILES.NOTHING) {
     local.set(0, 0, TILES.NOTHING)
-    local.set(-xDir, -yDir, turnAroundType)
+    local.set(-xDir, -yDir, getAnimation(turnAroundType, -xDir, -yDir))
     updateLocal(
       -1 + Math.min(xDir, 0),
       -1 + Math.min(yDir, 0),
@@ -50,6 +87,7 @@ const EXPORT: TileList = {
     name: 'LINE_ENEMY',
     texture: '/textures/pixel/boom.gif',
     symbol: 'L',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -69,6 +107,7 @@ const EXPORT: TileList = {
   LINE_ENEMY_LEFT: {
     name: 'LINE_ENEMY',
     texture: '/textures/pixel/boom.gif',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -89,6 +128,7 @@ const EXPORT: TileList = {
     name: 'LINE_ENEMY',
     texture: '/textures/pixel/boom.gif',
     symbol: 'l',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -102,6 +142,7 @@ const EXPORT: TileList = {
   LINE_ENEMY_DOWN: {
     name: 'LINE_ENEMY',
     texture: '/textures/pixel/boom.gif',
+    explosive: 1,
 
     onLoad: ({ updateLocal }) => {
       updateLocal(0, 0)
@@ -114,8 +155,3 @@ const EXPORT: TileList = {
 }
 
 export default EXPORT
-
-/**isLineEnemy is a function that checks if the given _tile_ is a type of _line enemy_. */
-export function isLineEnemy(tile: Tile) {
-  return Object.values(EXPORT).includes(tile)
-}

@@ -1,5 +1,4 @@
 import { TILES, TileList, onPhysicsParams } from './Tiles'
-import { isLineEnemy } from './LineEnemy'
 
 /**A helper function for explotion. */
 export function explode(
@@ -21,12 +20,15 @@ export function explode(
     for (let ix = startX; ix <= endX; ix++) {
       const tile = gameState.get(ix, iy)
 
+      // Do not explode the finish tile.
+      if (tile === TILES.Finish) continue
+
       gameState.set(ix, iy, TILES.EXPLOSION)
       gameState.updateArea(ix + x, iy + y)
 
       // Check if chain explotion.
-      if (tile === TILES.PLAYER || isLineEnemy(tile))
-        explode(params, ix - local.x, iy - local.y)
+      if (tile.explosive)
+        explode(params, ix - local.x, iy - local.y, tile.explosive)
     }
 }
 

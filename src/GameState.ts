@@ -274,28 +274,31 @@ export class GameState {
     sortedUpdates.forEach(({ x, y }) => {
       const tile = this.get(x, y)
 
+      // Check if the tile is defined.
+      if (typeof tile === 'undefined') return
+
       // Check if the tile has a onPhysics function and run it.
-      if (typeof tile.onPhysics !== 'undefined') {
-        tile.onPhysics({
-          x,
-          y,
-          tile,
-          local: nextGameState.subGrid(x, y),
+      if (typeof tile.onPhysics === 'undefined') return
 
-          updateLocal: (
-            rx: number,
-            ry: number,
-            width: number = 1,
-            height: number = 1,
-          ) => {
-            nextGameState.updateArea(x + rx, y + ry, width, height)
-          },
+      tile.onPhysics({
+        x,
+        y,
+        tile,
+        local: nextGameState.subGrid(x, y),
 
-          gameState: nextGameState,
-          action,
-          soundList,
-        })
-      }
+        updateLocal: (
+          rx: number,
+          ry: number,
+          width: number = 1,
+          height: number = 1,
+        ) => {
+          nextGameState.updateArea(x + rx, y + ry, width, height)
+        },
+
+        gameState: nextGameState,
+        action,
+        soundList,
+      })
     })
 
     playAudio(action, soundList)
