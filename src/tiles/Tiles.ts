@@ -180,6 +180,9 @@ addTiles(LineEnemy)
 import WallEnemy from './WallEnemy'
 addTiles(WallEnemy)
 
+import StalkerEnemy from './StalkerEnemy'
+addTiles(StalkerEnemy)
+
 // Freeze the definitions.
 Object.freeze(TILES)
 Object.freeze(symbolToTile)
