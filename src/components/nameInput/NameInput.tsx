@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, FC } from 'react'
 import './nameInput.css'
 import { nameInputInterface } from '../../interfaces/IStartMenuProps'
 
-
 const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
   const [userName, setUserName] = useState('')
 
@@ -45,8 +44,6 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
     { id: 35, letter: 'Del', active: false },
     { id: 36, letter: 'End', active: false },
   ])
-
-  
 
   const letterBoxRef = useRef<HTMLDivElement>(null)
 
@@ -177,6 +174,10 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
 
           return
         } else if (activeLetter.letter === 'End') {
+          //return to the menu and save userName in local storage
+
+          localStorage.setItem('username', userName);
+
           setNameClickFalse()
           return
         } else {

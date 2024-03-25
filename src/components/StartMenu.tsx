@@ -1,7 +1,12 @@
+import { useState } from 'react'
 import { IStartMenuProps } from '../interfaces/IStartMenuProps'
 import './StartMenu.css'
 
-export function StartMenu({ handleEnterNameClick ,onPlayClick, highscores,  }: IStartMenuProps) {
+export function StartMenu({
+  handleEnterNameClick,
+  onPlayClick,
+  highscores,
+}: IStartMenuProps) {
   function calculateDotAmount(
     username: string,
     score: number,
@@ -14,12 +19,17 @@ export function StartMenu({ handleEnterNameClick ,onPlayClick, highscores,  }: I
     return '.'.repeat(dotCount)
   }
 
+  const [username, setUsername] = useState(localStorage.getItem('username'))
+  console.log('userName: ' + username)
+
   return (
     <div className="startMenu">
       <h1>Boulder Dash!</h1>
-      <div className='buttons'>
-      <button onClick={onPlayClick}>Play</button>
-      <button className='name-button' onClick={handleEnterNameClick}>Enter name</button>
+      <div className="buttons">
+        <button onClick={onPlayClick}>Play</button>
+        <button className="name-button" onClick={handleEnterNameClick}>
+          Enter name
+        </button>
       </div>
       <h2>High scores</h2>
 
@@ -35,7 +45,7 @@ export function StartMenu({ handleEnterNameClick ,onPlayClick, highscores,  }: I
             )
             return (
               <li key={highscore.id}>
-                <span>{`${highscore.username}${dots}${highscore.score}`}</span>
+                <span>{`${username}${dots}${highscore.score}`}</span>
               </li>
             )
           })}
