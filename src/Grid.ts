@@ -1,3 +1,5 @@
+import { GameState } from './GameState'
+
 /**The _Grid_ class stores and handles data in a 2 dimentional space. */
 export class Grid<T> {
   /**The _width_ of the grid. */
@@ -60,6 +62,49 @@ export class Grid<T> {
   /**Returns a _SubGrid_ of the grid. */
   subGrid(x: number, y: number, width: number = 1, height: number = 1) {
     return new SubGrid(this, x, y, width, height)
+  }
+
+  /**
+   * Creates a subgrid and updates camera position to view it.
+   * @param gameState The current gamestate
+   * @returns A subgrid based on the gamestate
+   */
+  subGridViewFromGameState(gameState: GameState) {
+    const width = Math.min(
+      Math.ceil(window.innerWidth / 32) + 2,
+      gameState.grid.width,
+    )
+    const height = Math.min(
+      Math.ceil(window.innerHeight / 32) + 2,
+      gameState.grid.height,
+    )
+
+    const x = Math.max(
+      Math.min(
+        Math.floor(gameState.playerPos.x - Math.ceil(width / 2)),
+        gameState.grid.width - width,
+      ),
+      0,
+    )
+    const y = Math.max(
+      Math.min(
+        Math.floor(gameState.playerPos.y - Math.ceil(height / 2)),
+        gameState.grid.height - height,
+      ),
+      0,
+    )
+
+    const cameraX = gameState.playerPos.x * 32 - window.innerWidth / 2
+    const cameraY = gameState.playerPos.y * 32 - window.innerHeight / 2
+
+    window.scrollTo({
+      left: cameraX,
+      top: cameraY,
+      behavior: 'instant',
+      //behavior: 'smooth',
+    })
+
+    return this.subGrid(x, y, width, height)
   }
 }
 

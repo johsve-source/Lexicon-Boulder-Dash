@@ -46,9 +46,6 @@ export function Game() {
   }
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
-      console.log(e.code)
-      gameState.get(gameState.playerPos.x, gameState.playerPos.y).animation =
-        'test'
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault() // prevents scrolling
         gameDispatch({
@@ -79,25 +76,6 @@ export function Game() {
         })
       }
     }
-    /* if (gameState.playerPos.y > gameState.grid.height / 2) {
-      window.scrollTo({
-        top:
-          gameState.playerPos.y +
-          (32 / gameState.grid.height) * window.innerHeight,
-        left:
-          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
-        behavior: 'auto',
-      })
-    } else {
-      window.scrollTo({
-        top:
-          gameState.playerPos.y -
-          (32 / gameState.grid.height) * window.innerHeight,
-        left:
-          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
-        behavior: 'auto',
-      })
-    } */
 
     window.addEventListener('keydown', keyPress)
 
@@ -217,54 +195,7 @@ export function Game() {
           <ControlsInfo />
 
           {gameState.grid
-            .subGrid(
-              Math.max(
-                Math.min(
-                  Math.floor(
-                    gameState.playerPos.x -
-                      Math.ceil(
-                        Math.min(
-                          Math.ceil(window.innerWidth / 32) + 2,
-                          gameState.grid.width,
-                        ) / 2,
-                      ),
-                  ),
-                  gameState.grid.width -
-                    Math.min(
-                      Math.ceil(window.innerWidth / 32) + 2,
-                      gameState.grid.width,
-                    ),
-                ),
-                0,
-              ),
-              Math.max(
-                Math.min(
-                  Math.floor(
-                    gameState.playerPos.y -
-                      Math.ceil(
-                        Math.min(
-                          Math.ceil(window.innerHeight / 32) + 2,
-                          gameState.grid.height,
-                        ) / 2,
-                      ),
-                  ),
-                  gameState.grid.height -
-                    Math.min(
-                      Math.ceil(window.innerHeight / 32) + 2,
-                      gameState.grid.height,
-                    ),
-                ),
-                0,
-              ),
-              Math.min(
-                Math.ceil(window.innerWidth / 32) + 2,
-                gameState.grid.width,
-              ),
-              Math.min(
-                Math.ceil(window.innerHeight / 32) + 2,
-                gameState.grid.height,
-              ),
-            )
+            .subGridViewFromGameState(gameState)
             .toItterArray()
             .map(([tile, x, y, grid]) => (
               <Block
