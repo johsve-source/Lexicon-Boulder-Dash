@@ -1,6 +1,7 @@
 import { TILES, Tile, TileList, onPhysicsParams } from './Tiles'
 import { explode } from './Explosion'
 
+/**Returns a animated tile based on move direction. */
 function getAnimation(tile: Tile, xDir: number, yDir: number) {
   if (yDir < 0) {
     return {

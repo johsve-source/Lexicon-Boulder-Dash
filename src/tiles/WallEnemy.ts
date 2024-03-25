@@ -12,6 +12,40 @@ enum HEADING {
   NORTH_WEST = 7,
 }
 
+/**Returns a animated tile based on heading. */
+function getAnimation(tile: Tile, heading: HEADING) {
+  heading = (heading + 800) % 8
+
+  switch (heading) {
+    case HEADING.NORTH:
+      return {
+        ...tile,
+        animation: 'move-up',
+        //frame = 1
+      }
+    case HEADING.SOUTH:
+      return {
+        ...tile,
+        animation: 'move-down',
+        //frame = 0
+      }
+    case HEADING.WEST:
+      return {
+        ...tile,
+        animation: 'move-left',
+        //frame = 2
+      }
+    case HEADING.EAST:
+      return {
+        ...tile,
+        animation: 'move-right',
+        //frame = 3
+      }
+    default:
+      return tile
+  }
+}
+
 /**Converts heading in to a relative **x** and **y** coordinate. */
 function getHeadingCords(heading: HEADING): [number, number] {
   heading = (heading + 800) % 8
@@ -96,7 +130,11 @@ function wallEnemyLogic(
     getHeading(params, heading - rotation - corner) !== TILES.NOTHING
   ) {
     local.set(0, 0, TILES.NOTHING)
-    setHeading(params, heading - rotation, counterRotationType)
+    setHeading(
+      params,
+      heading - rotation,
+      getAnimation(counterRotationType, heading - rotation),
+    )
     updateHeading(params, heading - rotation)
     return
   }
@@ -117,7 +155,7 @@ function wallEnemyLogic(
     getHeading(params, heading - rotation) !== TILES.NOTHING
   ) {
     local.set(0, 0, TILES.NOTHING)
-    setHeading(params, heading, forwardType)
+    setHeading(params, heading, getAnimation(forwardType, heading))
     updateHeading(params, heading)
     return
   }
@@ -138,7 +176,11 @@ function wallEnemyLogic(
     getHeading(params, heading) !== TILES.NOTHING
   ) {
     local.set(0, 0, TILES.NOTHING)
-    setHeading(params, heading + rotation, rotationType)
+    setHeading(
+      params,
+      heading + rotation,
+      getAnimation(rotationType, heading + rotation),
+    )
     updateHeading(params, heading + rotation)
     return
   }
@@ -163,7 +205,7 @@ function wallEnemyLogic(
     getHeading(params, heading + 4) === TILES.NOTHING
   ) {
     local.set(0, 0, TILES.NOTHING)
-    setHeading(params, heading + 4, backwardType)
+    setHeading(params, heading + 4, getAnimation(backwardType, heading + 4))
     updateHeading(params, heading + 4)
     return
   }

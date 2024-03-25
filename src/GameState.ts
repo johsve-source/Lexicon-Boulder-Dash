@@ -365,7 +365,7 @@ export class GameState {
     const clone = new GameState()
 
     clone.grid = Leveldata.grid.clone()
-    clone.updateCords = this.updateCords
+    clone.updateCords = new Map<string, { x: number; y: number }>()
     clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
     clone.time = this.time
     clone.score = this.score
