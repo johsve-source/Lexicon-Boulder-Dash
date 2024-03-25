@@ -67,53 +67,98 @@ function wallEnemyLogic(
 ) {
   const { local } = params
   const rotation = clockwise ? 2 : -2
+  const corner = clockwise ? 1 : -1
 
-  if (getHeading(params, heading + rotation) === TILES.PLAYER) {
-    local.set(0, 0, TILES.NOTHING)
-    explode(params, ...getHeadingCords(heading + rotation))
-    return
-  }
+  console.log(
+    typeof rotationType,
+    typeof forwardType,
+    typeof counterRotationType,
+    typeof backwardType,
+  )
 
-  if (getHeading(params, heading + rotation) === TILES.NOTHING) {
-    local.set(0, 0, TILES.NOTHING)
-    setHeading(params, heading + rotation, rotationType)
-    updateHeading(params, heading + rotation)
-    return
-  }
-
-  if (getHeading(params, heading) === TILES.PLAYER) {
-    local.set(0, 0, TILES.NOTHING)
-    explode(params, ...getHeadingCords(heading))
-    return
-  }
-
-  if (getHeading(params, heading) === TILES.NOTHING) {
-    local.set(0, 0, TILES.NOTHING)
-    setHeading(params, heading, forwardType)
-    updateHeading(params, heading)
-    return
-  }
-
-  if (getHeading(params, heading - rotation) === TILES.PLAYER) {
+  // Kill on outside corner.
+  if (
+    getHeading(params, heading - rotation) === TILES.PLAYER &&
+    getHeading(params, heading - rotation - corner) !== TILES.NOTHING
+  ) {
     local.set(0, 0, TILES.NOTHING)
     explode(params, ...getHeadingCords(heading - rotation))
     return
   }
 
-  if (getHeading(params, heading - rotation) === TILES.NOTHING) {
+  // Turn on outside corner.
+  if (
+    getHeading(params, heading - rotation) === TILES.NOTHING &&
+    getHeading(params, heading - rotation - corner) !== TILES.NOTHING
+  ) {
     local.set(0, 0, TILES.NOTHING)
     setHeading(params, heading - rotation, counterRotationType)
     updateHeading(params, heading - rotation)
     return
   }
 
-  if (getHeading(params, heading + 4) === TILES.PLAYER) {
+  // Kill on forward.
+  if (
+    getHeading(params, heading) === TILES.PLAYER &&
+    getHeading(params, heading - rotation) !== TILES.NOTHING
+  ) {
+    local.set(0, 0, TILES.NOTHING)
+    console.log(getHeadingCords(heading))
+    explode(params, ...getHeadingCords(heading))
+    return
+  }
+
+  // Move forward.
+  if (
+    getHeading(params, heading) === TILES.NOTHING &&
+    getHeading(params, heading - rotation) !== TILES.NOTHING
+  ) {
+    local.set(0, 0, TILES.NOTHING)
+    setHeading(params, heading, forwardType)
+    updateHeading(params, heading)
+    return
+  }
+
+  // Kill on inside corner.
+  if (
+    getHeading(params, heading + rotation) === TILES.PLAYER &&
+    getHeading(params, heading) !== TILES.NOTHING
+  ) {
+    local.set(0, 0, TILES.NOTHING)
+    explode(params, ...getHeadingCords(heading + rotation))
+    return
+  }
+
+  // Turn on inside corner.
+  if (
+    getHeading(params, heading + rotation) === TILES.NOTHING &&
+    getHeading(params, heading) !== TILES.NOTHING
+  ) {
+    local.set(0, 0, TILES.NOTHING)
+    setHeading(params, heading + rotation, rotationType)
+    updateHeading(params, heading + rotation)
+    return
+  }
+
+  // Kill on dead end .
+  if (
+    getHeading(params, heading) !== TILES.NOTHING &&
+    getHeading(params, heading + rotation) !== TILES.NOTHING &&
+    getHeading(params, heading - rotation) !== TILES.NOTHING &&
+    getHeading(params, heading + 4) === TILES.PLAYER
+  ) {
     local.set(0, 0, TILES.NOTHING)
     explode(params, ...getHeadingCords(heading + 4))
     return
   }
 
-  if (getHeading(params, heading + 4) === TILES.NOTHING) {
+  // Turn on dead end .
+  if (
+    getHeading(params, heading) !== TILES.NOTHING &&
+    getHeading(params, heading + rotation) !== TILES.NOTHING &&
+    getHeading(params, heading - rotation) !== TILES.NOTHING &&
+    getHeading(params, heading + 4) === TILES.NOTHING
+  ) {
     local.set(0, 0, TILES.NOTHING)
     setHeading(params, heading + 4, backwardType)
     updateHeading(params, heading + 4)
@@ -122,7 +167,7 @@ function wallEnemyLogic(
 }
 
 const EXPORT: TileList = {
-  WALL_ENEMY_CLOCKWISE_UPP: {
+  WALL_ENEMY_CLOCKWISE_UP: {
     name: 'WALL_ENEMY',
     texture: '/textures/pixel/boom.gif',
     symbol: 'w',
@@ -132,13 +177,163 @@ const EXPORT: TileList = {
     },
 
     onPhysics: (params) => {
-      /* wallEnemyLogic(
+      wallEnemyLogic(
         params,
-        -1,
-        0,
-        TILES.LINE_ENEMY_LEFT,
-        TILES.LINE_ENEMY_RIGHT,
-      ) */
+        HEADING.NORTH,
+        true,
+        TILES.WALL_ENEMY_CLOCKWISE_RIGHT,
+        TILES.WALL_ENEMY_CLOCKWISE_UP,
+        TILES.WALL_ENEMY_CLOCKWISE_LEFT,
+        TILES.WALL_ENEMY_CLOCKWISE_DOWN,
+      )
+    },
+  },
+
+  WALL_ENEMY_CLOCKWISE_RIGHT: {
+    name: 'WALL_ENEMY',
+    texture: '/textures/pixel/boom.gif',
+
+    onLoad: ({ updateLocal }) => {
+      updateLocal(0, 0)
+    },
+
+    onPhysics: (params) => {
+      wallEnemyLogic(
+        params,
+        HEADING.EAST,
+        true,
+        TILES.WALL_ENEMY_CLOCKWISE_DOWN,
+        TILES.WALL_ENEMY_CLOCKWISE_RIGHT,
+        TILES.WALL_ENEMY_CLOCKWISE_UP,
+        TILES.WALL_ENEMY_CLOCKWISE_LEFT,
+      )
+    },
+  },
+
+  WALL_ENEMY_CLOCKWISE_DOWN: {
+    name: 'WALL_ENEMY',
+    texture: '/textures/pixel/boom.gif',
+
+    onLoad: ({ updateLocal }) => {
+      updateLocal(0, 0)
+    },
+
+    onPhysics: (params) => {
+      wallEnemyLogic(
+        params,
+        HEADING.SOUTH,
+        true,
+        TILES.WALL_ENEMY_CLOCKWISE_LEFT,
+        TILES.WALL_ENEMY_CLOCKWISE_DOWN,
+        TILES.WALL_ENEMY_CLOCKWISE_RIGHT,
+        TILES.WALL_ENEMY_CLOCKWISE_UP,
+      )
+    },
+  },
+
+  WALL_ENEMY_CLOCKWISE_LEFT: {
+    name: 'WALL_ENEMY',
+    texture: '/textures/pixel/boom.gif',
+
+    onLoad: ({ updateLocal }) => {
+      updateLocal(0, 0)
+    },
+
+    onPhysics: (params) => {
+      wallEnemyLogic(
+        params,
+        HEADING.WEST,
+        true,
+        TILES.WALL_ENEMY_CLOCKWISE_UP,
+        TILES.WALL_ENEMY_CLOCKWISE_LEFT,
+        TILES.WALL_ENEMY_CLOCKWISE_DOWN,
+        TILES.WALL_ENEMY_CLOCKWISE_RIGHT,
+      )
+    },
+  },
+
+  WALL_ENEMY_COUNTERCLOCKWISE_UP: {
+    name: 'WALL_ENEMY',
+    texture: '/textures/pixel/boom.gif',
+    symbol: 'W',
+
+    onLoad: ({ updateLocal }) => {
+      updateLocal(0, 0)
+    },
+
+    onPhysics: (params) => {
+      wallEnemyLogic(
+        params,
+        HEADING.NORTH,
+        false,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_LEFT,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_UP,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_RIGHT,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_DOWN,
+      )
+    },
+  },
+
+  WALL_ENEMY_COUNTERCLOCKWISE_RIGHT: {
+    name: 'WALL_ENEMY',
+    texture: '/textures/pixel/boom.gif',
+
+    onLoad: ({ updateLocal }) => {
+      updateLocal(0, 0)
+    },
+
+    onPhysics: (params) => {
+      wallEnemyLogic(
+        params,
+        HEADING.EAST,
+        false,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_UP,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_RIGHT,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_DOWN,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_LEFT,
+      )
+    },
+  },
+
+  WALL_ENEMY_COUNTERCLOCKWISE_DOWN: {
+    name: 'WALL_ENEMY',
+    texture: '/textures/pixel/boom.gif',
+
+    onLoad: ({ updateLocal }) => {
+      updateLocal(0, 0)
+    },
+
+    onPhysics: (params) => {
+      wallEnemyLogic(
+        params,
+        HEADING.SOUTH,
+        false,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_RIGHT,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_DOWN,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_LEFT,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_UP,
+      )
+    },
+  },
+
+  WALL_ENEMY_COUNTERCLOCKWISE_LEFT: {
+    name: 'WALL_ENEMY',
+    texture: '/textures/pixel/boom.gif',
+
+    onLoad: ({ updateLocal }) => {
+      updateLocal(0, 0)
+    },
+
+    onPhysics: (params) => {
+      wallEnemyLogic(
+        params,
+        HEADING.WEST,
+        false,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_DOWN,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_LEFT,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_UP,
+        TILES.WALL_ENEMY_COUNTERCLOCKWISE_RIGHT,
+      )
     },
   },
 }

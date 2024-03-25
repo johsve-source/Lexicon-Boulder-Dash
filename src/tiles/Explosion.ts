@@ -24,8 +24,6 @@ export function explode(
       gameState.set(ix, iy, TILES.EXPLOSION)
       gameState.updateArea(ix + x, iy + y)
 
-      console.log(tile === TILES.PLAYER || isLineEnemy(tile))
-
       // Check if chain explotion.
       if (tile === TILES.PLAYER || isLineEnemy(tile))
         explode(params, ix - local.x, iy - local.y)
