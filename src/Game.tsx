@@ -18,7 +18,7 @@ export function Game() {
   const [isEnterNameVisible, setEnterNameVisible] = useState<boolean>(false)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
-  const [timeLeft, setTimeLeft] = useState<number>(gameState.time)
+  const [timeLeft, setTimeLeft] = useState<number>(160) // setting to gameState.time triggers error in processPhysics sometimes on level change
 
   const soundManager = useSoundManagerLogic()
 
@@ -34,39 +34,38 @@ export function Game() {
   function handlePlayClick() {
     setStartMenuVisible(false)
     setIsGameStarted(true)
-    // add "isGameStarted" state update, ie. start timer, score count etc.
 
     // Play ambiance when I press play
-    soundManager.playInteraction('ambiance', {
-      id: 7,
-      volume: 0.2,
-      loop: true,
-      trailing: true,
-    })
+    // soundManager.playInteraction('ambiance', {
+    //   id: 7,
+    //   volume: 0.2,
+    //   loop: true,
+    //   trailing: true,
+    // })
   }
 
   useEffect(() => {
     if (!isStartMenuVisible && isGameStarted) {
-      gameDispatch({ type: ActionEnum.START_TIMER })
+      gameDispatch({ type: ActionEnum.TIMER_START })
 
       const timerInterval = setInterval(() => {
         setTimeLeft(prevTimeLeft => {
           const updatedTime = prevTimeLeft - 1
           if (updatedTime <= 0) {
-            console.log("updatedTime <= 0, stopped.")
+            console.log("timeout, interval stopped.")
             clearInterval(timerInterval)
             return 0
           } else {
-            console.log("new time: ", updatedTime)
+            //console.log("new time: ", updatedTime)
             return updatedTime
           }
         })
       }, 1000)
   
       return () => {
-        console.log("component unmounted, stopped.");
-        clearInterval(timerInterval);
-      };
+        console.log("component unmounted, interval stopped.")
+        clearInterval(timerInterval)
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStartMenuVisible, isGameStarted]);
@@ -164,7 +163,7 @@ export function Game() {
       x: number | undefined = mouseDirection.current.x,
       y: number | undefined = mouseDirection.current.y,
     ) => {
-      console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
+      // console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
       if (x === undefined || y === undefined) return // when not clicking on tile
       if (y < gameState.playerPos.y) {
         gameDispatch({
