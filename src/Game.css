@@ -12,7 +12,7 @@ body {
   margin: auto;
   display: grid;
   grid-template: var(--game-block-size) / var(--game-block-size);
-  background-image: url(textures/pixel/bedrock.png);
+  background-image: url(/textures/pixel/bedrock.png);
   background-repeat: repeat;
   background-color: greenyellow;
   background-size: 32px;
