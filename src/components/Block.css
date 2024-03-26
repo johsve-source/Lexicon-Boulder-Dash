@@ -99,3 +99,12 @@
     z-index: 99;
   }
 }
+
+@keyframes test {
+  from {
+    background-color: red;
+  }
+  to {
+    background-color: green;
+  }
+}

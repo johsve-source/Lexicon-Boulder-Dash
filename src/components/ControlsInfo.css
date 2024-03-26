@@ -5,7 +5,7 @@ button.controls-info {
   padding: 0;
   top: 0.5em;
   left: 0.5em;
-
+  z-index: 999;
   background-color: #0008;
 }
 
@@ -13,7 +13,7 @@ dialog.controls-info {
   position: fixed;
   width: max-content;
   margin: 0;
-
+  z-index: 999;
   text-align: left;
 
   border-radius: 8px;
@@ -28,12 +28,15 @@ dialog.controls-info {
 
 dialog.controls-info[open]::backdrop {
   background-color: transparent;
+  z-index: 999;
 }
 
 dialog.controls-info td {
   text-align: center;
+  z-index: 999;
 }
 
 dialog.controls-info td:first-child {
   text-align: right;
+  z-index: 999;
 }
