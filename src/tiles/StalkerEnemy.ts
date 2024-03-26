@@ -50,6 +50,9 @@ const EXPORT: TileList = {
       let deltaX = gameState.playerPos.x - x
       let deltaY = gameState.playerPos.y - y
 
+      // Check which axis the enemy should focus moving on
+      const xFirst = Math.abs(deltaX) >= Math.abs(deltaY)
+
       // Clamp relative player position for movment.
       deltaX = Math.min(Math.max(deltaX, -1), 1)
       deltaY = Math.min(Math.max(deltaY, -1), 1)
@@ -69,8 +72,7 @@ const EXPORT: TileList = {
         return
       }
 
-      // Check which axis the enemy should focus moving on
-      if (Math.abs(deltaX) >= Math.abs(deltaY)) {
+      if (xFirst) {
         if (xTile === TILES.NOTHING) deltaY = 0
         else if (yTile === TILES.NOTHING) deltaX = 0
         else {

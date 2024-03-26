@@ -157,6 +157,8 @@ export class GameState {
 
   /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
+  /**The number of physics updates that have been preformed. */
+  updateCount = 0
   /**The current _time_ position. */
   time = 0
   /**The current _score_ position. */
@@ -165,6 +167,34 @@ export class GameState {
   curentLevel?: LevelData
   /**The name of the next level. */
   nextLevel?: string
+
+  /**Calls the _onLoad_ function on all the tiles. */
+  onLevelLoad() {
+    this.grid.forEach((tile, x, y) => {
+      // Check if the tile has a onLoad function and run it.
+      if (typeof tile.onLoad !== 'undefined') {
+        tile.onLoad({
+          x,
+          y,
+          tile,
+          local: this.subGrid(x, y),
+
+          updateLocal: (
+            rx: number,
+            ry: number,
+            width: number = 1,
+            height: number = 1,
+          ) => {
+            this.updateArea(x + rx, y + ry, width, height)
+          },
+
+          gameState: this,
+        })
+      }
+    })
+
+    return this
+  }
 
   processPlayerMovement(action: GameAction): GameState {
     /**A local grid centered a round the player */
@@ -253,6 +283,7 @@ export class GameState {
 
     // Create the next gamestate.
     const nextGameState = this.clone()
+    nextGameState.updateCount = this.updateCount + 1
 
     const soundList: SoundList = {
       diggingDirt: false,
@@ -306,34 +337,6 @@ export class GameState {
     return nextGameState
   }
 
-  /**Calls the _onLoad_ function on all the tiles. */
-  onLevelLoad() {
-    this.grid.forEach((tile, x, y) => {
-      // Check if the tile has a onLoad function and run it.
-      if (typeof tile.onLoad !== 'undefined') {
-        tile.onLoad({
-          x,
-          y,
-          tile,
-          local: this.subGrid(x, y),
-
-          updateLocal: (
-            rx: number,
-            ry: number,
-            width: number = 1,
-            height: number = 1,
-          ) => {
-            this.updateArea(x + rx, y + ry, width, height)
-          },
-
-          gameState: this,
-        })
-      }
-    })
-
-    return this
-  }
-
   /**A shorthand function for `this.grid.get(x, y)`*/
   get(x: number, y: number) {
     return this.grid.get(x, y)
@@ -365,7 +368,6 @@ export class GameState {
     const clone = new GameState()
 
     clone.grid = Leveldata.grid.clone()
-    clone.updateCords = new Map<string, { x: number; y: number }>()
     clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
     clone.time = this.time
     clone.score = this.score
@@ -385,6 +387,7 @@ export class GameState {
     clone.grid = this.grid.clone()
     clone.updateCords = this.updateCords
     clone.playerPos = { x: this.playerPos.x, y: this.playerPos.y }
+    clone.updateCount = this.updateCount
     clone.time = this.time
     clone.score = this.score
     clone.curentLevel = this.curentLevel
