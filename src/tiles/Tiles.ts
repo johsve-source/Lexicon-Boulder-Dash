@@ -183,6 +183,9 @@ addTiles(WallEnemy)
 import StalkerEnemy from './StalkerEnemy'
 addTiles(StalkerEnemy)
 
+import Boss from './Boss'
+addTiles(Boss)
+
 // Freeze the definitions.
 Object.freeze(TILES)
 Object.freeze(symbolToTile)
