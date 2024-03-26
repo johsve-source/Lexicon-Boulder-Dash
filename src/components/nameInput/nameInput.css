@@ -1,13 +1,6 @@
-@font-face {
-    font-family: "Arcade classic";
-    src: url('../../assets/fonts/ARCADECLASSIC.TTF');
-}
-
 .name-input {
-    font-family: "Arcade classic";
     color: white;
-   
-
+   margin: auto;
 }
 
 .display {
@@ -43,14 +36,12 @@
 }
 
 .letter-box {
-    font-size: 32px;
+    font-size: 1.5rem;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     flex-wrap: wrap;
     outline: none;
-
-    
 }
 
 .letter-frame {
@@ -64,10 +55,6 @@
     margin: 6px 12px;
    
   
-}
-
-.letter {
-
 }
 
 .show {

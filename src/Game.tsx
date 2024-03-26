@@ -248,15 +248,7 @@ export function Game() {
       ) : isEnterNameVisible ? (
         <NameInput setNameClickFalse={setNameClickFalse} />
       ) : (
-        <div
-          className="Game"
-          style={{
-            width: `${gameState.grid.width * 32}px`,
-            height: `${gameState.grid.height * 32}px`,
-            gridTemplateColumns: `repeat(${gameState.grid.width},1fr)`,
-            gridTemplateRows: `repeat(${gameState.grid.height},1fr)`,
-          }}
-        >
+        <div className="Game">
           <ControlsInfo />
 
           {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
