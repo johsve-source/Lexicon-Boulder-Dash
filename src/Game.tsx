@@ -2,7 +2,10 @@ import './Game.css'
 import { createContext, useState, useEffect, useRef } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
-import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
+import {
+  SoundManagerHook,
+  useSoundManagerLogic,
+} from './hooks/sound/useSoundManagerLogic'
 import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
@@ -20,7 +23,28 @@ export function Game() {
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = GetGameReducer()
 
+  // play theme on start
+  useEffect(() => {
+    const closure = (manager: SoundManagerHook) => {
+      manager.playInteraction('theme', {
+        id: 15132,
+        volume: 0.3,
+        loop: true,
+        trailing: true,
+      })
+    }
+    console.log('Playing...')
+    closure(soundManager)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   function handleEnterNameClick() {
+    soundManager.playInteraction('ui-interaction', {
+      id: 213123,
+      volume: 0.2,
+      loop: false,
+      trailing: false,
+    })
     setEnterNameVisible(true)
   }
 
@@ -29,6 +53,15 @@ export function Game() {
   }
 
   function handlePlayClick() {
+    // silence
+    soundManager.cleanupAllSounds()
+
+    soundManager.playInteraction('start-game', {
+      id: 13213123,
+      volume: 1,
+      loop: false,
+      trailing: true,
+    })
     setStartMenuVisible(false)
     setIsGameStarted(true)
     // add "isGameStarted" state update, ie. start timer, score count etc.

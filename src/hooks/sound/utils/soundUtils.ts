@@ -28,6 +28,8 @@ export const determineSoundFile = (interactionType: string): string => {
       return SoundConstants.GAME_LEVEL_2
     case 'game-level-3':
       return SoundConstants.GAME_LEVEL_3
+    case 'theme':
+      return SoundConstants.THEME
     default:
       throw new Error(`Unknown interaction type: ${interactionType}`)
   }
