@@ -7,7 +7,6 @@ import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
-import NameInput from './components/nameInput/NameInput'
 import { useNavigate } from 'react-router-dom'
 
 export const PlayerContext = createContext<number[]>([])
@@ -15,7 +14,6 @@ export const PlayerContext = createContext<number[]>([])
 export function Game() {
   const navigate = useNavigate()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
-  const [isEnterNameVisible, setEnterNameVisible] = useState<boolean>(false)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
 
@@ -24,12 +22,9 @@ export function Game() {
 
   function handleEnterNameClick() {
     navigate("/name")
-    setEnterNameVisible(true)
   }
 
-  function setNameClickFalse() {
-    setEnterNameVisible(false)
-  }
+  
 
   function handlePlayClick() {
     setStartMenuVisible(false)
