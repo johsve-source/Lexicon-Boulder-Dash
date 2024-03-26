@@ -2,11 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import './nameInput.css'
 import { useNavigate } from 'react-router-dom'
 
-
-
-
 const NameInput = () => {
-
   const [userName, setUserName] = useState('')
   const navigate = useNavigate()
 
@@ -179,17 +175,8 @@ const NameInput = () => {
 
           return
         } else if (activeLetter.letter === 'End') {
-
-          //return to the menu and save userName in local storage
-
-          localStorage.setItem('username', userName);
-
-        
-          return
-
           //Navigates back to game component again
           navigate('/')
-
         } else {
           const letter = activeLetter.letter
           setUserName((prevName) => {
