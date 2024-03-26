@@ -72,6 +72,7 @@ const EXPORT: TileList = {
         return
       }
 
+      // Check wich direction to move.
       if (xFirst) {
         if (xTile === TILES.NOTHING) deltaY = 0
         else if (yTile === TILES.NOTHING) deltaX = 0
