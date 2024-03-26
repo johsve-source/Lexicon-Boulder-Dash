@@ -44,7 +44,6 @@ export function Game() {
   }
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
-      console.log(e.code)
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault() // prevents scrolling
         gameDispatch({
@@ -75,25 +74,6 @@ export function Game() {
         })
       }
     }
-    /* if (gameState.playerPos.y > gameState.grid.height / 2) {
-      window.scrollTo({
-        top:
-          gameState.playerPos.y +
-          (32 / gameState.grid.height) * window.innerHeight,
-        left:
-          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
-        behavior: 'auto',
-      })
-    } else {
-      window.scrollTo({
-        top:
-          gameState.playerPos.y -
-          (32 / gameState.grid.height) * window.innerHeight,
-        left:
-          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
-        behavior: 'auto',
-      })
-    } */
 
     window.addEventListener('keydown', keyPress)
 
@@ -189,51 +169,6 @@ export function Game() {
       window.removeEventListener('mouseup', mouseup)
     }
   })
-  const [renderGrid, setRenderGrid] = useState(gameState.grid.subGrid(0, 0))
-
-  // calculates and renders only visible game area
-  useEffect(() => {
-    const width = Math.min(
-      Math.ceil(window.innerWidth / 32) + 2,
-      gameState.grid.width,
-    )
-    const height = Math.min(
-      Math.ceil(window.innerHeight / 32) + 2,
-      gameState.grid.height,
-    )
-
-    const x = Math.max(
-      Math.min(
-        Math.floor(gameState.playerPos.x - Math.ceil(width / 2)),
-        gameState.grid.width - width,
-      ),
-      0,
-    )
-    const y = Math.max(
-      Math.min(
-        Math.floor(gameState.playerPos.y - Math.ceil(height / 2)),
-        gameState.grid.height - height,
-      ),
-      0,
-    )
-
-    setRenderGrid(gameState.grid.subGrid(x, y, width, height))
-
-    const cameraX = gameState.playerPos.x * 32 - window.innerWidth / 2
-    const cameraY = gameState.playerPos.y * 32 - window.innerHeight / 2
-
-    window.scrollTo({
-      left: cameraX,
-      top: cameraY,
-      behavior: 'instant',
-      //behavior: 'smooth',
-    })
-  }, [
-    gameState.grid,
-    gameState.playerPos.x,
-    gameState.playerPos.y,
-    setRenderGrid,
-  ])
 
   return (
     <>
@@ -255,16 +190,19 @@ export function Game() {
         >
           <ControlsInfo />
 
-          {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
-            <Block
-              key={x + y * grid.width}
-              x={grid.y + y}
-              y={grid.x + x}
-              image={tile.texture}
-              animation={tile.animation || 'none'}
-              frame={tile.frame || 0}
-            />
-          ))}
+          {gameState.grid
+            .subGridViewFromGameState(gameState)
+            .toItterArray()
+            .map(([tile, x, y, grid]) => (
+              <Block
+                key={`${x}, ${y}`}
+                x={grid.y + y}
+                y={grid.x + x}
+                image={tile.texture}
+                animation={tile.animation || 'none'}
+                frame={tile.frame || 0}
+              />
+            ))}
         </div>
       ) }
     </>
