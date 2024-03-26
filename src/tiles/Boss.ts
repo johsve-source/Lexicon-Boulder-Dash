@@ -143,7 +143,7 @@ const EXPORT: TileList = {
 
       // Move.
       move(params, deltaX, deltaY)
-      updateLocal(deltaX - 1, deltaY - 1, 4, 4)
+      updateLocal(deltaX - 2, deltaY - 2, 4, 4)
     },
   },
 }
