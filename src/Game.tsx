@@ -7,26 +7,24 @@ import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
-import NameInput from './components/nameInput/NameInput'
+import { useNavigate } from 'react-router-dom'
 
 export const PlayerContext = createContext<number[]>([])
 
 export function Game() {
+  const navigate = useNavigate()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
-  const [isEnterNameVisible, setEnterNameVisible] = useState<boolean>(false)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [, setIsGameStarted] = useState<boolean>(false)
+  const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
 
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = GetGameReducer()
 
   function handleEnterNameClick() {
-    setEnterNameVisible(true)
+    navigate("/name")
   }
 
-  function setNameClickFalse() {
-    setEnterNameVisible(false)
-  }
+  
 
   function handlePlayClick() {
     setStartMenuVisible(false)
@@ -239,15 +237,13 @@ export function Game() {
 
   return (
     <>
-      {isStartMenuVisible && isEnterNameVisible === false ? (
+      {isStartMenuVisible ? (
         <StartMenu
           onPlayClick={handlePlayClick}
           highscores={highscoreTestData}
           handleEnterNameClick={handleEnterNameClick}
         />
-      ) : isEnterNameVisible ? (
-        <NameInput setNameClickFalse={setNameClickFalse} />
-      ) : (
+      )  : (
         <div
           className="Game"
           style={{
@@ -270,7 +266,7 @@ export function Game() {
             />
           ))}
         </div>
-      )}
+      ) }
     </>
   )
 }
