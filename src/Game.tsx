@@ -15,7 +15,7 @@ export function Game() {
   const navigate = useNavigate()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [setIsGameStarted] = useState<boolean>(false)
+  const [, setIsGameStarted] = useState<boolean>(false)
 
   const soundManager = useSoundManagerLogic()
   const [gameState, gameDispatch] = GetGameReducer()
