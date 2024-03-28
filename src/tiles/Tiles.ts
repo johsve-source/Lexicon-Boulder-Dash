@@ -89,8 +89,10 @@ export interface Tile {
   /**Optional animation frame. */
   frame?: number
 
-  /**Optional expotion radius if defined. */
+  /**Optional explotion radius if defined. */
   explosive?: number
+  /**Optional indestructible if set to true. */
+  indestructible?: boolean
 
   /**Optional function that is called on the tile when the level is loaded. */
   onLoad?: (params: onLoadParams) => void

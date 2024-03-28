@@ -48,10 +48,8 @@ function canMove(params: onPhysicsParams, moveX: number, moveY: number) {
     local.get(moveX - 0, moveY - 0),
   ]
 
-  if (destroyedTiles.includes(TILES.DIRT_DIAMOND)) return false
-  if (destroyedTiles.includes(TILES.BEDROCK_DIAMOND)) return false
-  if (destroyedTiles.includes(TILES.DIRT_FINISH)) return false
-  if (destroyedTiles.includes(TILES.BEDROCK_FINISH)) return false
+  // Check if any tile is indestructible.
+  if (destroyedTiles.some((t) => t.indestructible)) return false
 
   return true
 }

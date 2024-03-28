@@ -20,19 +20,15 @@ export function explode(
     for (let ix = startX; ix <= endX; ix++) {
       const tile = gameState.get(ix, iy)
 
-      // Do not explode the finish tile.
-      if (tile === TILES.DIRT_FINISH) continue
-      if (tile === TILES.BEDROCK_FINISH) continue
-
-      // Do not explode the diamond tile.
-      if (tile === TILES.BEDROCK_DIAMOND) continue
-
       // Dig out the dirt diamond.
       if (tile === TILES.BEDROCK_DIAMOND) {
         gameState.set(ix, iy, TILES.DIRT_DIAMOND)
         gameState.updateArea(ix + x, iy + y)
         return
       }
+
+      // Do not explode if indestructible.
+      if (tile.indestructible) continue
 
       gameState.set(ix, iy, TILES.EXPLOSION)
       gameState.updateArea(ix + x, iy + y)

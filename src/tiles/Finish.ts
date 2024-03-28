@@ -5,6 +5,7 @@ const EXPORT: TileList = {
     name: 'DIRT_FINISH',
     texture: '/textures/pixel/dirt-finish.gif',
     symbol: 'F',
+    indestructible: true,
 
     onLoad({ local, tile, x, y, gameState }) {
       gameState.finish = { x, y, tile }
@@ -26,6 +27,7 @@ const EXPORT: TileList = {
     name: 'BEDROCK_FINISH',
     texture: '/textures/pixel/bedrock-finish.gif',
     symbol: 'f',
+    indestructible: true,
 
     onLoad({ local, tile, x, y, gameState }) {
       gameState.finish = { x, y, tile }

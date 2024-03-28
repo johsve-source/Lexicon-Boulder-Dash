@@ -6,6 +6,7 @@ const EXPORT: TileList = {
     name: 'DIRT_DIAMOND',
     texture: '/textures/pixel/dirt-diamond.png',
     symbol: 'D',
+    indestructible: true,
 
     onLoad({ gameState }) {
       gameState.diamondsRemaining++
@@ -41,6 +42,7 @@ const EXPORT: TileList = {
     name: 'BEDROCK_DIAMOND',
     texture: '/textures/pixel/bedrock-diamond.png',
     symbol: 'd',
+    indestructible: true,
 
     onLoad({ gameState }) {
       gameState.diamondsRemaining++
