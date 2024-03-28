@@ -20,7 +20,6 @@ export function Game() {
   const [gameState, gameDispatch] = GetGameReducer()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
-  // const [startTime, setStartTime] = useState<number>(0)
   const [time, setTime] = useState<number>(gameState.time)
 
   const soundManager = useSoundManagerLogic()
@@ -42,10 +41,8 @@ export function Game() {
 
   function handleEnterNameClick() {
     navigate('/name')
-    navigate('/name')
   }
 
-  // triggers 'timer' useEffect
   function handlePlayClick() {
     // silence
     soundManager.cleanupAllSounds()
