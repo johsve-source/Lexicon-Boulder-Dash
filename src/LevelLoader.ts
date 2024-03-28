@@ -1,4 +1,4 @@
-import { Tile, TILES, symbolToTile } from './tiles/Tiles'
+import { Tile, symbolToTile } from './tiles/Tiles'
 import Grid from './Grid'
 
 interface LevelFileData {
@@ -9,7 +9,6 @@ interface LevelFileData {
 
 export interface LevelData {
   grid: Grid<Tile>
-  playerPos: { x: number; y: number }
   nextLevel: string
 }
 
@@ -33,18 +32,8 @@ export async function loadLevelData(path: string): Promise<LevelData> {
   grid.width = levelData[0].length
   grid.data = levelData.reduce((acc, row) => [...acc, ...row], [])
 
-  let playerPos = { x: 1, y: 1 }
-  // sets player position at the player symbol
-  const playerIndex = grid.data.indexOf(TILES.PLAYER)
-  if (playerIndex >= 0)
-    playerPos = {
-      x: playerIndex % grid.width,
-      y: Math.floor(playerIndex / grid.width),
-    }
-
   return {
     grid,
-    playerPos,
     nextLevel: data.nextLevel,
   }
 }

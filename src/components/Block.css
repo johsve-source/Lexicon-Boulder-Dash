@@ -23,7 +23,7 @@
   from {
     right: var(--game-block-size);
     z-index: 99;
-    rotate: 360deg;
+    rotate: -360deg;
   }
   to {
     right: 0;
