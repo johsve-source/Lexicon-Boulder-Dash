@@ -174,6 +174,18 @@ addTiles(Player)
 import Finish from './Finish'
 addTiles(Finish)
 
+import Phoenix from './Phoenix'
+addTiles(Phoenix)
+
+import Unicorn from './Unicorn'
+addTiles(Unicorn)
+
+import Centaur from './Centaur'
+addTiles(Centaur)
+
+import Dragon from './Dragon'
+addTiles(Dragon)
+
 import LineEnemy from './LineEnemy'
 addTiles(LineEnemy)
 

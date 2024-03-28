@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, FC } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './nameInput.css'
-import { nameInputInterface } from '../../interfaces/IStartMenuProps'
+import { useNavigate } from 'react-router-dom'
 
-
-const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
+const NameInput = () => {
   const [userName, setUserName] = useState('')
+  const navigate = useNavigate()
 
   //Array with letter for input name. If active true, the arrow will point on that one
   const [letters, setLetters] = useState([
@@ -45,8 +45,6 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
     { id: 35, letter: 'Del', active: false },
     { id: 36, letter: 'End', active: false },
   ])
-
-  
 
   const letterBoxRef = useRef<HTMLDivElement>(null)
 
@@ -177,8 +175,8 @@ const NameInput: FC<nameInputInterface> = ({ setNameClickFalse }) => {
 
           return
         } else if (activeLetter.letter === 'End') {
-          setNameClickFalse()
-          return
+          //Navigates back to game component again
+          navigate('/')
         } else {
           const letter = activeLetter.letter
           setUserName((prevName) => {
