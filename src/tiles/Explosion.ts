@@ -37,7 +37,7 @@ const EXPORT: TileList = {
     name: 'EXPLOSION',
     texture: '/textures/pixel/boom.gif',
 
-    onPhysics: ({ local, updateLocal }) => {
+    onPhysics({ local, updateLocal }) {
       local.set(0, 0, TILES.NOTHING)
       updateLocal(-1, -1, 3, 3)
     },

@@ -107,13 +107,6 @@ function wallEnemyLogic(
   const rotation = clockwise ? 2 : -2
   const corner = clockwise ? 1 : -1
 
-  console.log(
-    typeof rotationType,
-    typeof forwardType,
-    typeof counterRotationType,
-    typeof backwardType,
-  )
-
   // Kill on outside corner.
   if (
     getHeading(params, heading - rotation) === TILES.PLAYER &&
@@ -121,6 +114,26 @@ function wallEnemyLogic(
   ) {
     local.set(0, 0, TILES.NOTHING)
     explode(params, ...getHeadingCords(heading - rotation))
+    return
+  }
+
+  // Kill on forward.
+  if (
+    getHeading(params, heading) === TILES.PLAYER &&
+    getHeading(params, heading - rotation) !== TILES.NOTHING
+  ) {
+    local.set(0, 0, TILES.NOTHING)
+    explode(params, ...getHeadingCords(heading))
+    return
+  }
+
+  // Kill on inside corner.
+  if (
+    getHeading(params, heading + rotation) === TILES.PLAYER &&
+    getHeading(params, heading) !== TILES.NOTHING
+  ) {
+    local.set(0, 0, TILES.NOTHING)
+    explode(params, ...getHeadingCords(heading + rotation))
     return
   }
 
@@ -139,16 +152,6 @@ function wallEnemyLogic(
     return
   }
 
-  // Kill on forward.
-  if (
-    getHeading(params, heading) === TILES.PLAYER &&
-    getHeading(params, heading - rotation) !== TILES.NOTHING
-  ) {
-    local.set(0, 0, TILES.NOTHING)
-    explode(params, ...getHeadingCords(heading))
-    return
-  }
-
   // Move forward.
   if (
     getHeading(params, heading) === TILES.NOTHING &&
@@ -157,16 +160,6 @@ function wallEnemyLogic(
     local.set(0, 0, TILES.NOTHING)
     setHeading(params, heading, getAnimation(forwardType, heading))
     updateHeading(params, heading)
-    return
-  }
-
-  // Kill on inside corner.
-  if (
-    getHeading(params, heading + rotation) === TILES.PLAYER &&
-    getHeading(params, heading) !== TILES.NOTHING
-  ) {
-    local.set(0, 0, TILES.NOTHING)
-    explode(params, ...getHeadingCords(heading + rotation))
     return
   }
 
@@ -233,11 +226,11 @@ const EXPORT: TileList = {
     symbol: 'w',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       wallEnemyLogic(
         params,
         HEADING.NORTH,
@@ -255,11 +248,11 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/enemy_phoenix.gif',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       wallEnemyLogic(
         params,
         HEADING.EAST,
@@ -277,11 +270,11 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/enemy_phoenix.gif',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       wallEnemyLogic(
         params,
         HEADING.SOUTH,
@@ -299,11 +292,11 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/enemy_phoenix.gif',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       wallEnemyLogic(
         params,
         HEADING.WEST,
@@ -322,11 +315,11 @@ const EXPORT: TileList = {
     symbol: 'W',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       wallEnemyLogic(
         params,
         HEADING.NORTH,
@@ -344,11 +337,11 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/enemy_phoenix.gif',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       wallEnemyLogic(
         params,
         HEADING.EAST,
@@ -366,11 +359,11 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/enemy_phoenix.gif',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       wallEnemyLogic(
         params,
         HEADING.SOUTH,
@@ -388,11 +381,11 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/enemy_phoenix.gif',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       wallEnemyLogic(
         params,
         HEADING.WEST,

@@ -159,10 +159,12 @@ export class GameState {
   playerPos = { x: 0, y: 0 }
   /**The number of physics updates that have been preformed. */
   updateCount = 0
-  /**The current _time_ position. */
+  /**The current _time_. */
   time = 0
-  /**The current _score_ position. */
+  /**The current _score_. */
   score = 0
+  /**The number of _diamonds_ remaining. */
+  diamondsRemaining = 0
   /**The _LevelData_ current level. */
   curentLevel?: LevelData
   /**The name of the next level. */
@@ -305,6 +307,9 @@ export class GameState {
     sortedUpdates.forEach(({ x, y }) => {
       const tile = this.get(x, y)
 
+      // Check if the tile has been changed.
+      if (tile !== nextGameState.get(x, y)) return
+
       // Check if the tile is defined.
       if (typeof tile === 'undefined') return
 
@@ -371,6 +376,7 @@ export class GameState {
     clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
     clone.time = this.time
     clone.score = this.score
+    clone.diamondsRemaining = 0
     clone.curentLevel = Leveldata
     clone.nextLevel = Leveldata.nextLevel
 
@@ -390,6 +396,7 @@ export class GameState {
     clone.updateCount = this.updateCount
     clone.time = this.time
     clone.score = this.score
+    clone.diamondsRemaining = this.diamondsRemaining
     clone.curentLevel = this.curentLevel
     clone.nextLevel = this.nextLevel
 

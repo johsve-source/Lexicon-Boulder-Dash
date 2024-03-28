@@ -7,6 +7,10 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/dirt-diamond.png',
     symbol: 'D',
 
+    onLoad({ gameState }) {
+      gameState.diamondsRemaining++
+    },
+
     onPlayerMove({ local, updateLocal, moveDirection, soundList }) {
       if (local.get(-moveDirection.x, -moveDirection.y) === TILES.PLAYER) {
         local.set(0, 0, TILES.NOTHING)
@@ -15,14 +19,15 @@ const EXPORT: TileList = {
       }
     },
 
-    onPhysics: (params) => {
-      const { local, updateLocal, soundList } = params
+    onPhysics(params) {
+      const { local, updateLocal, gameState, soundList } = params
 
       // If the player is bellow then pick up.
       if (local.get(0, 1) === TILES.PLAYER) {
         local.set(0, 0, TILES.NOTHING)
         updateLocal(-1, -1, 3, 3)
         soundList.diamondPickup = true
+        gameState.diamondsRemaining--
         return
       }
 
@@ -36,21 +41,27 @@ const EXPORT: TileList = {
     texture: '/textures/pixel/bedrock-diamond.png',
     symbol: 'd',
 
-    onPlayerMove({ local, updateLocal, moveDirection, soundList }) {
+    onLoad({ gameState }) {
+      gameState.diamondsRemaining++
+    },
+
+    onPlayerMove({ local, updateLocal, moveDirection, gameState, soundList }) {
       if (local.get(-moveDirection.x, -moveDirection.y) === TILES.PLAYER) {
         local.set(0, 0, TILES.NOTHING)
         updateLocal(-1, -1, 3, 3)
         soundList.diamondPickup = true
+        gameState.diamondsRemaining--
       }
     },
 
-    onPhysics: (params) => {
-      const { local, updateLocal, soundList } = params
+    onPhysics(params) {
+      const { local, updateLocal, gameState, soundList } = params
 
       if (local.get(0, 1) === TILES.PLAYER) {
         local.set(0, 0, TILES.NOTHING)
         updateLocal(-1, -1, 3, 3)
         soundList.diamondPickup = true
+        gameState.diamondsRemaining--
         return
       }
 

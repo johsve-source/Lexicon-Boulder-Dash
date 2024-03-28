@@ -49,6 +49,8 @@ function canMove(params: onPhysicsParams, moveX: number, moveY: number) {
   ]
 
   if (destroyedTiles.includes(TILES.FINISH)) return false
+  if (destroyedTiles.includes(TILES.DIRT_DIAMOND)) return false
+  if (destroyedTiles.includes(TILES.BEDROCK_DIAMOND)) return false
 
   return true
 }
@@ -78,18 +80,18 @@ const EXPORT: TileList = {
     symbol: 'B',
     explosive: 2,
 
-    onLoad: (params) => {
+    onLoad(params) {
       const { updateLocal } = params
 
       move(params, 0, 0)
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       const { x, y, local, updateLocal, gameState, soundList } = params
 
       // Move every second uppdate.
-      if (gameState.updateCount % 2 === 0) {
+      if (!(gameState.updateCount % 3 === 0)) {
         updateLocal(0, 0)
         return
       }
@@ -143,7 +145,12 @@ const EXPORT: TileList = {
 
       // Move.
       move(params, deltaX, deltaY)
-      updateLocal(deltaX - 2, deltaY - 2, 4, 4)
+      updateLocal(
+        -2 + Math.min(deltaX, 0),
+        -2 + Math.min(deltaY, 0),
+        4 + Math.abs(deltaX),
+        4 + Math.abs(deltaY),
+      )
     },
   },
 }

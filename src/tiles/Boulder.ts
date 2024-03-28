@@ -17,7 +17,7 @@ const EXPORT: TileList = {
       boulderPush(params, TILES.BEDROCK_BOULDER)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       const { soundList } = params
 
       if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.DIRT_BOULDER))
@@ -34,7 +34,7 @@ const EXPORT: TileList = {
       boulderPush(params, TILES.BEDROCK_BOULDER)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       const { soundList } = params
 
       if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.BEDROCK_BOULDER))
@@ -46,7 +46,7 @@ const EXPORT: TileList = {
     name: 'FALLING_BOULDER',
     texture: '/textures/pixel/bedrock-boulder.png',
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       const { local, soundList } = params
 
       // If the player is below then explode.

@@ -39,11 +39,11 @@ const EXPORT: TileList = {
     symbol: 's',
     explosive: 1,
 
-    onLoad: ({ updateLocal }) => {
+    onLoad({ updateLocal }) {
       updateLocal(0, 0)
     },
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       const { x, y, local, updateLocal, gameState } = params
 
       // Get relative player position.
