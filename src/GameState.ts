@@ -170,7 +170,7 @@ export class GameState {
   /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
   /**The current _time_ position. */
-  time = 160
+  time = 20
   /**The current _score_ position. */
   score = 0
   /**The current state of the game. */

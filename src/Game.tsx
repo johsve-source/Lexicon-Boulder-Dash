@@ -16,8 +16,9 @@ export function Game() {
   const navigate = useNavigate()
   const [gameState, gameDispatch] = GetGameReducer()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
+  // const [startTime, setStartTime] = useState<number>(0)
+  const [time, setTime] = useState<number>(gameState.time)
 
   const soundManager = useSoundManagerLogic()
 
@@ -25,7 +26,7 @@ export function Game() {
     navigate('/name')
   }
 
-  // triggers 'start timer' useEffect
+  // triggers 'timer' useEffect
   function handlePlayClick() {
     setStartMenuVisible(false)
     setIsGameStarted(true)
@@ -43,12 +44,42 @@ export function Game() {
     loadLevel(gameDispatch, path)
   }
 
-  // start timer
+  // timer
   useEffect(() => {
-    if (!isStartMenuVisible && isGameStarted) {
-      console.log('timer...')
+    if (!isStartMenuVisible) {
+      let interval: number | undefined
+      const endTime = new Date().getTime() + (time * 1000)
+    
+      const startTimer = () => {
+        interval = setInterval(updateTimer, 1000)
+        updateTimer()
+      }
+    
+      const updateTimer = () => {
+        const currentTime = new Date().getTime()
+        const remainingTime = Math.round(Math.max((endTime - currentTime) / 1000, 0))
+        setTime(remainingTime)
+
+        if (remainingTime <= 0) {
+          clearInterval(interval)
+          console.log('cleared: time out')
+        }
+      }
+    
+      if (isGameStarted) {
+        startTimer()
+      } else if (!isGameStarted){
+        clearInterval(interval)
+        console.log('cleared: !isGameStarted')
+      }
+    
+      return () => {
+        clearInterval(interval)
+        console.log('cleared: component unmounted')
+      }
     }
-  }, [isGameStarted, isStartMenuVisible])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGameStarted])
 
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
@@ -188,7 +219,7 @@ export function Game() {
         />
       ) : (
         <>
-          <GameInfo timeRemaining={gameState.time} score={gameState.score} />
+          <GameInfo timeRemaining={time} score={gameState.score} />
 
           <div
             className='Game'
