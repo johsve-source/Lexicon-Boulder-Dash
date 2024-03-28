@@ -28,7 +28,7 @@ export function Game() {
     const closure = (manager: SoundManagerHook) => {
       manager.playInteraction('theme', {
         id: 15132,
-        volume: 0.3,
+        volume: 0.15,
         loop: true,
         trailing: true,
       })
@@ -48,7 +48,7 @@ export function Game() {
 
     soundManager.playInteraction('start-game', {
       id: 13213123,
-      volume: 1,
+      volume: 0.2,
       loop: false,
       trailing: true,
     })

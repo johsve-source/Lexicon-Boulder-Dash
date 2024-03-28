@@ -10,10 +10,11 @@ export function StartMenu({
     username: string,
     score: number,
     maxLength: number,
+    index: number,
   ): string {
     const dotCount = Math.max(
       0,
-      maxLength - (username.length + score.toString().length),
+      maxLength - (index.toString().length - username.length + score.toString().length),
     )
     return '.'.repeat(dotCount)
   }
@@ -32,26 +33,29 @@ export function StartMenu({
             ENTER NAME
           </button>
         </div>
-        <h2>High scores</h2>
 
-        {highscores.length < 1 ? (
-          <p>No high scores registered yet.</p>
-        ) : (
-          <ol>
-            {highscores.map((highscore) => {
-              const dots = calculateDotAmount(
-                highscore.username,
-                highscore.score,
-                30,
-              )
-              return (
-                <li key={highscore.id}>
-                  <span>{`${highscore.username}${dots}${highscore.score}`}</span>
-                </li>
-              )
-            })}
-          </ol>
-        )}
+        <div className="wrap">
+          <h2>High scores</h2>
+          {highscores.length < 1 ? (
+            <p>No high scores registered yet.</p>
+          ) : (
+            <div className="list">
+              {highscores.map((highscore, index) => {
+                const dots = calculateDotAmount(
+                  highscore.username,
+                  highscore.score,
+                  20,
+                  index + 1,
+                )
+                return (
+                  <div className="list-item" key={highscore.id}>
+                    <span>{`${index + 1}. ${highscore.username}${dots}${highscore.score}`}</span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </section>
     </div>
   )

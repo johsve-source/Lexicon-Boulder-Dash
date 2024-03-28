@@ -1,48 +1,67 @@
 .startMenu {
-  background-image: url(/menu/bg.gif);
+  background-image: url(/menu/bg.webp);
   background-repeat: no-repeat;
   background-size: cover;
   height: 100%;
   width: 100%;
   place-content: center;
   display: grid;
+  background-position: bottom;
 }
 
 .startMenu h1 {
   display: grid;
   place-content: center;
+  margin: 0;
   img {
-    height: 172px
+    height: 20svh;
   }
 }
 
 .startMenu .inner {
   display: grid;
   place-content: center;
+  grid-template: min-content min-content 1fr / 1fr;
 }
 
 .startMenu button {
-  font-size: 24px;
+  font-size: 3svh;
   background-image: url(/textures/pixel/bedrock.png);
   background-size: 25%;
-  border: 1px solid black;
-  box-shadow: 2px 2px 0 black;
+  border: 0.5svh solid black;
+  box-shadow: 0.5svh 0.5svh 0 black;
   font-family: "Silkscreen-Bold", system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-.startMenu h2 {
-  font-size: 1.5rem;
-  margin: 1.5rem auto auto auto;
+.startMenu .wrap {
+  background-image: url(/textures/pixel/bedrock.png);
+  background-size: 25%;
+  border: 0.5svh solid black;
+  box-shadow: 0.5svh 0.5svh 0 black;
+  padding: 0.5svh 1svh;
+  border-radius: 0;
+  display: grid;
+  margin-top: 2svh;
+  border-radius: 1svh;
 }
 
-.startMenu ol {
+.startMenu .wrap h2 {
+  font-size: 3svh;
+  margin: 0 auto 1svh auto;
+}
+
+.startMenu .list {
   display: grid;
+  grid-template: 1fr 1fr / 1fr 1fr;
+  gap: 0.3svh 2svh;
   justify-content: center;
   align-items: center;
 }
 
-.startMenu li {
-  font-size: 1rem;
+.startMenu .list-item {
+  font-size: 2svh;
+  color: white;
+  
 }
 
 .buttons {
@@ -50,5 +69,5 @@
   width: 100%;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
+  gap: 2svh;
 }
