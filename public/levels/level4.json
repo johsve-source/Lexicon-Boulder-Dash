@@ -1,7 +1,7 @@
 {
-    "name": "Level3",
-    "nextLevel": "level4",
-    "background": "map3",
+    "name": "Level4",
+    "nextLevel": "level1",
+    "background": "map4",
     "layout": [
       "##########",
       "#pO .....#",

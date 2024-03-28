@@ -177,6 +177,15 @@ addTiles(Centaur)
 import Dragon from './Dragon'
 addTiles(Dragon)
 
+import Wood from './Wood'
+addTiles(Wood)
+
+import Grass from './Grass'
+addTiles(Grass)
+
+import Leaf from './Leaf'
+addTiles(Leaf)
+
 // Freeze the definitions.
 Object.freeze(TILES)
 Object.freeze(symbolToTile)
