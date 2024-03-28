@@ -176,6 +176,7 @@ const NameInput = () => {
           return
         } else if (activeLetter.letter === 'End') {
           //Navigates back to game component again
+          localStorage.setItem('username', userName)
           navigate('/')
         } else {
           const letter = activeLetter.letter
