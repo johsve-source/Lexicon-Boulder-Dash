@@ -35,7 +35,7 @@ function getAnimation(tile: Tile, xDir: number, yDir: number) {
 const EXPORT: TileList = {
   STALKER_ENEMY: {
     name: 'STALKER_ENEMY',
-    texture: '/textures/pixel/boom.gif',
+    texture: '/textures/pixel/enemy_dragon.gif',
     symbol: 's',
     explosive: 1,
 

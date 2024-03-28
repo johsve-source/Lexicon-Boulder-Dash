@@ -56,25 +56,25 @@ function canMove(params: onPhysicsParams, moveX: number, moveY: number) {
 const EXPORT: TileList = {
   BOSS_TOP_LEFT: {
     name: 'BOSS',
-    texture: '/textures/metal/metal.png',
+    texture: '/textures/pixel/enemy_griffin_tl.gif',
     explosive: 2,
   },
 
   BOSS_TOP_RIGHT: {
     name: 'BOSS',
-    texture: '/textures/metal/metal.png',
+    texture: '/textures/pixel/enemy_griffin_tr.gif',
     explosive: 2,
   },
 
   BOSS_BOTTOM_LEFT: {
     name: 'BOSS',
-    texture: '/textures/metal/metal.png',
+    texture: '/textures/pixel/enemy_griffin_bl.gif',
     explosive: 2,
   },
 
   BOSS_BOTTOM_RIGHT: {
     name: 'BOSS',
-    texture: '/textures/metal/metal.png',
+    texture: '/textures/pixel/enemy_griffin_br.gif',
     symbol: 'B',
     explosive: 2,
 
