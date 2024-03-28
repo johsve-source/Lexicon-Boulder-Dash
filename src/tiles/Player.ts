@@ -9,6 +9,11 @@ const EXPORT: TileList = {
 
     explosive: 1,
 
+    onLoad({ x, y, gameState }) {
+      gameState.playerPos.x = x
+      gameState.playerPos.y = y
+    },
+
     onPlayerMove({ tile, local, updateLocal, moveDirection, gameState }) {
       if (local.get(moveDirection.x, moveDirection.y) === TILES.NOTHING) {
         if (moveDirection.y < 0) {

@@ -11,11 +11,12 @@ const EXPORT: TileList = {
       gameState.diamondsRemaining++
     },
 
-    onPlayerMove({ local, updateLocal, moveDirection, soundList }) {
+    onPlayerMove({ local, updateLocal, moveDirection, gameState, soundList }) {
       if (local.get(-moveDirection.x, -moveDirection.y) === TILES.PLAYER) {
         local.set(0, 0, TILES.NOTHING)
         updateLocal(-1, -1, 3, 3)
         soundList.diamondPickup = true
+        gameState.diamondsRemaining--
       }
     },
 

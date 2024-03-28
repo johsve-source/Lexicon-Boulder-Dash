@@ -14,7 +14,8 @@ const EXPORT: TileList = {
     symbol: 'O',
 
     onPlayerMove(params) {
-      boulderPush(params, TILES.BEDROCK_BOULDER)
+      if (boulderPush(params, TILES.BEDROCK_BOULDER))
+        params.soundList.stoneFalling = true
     },
 
     onPhysics(params) {
@@ -31,7 +32,8 @@ const EXPORT: TileList = {
     symbol: 'o',
 
     onPlayerMove(params) {
-      boulderPush(params, TILES.BEDROCK_BOULDER)
+      if (boulderPush(params, TILES.BEDROCK_BOULDER))
+        params.soundList.stoneFalling = true
     },
 
     onPhysics(params) {
@@ -77,7 +79,10 @@ export function boulderPush(
     local.get(moveDirection.x, 0) === TILES.NOTHING
   ) {
     local.set(0, 0, TILES.NOTHING)
-    local.set(moveDirection.x, 0, pushVariant)
+    local.set(moveDirection.x, 0, {
+      ...pushVariant,
+      animation: moveDirection.x > 0 ? 'move-right-b' : 'move-left-b',
+    })
     return true
   }
 

@@ -157,6 +157,8 @@ export class GameState {
 
   /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
+  /**The _finish_ data. */
+  finish = { x: 0, y: 0, tile: TILES.FINISH }
   /**The number of physics updates that have been preformed. */
   updateCount = 0
   /**The current _time_. */
@@ -167,8 +169,6 @@ export class GameState {
   diamondsRemaining = 0
   /**The _LevelData_ current level. */
   curentLevel?: LevelData
-  /**The name of the next level. */
-  nextLevel?: string
 
   /**Calls the _onLoad_ function on all the tiles. */
   onLevelLoad() {
@@ -272,6 +272,19 @@ export class GameState {
     // Update the player
     update(this.playerPos.x, this.playerPos.y)
 
+    // Adds the finish tile when all the diamonds are picked up.
+    if (this.diamondsRemaining <= 0) {
+      nextGameState.set(
+        this.finish.x,
+        this.finish.y,
+        [TILES.DIRT, TILES.DIRT_FINISH].includes(
+          nextGameState.get(this.finish.x, this.finish.y),
+        )
+          ? TILES.DIRT_FINISH
+          : TILES.BEDROCK_FINISH,
+      )
+    }
+
     playAudio(action, soundList)
 
     return nextGameState
@@ -282,6 +295,7 @@ export class GameState {
     if (this.updateCords.size <= 0) return this
 
     console.log(`Physics: ${this.updateCords.size} items. `)
+    //console.log(`${this.diamondsRemaining} diamonds remaining. `)
 
     // Create the next gamestate.
     const nextGameState = this.clone()
@@ -337,6 +351,19 @@ export class GameState {
       })
     })
 
+    // Adds the finish tile when all the diamonds are picked up.
+    if (this.diamondsRemaining <= 0) {
+      nextGameState.set(
+        this.finish.x,
+        this.finish.y,
+        [TILES.DIRT, TILES.DIRT_FINISH].includes(
+          nextGameState.get(this.finish.x, this.finish.y),
+        )
+          ? TILES.DIRT_FINISH
+          : TILES.BEDROCK_FINISH,
+      )
+    }
+
     playAudio(action, soundList)
 
     return nextGameState
@@ -373,12 +400,10 @@ export class GameState {
     const clone = new GameState()
 
     clone.grid = Leveldata.grid.clone()
-    clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
     clone.time = this.time
     clone.score = this.score
     clone.diamondsRemaining = 0
     clone.curentLevel = Leveldata
-    clone.nextLevel = Leveldata.nextLevel
 
     return clone.onLevelLoad()
   }
@@ -392,13 +417,13 @@ export class GameState {
 
     clone.grid = this.grid.clone()
     clone.updateCords = this.updateCords
-    clone.playerPos = { x: this.playerPos.x, y: this.playerPos.y }
+    clone.playerPos = { ...this.playerPos }
+    clone.finish = { ...this.finish }
     clone.updateCount = this.updateCount
     clone.time = this.time
     clone.score = this.score
     clone.diamondsRemaining = this.diamondsRemaining
     clone.curentLevel = this.curentLevel
-    clone.nextLevel = this.nextLevel
 
     return clone
   }
