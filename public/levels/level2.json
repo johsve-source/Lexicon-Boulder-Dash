@@ -1,6 +1,7 @@
 {
   "name": "Level2",
   "nextLevel": "level3",
+  "background": "map2",
   "layout": [
     "##########",
     "#pO .....#",

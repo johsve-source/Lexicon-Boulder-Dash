@@ -7,13 +7,20 @@ body {
 }
 
 .Game {
-  user-select: none;
-  position: relative;
-  margin: auto;
+  height: 100svh;
+  width: 100svw;
   display: grid;
-  grid-template: var(--game-block-size) / var(--game-block-size);
-  background-image: url(/textures/pixel/bedrock.png);
-  background-repeat: repeat;
-  background-color: greenyellow;
-  background-size: 32px;
+  background-position: center;
+  background-size: cover;
+  .board {
+    user-select: none;
+    position: relative;
+    margin: auto;
+    display: grid;
+    grid-template: var(--game-block-size) / var(--game-block-size);
+    background-image: url(/textures/pixel/bedrock-t.png);
+    background-repeat: repeat;
+    background-size: 32px;
+  }
+
 }
