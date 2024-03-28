@@ -165,6 +165,18 @@ addTiles(Player)
 import Finish from './Finish'
 addTiles(Finish)
 
+import Phoenix from './Phoenix'
+addTiles(Phoenix)
+
+import Unicorn from './Unicorn'
+addTiles(Unicorn)
+
+import Centaur from './Centaur'
+addTiles(Centaur)
+
+import Dragon from './Dragon'
+addTiles(Dragon)
+
 // Freeze the definitions.
 Object.freeze(TILES)
 Object.freeze(symbolToTile)

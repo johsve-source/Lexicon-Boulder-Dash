@@ -16,7 +16,7 @@ export function StartMenu({ handleEnterNameClick ,onPlayClick, highscores,  }: I
 
   return (
     <div className="startMenu">
-      <h1>Boulder Dash!</h1>
+      <h1>Griffin Dash!</h1>
       <div className='buttons'>
       <button onClick={onPlayClick}>Play</button>
       <button className='name-button' onClick={handleEnterNameClick}>Enter name</button>

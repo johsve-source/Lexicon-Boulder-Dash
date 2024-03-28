@@ -7,27 +7,22 @@ import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
-import NameInput from './components/nameInput/NameInput'
+import { useNavigate } from 'react-router-dom'
 import { GameInfo } from './components/GameInfo'
 
 export const PlayerContext = createContext<number[]>([])
 
 export function Game() {
+  const navigate = useNavigate()
   const [gameState, gameDispatch] = GetGameReducer()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
-  const [isEnterNameVisible, setEnterNameVisible] = useState<boolean>(false)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
-  const [timeLeft, setTimeLeft] = useState<number>(160) // setting to gameState.time triggers error in processPhysics sometimes on level change
 
   const soundManager = useSoundManagerLogic()
 
   function handleEnterNameClick() {
-    setEnterNameVisible(true)
-  }
-
-  function setNameClickFalse() {
-    setEnterNameVisible(false)
+    navigate("/name")
   }
 
   // triggers 'start timer' useEffect
@@ -76,8 +71,6 @@ export function Game() {
 
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
-      // console.log(e.code)
-
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
         e.preventDefault() // prevents scrolling
         gameDispatch({
@@ -108,25 +101,6 @@ export function Game() {
         })
       }
     }
-    /* if (gameState.playerPos.y > gameState.grid.height / 2) {
-      window.scrollTo({
-        top:
-          gameState.playerPos.y +
-          (32 / gameState.grid.height) * window.innerHeight,
-        left:
-          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
-        behavior: 'auto',
-      })
-    } else {
-      window.scrollTo({
-        top:
-          gameState.playerPos.y -
-          (32 / gameState.grid.height) * window.innerHeight,
-        left:
-          (gameState.playerPos.x / gameState.grid.width) * window.innerWidth,
-        behavior: 'auto',
-      })
-    } */
 
     window.addEventListener('keydown', keyPress)
 
@@ -222,79 +196,33 @@ export function Game() {
       window.removeEventListener('mouseup', mouseup)
     }
   })
-  const [renderGrid, setRenderGrid] = useState(gameState.grid.subGrid(0, 0))
-
-  // calculates and renders only visible game area
-  useEffect(() => {
-    const width = Math.min(
-      Math.ceil(window.innerWidth / 32) + 2,
-      gameState.grid.width,
-    )
-    const height = Math.min(
-      Math.ceil(window.innerHeight / 32) + 2,
-      gameState.grid.height,
-    )
-
-    const x = Math.max(
-      Math.min(
-        Math.floor(gameState.playerPos.x - Math.ceil(width / 2)),
-        gameState.grid.width - width,
-      ),
-      0,
-    )
-    const y = Math.max(
-      Math.min(
-        Math.floor(gameState.playerPos.y - Math.ceil(height / 2)),
-        gameState.grid.height - height,
-      ),
-      0,
-    )
-
-    setRenderGrid(gameState.grid.subGrid(x, y, width, height))
-
-    const cameraX = gameState.playerPos.x * 32 - window.innerWidth / 2
-    const cameraY = gameState.playerPos.y * 32 - window.innerHeight / 2
-
-    window.scrollTo({
-      left: cameraX,
-      top: cameraY,
-      behavior: 'instant',
-      //behavior: 'smooth',
-    })
-  }, [
-    gameState.grid,
-    gameState.playerPos.x,
-    gameState.playerPos.y,
-    setRenderGrid,
-  ])
 
   return (
     <>
-      {isStartMenuVisible && isEnterNameVisible === false ? (
+      {isStartMenuVisible ? (
         <StartMenu
           onPlayClick={handlePlayClick}
           highscores={highscoreTestData}
           handleEnterNameClick={handleEnterNameClick}
         />
-      ) : isEnterNameVisible ? (
-        <NameInput setNameClickFalse={setNameClickFalse} />
-      ) : (
-        <>
-          <GameInfo timeRemaining={timeLeft} score={0} />
-          <div
-            className="Game"
-            style={{
-              width: `${gameState.grid.width * 32}px`,
-              height: `${gameState.grid.height * 32}px`,
-              gridTemplateColumns: `repeat(${gameState.grid.width},1fr)`,
-              gridTemplateRows: `repeat(${gameState.grid.height},1fr)`,
-            }}
-          >
-            <ControlsInfo />
+      )  : (
+        <div
+          className="Game"
+          style={{
+            width: `${gameState.grid.width * 32}px`,
+            height: `${gameState.grid.height * 32}px`,
+            gridTemplateColumns: `repeat(${gameState.grid.width},1fr)`,
+            gridTemplateRows: `repeat(${gameState.grid.height},1fr)`,
+          }}
+        >
+          <ControlsInfo />
 
-            {renderGrid.toItterArray().map(([tile, x, y, grid]) => (
+          {gameState.grid
+            .subGridViewFromGameState(gameState)
+            .toItterArray()
+            .map(([tile, x, y, grid]) => (
               <Block
-                key={x + y * grid.width}
+                key={`${x}, ${y}`}
                 x={grid.y + y}
                 y={grid.x + x}
                 image={tile.texture}
@@ -302,9 +230,8 @@ export function Game() {
                 frame={tile.frame || 0}
               />
             ))}
-          </div>
-        </>
-      )}
+        </div>
+      ) }
     </>
   )
 }
