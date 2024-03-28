@@ -2,6 +2,7 @@ import { IStartMenuProps } from '../interfaces/IStartMenuProps'
 import './StartMenu.css'
 
 export function StartMenu({ handleEnterNameClick ,onPlayClick, highscores,  }: IStartMenuProps) {
+  const username = localStorage.getItem("username")
   function calculateDotAmount(
     username: string,
     score: number,
@@ -35,7 +36,7 @@ export function StartMenu({ handleEnterNameClick ,onPlayClick, highscores,  }: I
             )
             return (
               <li key={highscore.id}>
-                <span>{`${highscore.username}${dots}${highscore.score}`}</span>
+                <span>{`${username}${dots}${highscore.score}`}</span>
               </li>
             )
           })}
