@@ -2,7 +2,10 @@ import './Game.css'
 import { createContext, useState, useEffect, useRef } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
-import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
+import {
+  SoundManagerHook,
+  useSoundManagerLogic,
+} from './hooks/sound/useSoundManagerLogic'
 import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
@@ -22,12 +25,37 @@ export function Game() {
 
   const soundManager = useSoundManagerLogic()
 
+  // play theme on start
+  useEffect(() => {
+    const closure = (manager: SoundManagerHook) => {
+      manager.playInteraction('theme', {
+        id: 15132,
+        volume: 0.15,
+        loop: true,
+        trailing: true,
+      })
+    }
+    console.log('Playing...')
+    closure(soundManager)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   function handleEnterNameClick() {
+    navigate('/name')
     navigate('/name')
   }
 
   // triggers 'timer' useEffect
   function handlePlayClick() {
+    // silence
+    soundManager.cleanupAllSounds()
+
+    soundManager.playInteraction('start-game', {
+      id: 13213123,
+      volume: 0.2,
+      loop: false,
+      trailing: true,
+    })
     setStartMenuVisible(false)
     setIsGameStarted(true)
 
@@ -48,16 +76,18 @@ export function Game() {
   useEffect(() => {
     if (!isStartMenuVisible) {
       let interval: number | undefined
-      const endTime = new Date().getTime() + (time * 1000)
-    
+      const endTime = new Date().getTime() + time * 1000
+
       const startTimer = () => {
         interval = setInterval(updateTimer, 1000)
         updateTimer()
       }
-    
+
       const updateTimer = () => {
         const currentTime = new Date().getTime()
-        const remainingTime = Math.round(Math.max((endTime - currentTime) / 1000, 0))
+        const remainingTime = Math.round(
+          Math.max((endTime - currentTime) / 1000, 0),
+        )
         setTime(remainingTime)
 
         if (remainingTime <= 0) {
@@ -65,20 +95,20 @@ export function Game() {
           console.log('cleared: time out')
         }
       }
-    
+
       if (isGameStarted) {
         startTimer()
-      } else if (!isGameStarted){
+      } else if (!isGameStarted) {
         clearInterval(interval)
         console.log('cleared: !isGameStarted')
       }
-    
+
       return () => {
         clearInterval(interval)
         console.log('cleared: component unmounted')
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGameStarted])
 
   useEffect(() => {
@@ -211,25 +241,17 @@ export function Game() {
 
   return (
     <>
-      {isStartMenuVisible ? (
+      {isStartMenuVisible && (
         <StartMenu
           onPlayClick={handlePlayClick}
           highscores={highscoreTestData}
           handleEnterNameClick={handleEnterNameClick}
         />
-      ) : (
+      )}
+      {isGameStarted && (
         <>
           <GameInfo timeRemaining={time} score={gameState.score} />
-
-          <div
-            className='Game'
-            style={{
-              width: `${gameState.grid.width * 32}px`,
-              height: `${gameState.grid.height * 32}px`,
-              gridTemplateColumns: `repeat(${gameState.grid.width},1fr)`,
-              gridTemplateRows: `repeat(${gameState.grid.height},1fr)`,
-            }}
-          >
+          <div className="Game">
             <ControlsInfo />
 
             {gameState.grid
