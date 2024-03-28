@@ -39,16 +39,16 @@ export function Game() {
     // })
   }
 
+  const loadLevelCallback = (path: string) => {
+    loadLevel(gameDispatch, path)
+  }
+
   // start timer
   useEffect(() => {
     if (!isStartMenuVisible && isGameStarted) {
       console.log('timer...')
     }
   }, [isGameStarted, isStartMenuVisible])
-
-  const loadLevelCallback = (path: string) => {
-    loadLevel(gameDispatch, path)
-  }
 
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
@@ -189,9 +189,9 @@ export function Game() {
       ) : (
         <>
           <GameInfo timeRemaining={gameState.time} score={gameState.score} />
-          
+
           <div
-            className="Game"
+            className='Game'
             style={{
               width: `${gameState.grid.width * 32}px`,
               height: `${gameState.grid.height * 32}px`,

@@ -180,78 +180,10 @@ export class GameState {
   /**The name of the next level. */
   nextLevel?: string
 
-  processTime(state: GameState): GameState {    
-    const startTime = performance.now(); // Get the initial timestamp when the countdown starts
-    let lastUpdateTime = startTime; // Initialize last update time with start time
-
-    const update = (timestamp: number) => {
-      const deltaTime = timestamp - lastUpdateTime;  // Calculate the time passed since the last update
-
-      if (deltaTime >= 1000) { // Check if one second has elapsed
-        const elapsedTime = timestamp - startTime; // Calculate total elapsed time
-        const timeLeft = Math.max(0, state.time - Math.floor(elapsedTime / 1000)); // Calculate remaining time based on initial 160 seconds
- 
-        console.log('time left: ', timeLeft);
-
-        if (timeLeft <= 0) {
-          console.log("Game Over");
-          return {
-            ...state,
-            isGameOver: true
-          };
-        } else {
-          state.time = timeLeft;
-        }
-
-        lastUpdateTime = timestamp; // Update last update time
-
-        if (state.isGameOver) {
-          return state;
-        }
-      }
-
-      requestAnimationFrame(update);
-    };
-
-    requestAnimationFrame(update);
-
-    return state;
-}
-  
-//   processTime(state: GameState): GameState {    
-//     const startTime = performance.now()
-//     console.log("start time: ", startTime)
-
-//     const update = (timestamp: number) => {
-//       const deltaTime = timestamp - startTime  // time passed since start in milliseconds
-//       const timeLeft = Math.floor((state.time - deltaTime / 1000)) // remaining time in seconds
-
-//       console.log("delta: ", deltaTime)
-//       console.log('time left: ', timeLeft)
-
-//       if (deltaTime >= 1000) {
-//         if (timeLeft <= 0) {
-//           console.log("Game Over")
-//           return {
-//             ...state,
-//             isGameOver: true
-//           }
-//         } else {
-//           state.time = timeLeft
-//         }  
-//       }
-    
-//       if (state.isGameOver) {
-//         return state
-//       } else {
-//         requestAnimationFrame(update)
-//       }
-//     };
-
-//     requestAnimationFrame(update);
-
-//     return state;
-// }
+  processTime(state: GameState): GameState {
+    console.log('process time')
+    return state
+  }
 
   processPlayerMovement(action: GameAction): GameState {
     /**A local grid centered a round the player */
