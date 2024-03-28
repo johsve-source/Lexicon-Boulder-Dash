@@ -91,8 +91,9 @@ const EXPORT: TileList = {
     onPhysics(params) {
       const { x, y, local, updateLocal, gameState, soundList } = params
 
-      // Move every second uppdate.
+      // Move every third uppdate.
       if (!(gameState.updateCount % 3 === 0)) {
+        move(params, 0, 0)
         updateLocal(0, 0)
         return
       }
@@ -113,6 +114,7 @@ const EXPORT: TileList = {
         if (canMove(params, deltaX, 0)) deltaY = 0
         else if (canMove(params, 0, deltaY)) deltaX = 0
         else {
+          move(params, 0, 0)
           updateLocal(0, 0)
           return
         }
@@ -120,6 +122,7 @@ const EXPORT: TileList = {
         if (canMove(params, 0, deltaY)) deltaX = 0
         else if (canMove(params, deltaX, 0)) deltaY = 0
         else {
+          move(params, 0, 0)
           updateLocal(0, 0)
           return
         }

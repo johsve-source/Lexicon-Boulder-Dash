@@ -168,6 +168,9 @@ addTiles(Diamond)
 import Explosion from './Explosion'
 addTiles(Explosion)
 
+import ExplosiveBarrel from './ExplosiveBarrel'
+addTiles(ExplosiveBarrel)
+
 import Player from './Player'
 addTiles(Player)
 

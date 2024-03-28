@@ -51,9 +51,9 @@ const EXPORT: TileList = {
     onPhysics(params) {
       const { local, soundList } = params
 
-      // If the player is below then explode.
+      // If something explosive bellow then detonate.
       const below = local.get(0, 1)
-      if (below === TILES.PLAYER || below.explosive) {
+      if (below.explosive) {
         explode(params, 0, 1, below.explosive)
         return
       }
