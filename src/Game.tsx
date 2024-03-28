@@ -22,7 +22,7 @@ export function Game() {
   const soundManager = useSoundManagerLogic()
 
   function handleEnterNameClick() {
-    navigate("/name")
+    navigate('/name')
   }
 
   // triggers 'start timer' useEffect
@@ -39,31 +39,12 @@ export function Game() {
     // })
   }
 
+  // start timer
   useEffect(() => {
     if (!isStartMenuVisible && isGameStarted) {
-      gameDispatch({ type: ActionEnum.TIMER_START })
-
-      const timerInterval = setInterval(() => {
-        setTimeLeft(prevTimeLeft => {
-          const updatedTime = prevTimeLeft - 1
-          if (updatedTime <= 0) {
-            console.log("timeout, interval stopped.")
-            clearInterval(timerInterval)
-            return 0
-          } else {
-            //console.log("new time: ", updatedTime)
-            return updatedTime
-          }
-        })
-      }, 1000)
-  
-      return () => {
-        console.log("component unmounted, interval stopped.")
-        clearInterval(timerInterval)
-      }
+      console.log('timer...')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStartMenuVisible, isGameStarted]);
+  }, [isGameStarted, isStartMenuVisible])
 
   const loadLevelCallback = (path: string) => {
     loadLevel(gameDispatch, path)
@@ -205,33 +186,37 @@ export function Game() {
           highscores={highscoreTestData}
           handleEnterNameClick={handleEnterNameClick}
         />
-      )  : (
-        <div
-          className="Game"
-          style={{
-            width: `${gameState.grid.width * 32}px`,
-            height: `${gameState.grid.height * 32}px`,
-            gridTemplateColumns: `repeat(${gameState.grid.width},1fr)`,
-            gridTemplateRows: `repeat(${gameState.grid.height},1fr)`,
-          }}
-        >
-          <ControlsInfo />
+      ) : (
+        <>
+          <GameInfo timeRemaining={gameState.time} score={gameState.score} />
+          
+          <div
+            className="Game"
+            style={{
+              width: `${gameState.grid.width * 32}px`,
+              height: `${gameState.grid.height * 32}px`,
+              gridTemplateColumns: `repeat(${gameState.grid.width},1fr)`,
+              gridTemplateRows: `repeat(${gameState.grid.height},1fr)`,
+            }}
+          >
+            <ControlsInfo />
 
-          {gameState.grid
-            .subGridViewFromGameState(gameState)
-            .toItterArray()
-            .map(([tile, x, y, grid]) => (
-              <Block
-                key={`${x}, ${y}`}
-                x={grid.y + y}
-                y={grid.x + x}
-                image={tile.texture}
-                animation={tile.animation || 'none'}
-                frame={tile.frame || 0}
-              />
-            ))}
-        </div>
-      ) }
+            {gameState.grid
+              .subGridViewFromGameState(gameState)
+              .toItterArray()
+              .map(([tile, x, y, grid]) => (
+                <Block
+                  key={`${x}, ${y}`}
+                  x={grid.y + y}
+                  y={grid.x + x}
+                  image={tile.texture}
+                  animation={tile.animation || 'none'}
+                  frame={tile.frame || 0}
+                />
+              ))}
+          </div>
+        </>
+      )}
     </>
   )
 }
