@@ -9,10 +9,10 @@ export enum ActionEnum {
   MOVE_UP = 'MOVE_UP',
   MOVE_DOWN = 'MOVE_DOWN',
   MOVE_LEFT = 'MOVE_LEFT',
-  MOVE_RIGHT = 'MOVE_RIGHT',
-  TIMER_START = 'TIMER_START',
-  PHYSICS_TICK = 'PHYSICS_TICK',
+  MOVE_RIGHT = 'MOVE_RIGHT',  
   LOAD_LEVEL = 'LOAD_LEVEL',
+  START_TIMER = 'START_TIMER',
+  PHYSICS_TICK = 'PHYSICS_TICK',
 }
 
 /**A interface defining _gameReducer_ action params. */
@@ -79,14 +79,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           return state.clone().processPlayerMovement(action)
     }
 
-  // Start 'real' timer if the game
-  if (action.type === ActionEnum.TIMER_START) {
-    if (state.time > 0 && state.isGameOver === false) {
-      return state.clone().processTime(state)
-    } else {
-      console.error('Cannot start timer: time is 0 or game is over')
-      return state
-    }
+  // Start timer and update time state.
+  if (action.type === ActionEnum.START_TIMER) {
+    return state.clone().processTime()    
   }
 
   // Physics update.
@@ -180,9 +175,50 @@ export class GameState {
   /**The name of the next level. */
   nextLevel?: string
 
-  processTime(state: GameState): GameState {
-    console.log('process time')
-    return state
+  processTime(): GameState {
+    let interval: number | undefined
+    const endTime = new Date().getTime() + (this.time * 1000)
+  
+    const startTimer = () => {
+      interval = setInterval(updateTimer, 1000)
+      updateTimer()
+    }
+
+    const updateTimer = () => {
+      const currentTime = new Date().getTime()
+      const remainingTime = Math.round(
+        Math.max((endTime - currentTime) / 1000, 0)
+      )
+      
+      this.time = remainingTime
+      console.log('updateTimer - time: ', remainingTime)
+      
+      if (remainingTime <= 0) {
+        stopTimer('time out')  
+      }
+      // console.log('updateTimer - this.time: ', this.time)
+      return this.time
+    }
+
+    const stopTimer = (message: string) => {
+      clearInterval(interval)
+      console.log('timer stopped: ', message)
+      return {
+        ...this,
+        isGameOver: true
+      }
+    }
+
+    if (!this.isGameOver) {
+      startTimer()
+    } else if (this.isGameOver) {
+      stopTimer('game over')
+    }
+
+    return {
+      ...this,
+      time: this.time
+    }
   }
 
   processPlayerMovement(action: GameAction): GameState {

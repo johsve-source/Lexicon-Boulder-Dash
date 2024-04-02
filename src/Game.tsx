@@ -34,7 +34,7 @@ export function Game() {
         trailing: true,
       })
     }
-    console.log('Playing...')
+
     closure(soundManager)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -44,6 +44,9 @@ export function Game() {
   }
 
   function handlePlayClick() {
+    setStartMenuVisible(false)
+    setIsGameStarted(true)
+
     // silence
     soundManager.cleanupAllSounds()
 
@@ -53,60 +56,35 @@ export function Game() {
       loop: false,
       trailing: true,
     })
-    setStartMenuVisible(false)
-    setIsGameStarted(true)
 
-    // Play ambiance when I press play
-    // soundManager.playInteraction('ambiance', {
-    //   id: 7,
-    //   volume: 0.2,
-    //   loop: true,
-    //   trailing: true,
-    // })
+    soundManager.playInteraction('ambiance', {
+      id: 7,
+      volume: 0.2,
+      loop: true,
+      trailing: true,
+    })
   }
 
   const loadLevelCallback = (path: string) => {
     loadLevel(gameDispatch, path)
   }
 
-  // timer
+  // set time
   useEffect(() => {
-    if (!isStartMenuVisible) {
-      let interval: number | undefined
-      const endTime = new Date().getTime() + time * 1000
-
-      const startTimer = () => {
-        interval = setInterval(updateTimer, 1000)
-        updateTimer()
-      }
-
-      const updateTimer = () => {
-        const currentTime = new Date().getTime()
-        const remainingTime = Math.round(
-          Math.max((endTime - currentTime) / 1000, 0),
-        )
-        setTime(remainingTime)
-
-        if (remainingTime <= 0) {
-          clearInterval(interval)
-          console.log('cleared: time out')
-        }
-      }
-
-      if (isGameStarted) {
-        startTimer()
-      } else if (!isGameStarted) {
-        clearInterval(interval)
-        console.log('cleared: !isGameStarted')
-      }
-
-      return () => {
-        clearInterval(interval)
-        console.log('cleared: component unmounted')
-      }
+    if (!isStartMenuVisible && isGameStarted) {
+      console.log('set time triggered')
+      gameDispatch({ type: ActionEnum.START_TIMER })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isGameStarted])
+  }, [isStartMenuVisible, isGameStarted])
+
+  // get time
+  useEffect(() => {
+    if (isGameStarted) {
+      setTime(gameState.time)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGameStarted, gameState.time])
 
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
@@ -247,7 +225,7 @@ export function Game() {
       )}
       {isGameStarted && (
         <>
-          <GameInfo timeRemaining={time} score={gameState.score} />
+        <GameInfo timeRemaining={time} score={gameState.score} />
           <div className="Game">
             <ControlsInfo />
 
