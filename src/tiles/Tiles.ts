@@ -203,6 +203,9 @@ addTiles(Grass)
 import Leaf from './Leaf'
 addTiles(Leaf)
 
+import Lava from './Lava'
+addTiles(Lava)
+
 // Freeze the definitions.
 Object.freeze(TILES)
 Object.freeze(symbolToTile)
