@@ -1,6 +1,6 @@
 {
     "name": "Level4",
-    "nextLevel": "level1",
+    "nextLevel": "level5",
     "background": "map4",
     "layout": [
       "##########",
