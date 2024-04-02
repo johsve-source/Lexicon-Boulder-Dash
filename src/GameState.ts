@@ -58,7 +58,7 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
   const [gameState, gameDispatch] = useReducer(gameReducer, new GameState())
 
   useEffect(() => {
-    loadLevel(gameDispatch, 'level12')
+    loadLevel(gameDispatch, 'level15')
   }, [])
 
   return [gameState, gameDispatch]
