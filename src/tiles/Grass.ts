@@ -3,7 +3,13 @@ import { TILES, TileList } from './Tiles'
 const EXPORT: TileList = {
   GRASS: {
     name: 'GRASS',
-    texture: '/textures/pixel/grass.png',
+    texture: [
+      '/textures/pixel/grass.png',
+      '/textures/pixel/grass.png',
+      '/textures/pixel/grass.png',
+      '/textures/pixel/grass.png',
+      '/textures/pixel/grass.png',
+    ],
     symbol: 'g',
 
     onPlayerMove({ local, updateLocal, moveDirection, soundList }) {

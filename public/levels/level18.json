@@ -2,6 +2,7 @@
     "name": "Level18",
     "nextLevel": "level19",
     "background": "map1",
+    "theme":3,
     "layout": [
       "##########################",
       "#                        #",

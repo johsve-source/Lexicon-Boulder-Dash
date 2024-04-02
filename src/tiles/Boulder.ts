@@ -10,7 +10,13 @@ import { explode } from './Explosion'
 const EXPORT: TileList = {
   DIRT_BOULDER: {
     name: 'DIRT_BOULDER',
-    texture: '/textures/pixel/dirt-boulder.png',
+    texture: [
+      '/textures/pixel/dirt-boulder.png',
+      '/textures/pixel/dirt-boulder.png',
+      '/textures/pixel/dirt-boulder.png',
+      '/textures/pixel/dirt-boulder.png',
+      '/textures/pixel/dirt-boulder.png',
+    ],
     symbol: 'O',
 
     onPlayerMove(params) {
@@ -28,7 +34,13 @@ const EXPORT: TileList = {
 
   BEDROCK_BOULDER: {
     name: 'BEDROCK_BOULDER',
-    texture: '/textures/pixel/bedrock-boulder.png',
+    texture: [
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+    ],
     symbol: 'o',
 
     onPlayerMove(params) {
@@ -46,7 +58,13 @@ const EXPORT: TileList = {
 
   FALLING_BOULDER: {
     name: 'FALLING_BOULDER',
-    texture: '/textures/pixel/bedrock-boulder.png',
+    texture: [
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+    ],
 
     onPhysics(params) {
       const { local, soundList } = params

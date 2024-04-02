@@ -81,7 +81,7 @@ export interface Tile {
   name: string
 
   /**The url path to the tile texture. */
-  texture: string
+  texture: string[]
   /**Optional character symbol that represents the tile in level files. */
   symbol?: string
   /**Optional animation string. */

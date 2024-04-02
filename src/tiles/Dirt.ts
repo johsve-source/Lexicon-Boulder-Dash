@@ -3,7 +3,13 @@ import { TILES, TileList } from './Tiles'
 const EXPORT: TileList = {
   DIRT: {
     name: 'DIRT',
-    texture: '/textures/pixel/dirt.png',
+    texture: [
+      '/textures/pixel/dirt.png',
+      '/textures/pixel/dirt.png',
+      '/textures/pixel/dirt.png',
+      '/textures/pixel/dirt.png',
+      '/textures/pixel/dirt.png',
+    ],
     symbol: '.',
 
     onPlayerMove({ local, updateLocal, moveDirection, soundList }) {

@@ -6,13 +6,14 @@ interface LevelFileData {
   nextLevel: string
   layout: string[]
   background: string
+  theme: number
 }
 
 export interface LevelData {
   grid: Grid<Tile>
-  playerPos: { x: number; y: number }
   nextLevel: string,
   background: string,
+  theme: number
 }
 
 export async function loadLevelData(path: string): Promise<LevelData> {
@@ -38,6 +39,7 @@ export async function loadLevelData(path: string): Promise<LevelData> {
   return {
     grid,
     nextLevel: data.nextLevel,
-    background: data.background
+    background: data.background,
+    theme: data.theme
   }
 }

@@ -222,7 +222,13 @@ function wallEnemyLogic(
 const EXPORT: TileList = {
   WALL_ENEMY_CLOCKWISE_UP: {
     name: 'WALL_ENEMY',
-    texture: '/textures/pixel/enemy_phoenix.gif',
+    texture: [
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+    ],
     symbol: 'w',
     explosive: 1,
 
@@ -245,7 +251,13 @@ const EXPORT: TileList = {
 
   WALL_ENEMY_CLOCKWISE_RIGHT: {
     name: 'WALL_ENEMY',
-    texture: '/textures/pixel/enemy_phoenix.gif',
+    texture: [
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+    ],
     explosive: 1,
 
     onLoad({ updateLocal }) {
@@ -267,7 +279,13 @@ const EXPORT: TileList = {
 
   WALL_ENEMY_CLOCKWISE_DOWN: {
     name: 'WALL_ENEMY',
-    texture: '/textures/pixel/enemy_phoenix.gif',
+    texture: [
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+    ],
     explosive: 1,
 
     onLoad({ updateLocal }) {
@@ -289,7 +307,13 @@ const EXPORT: TileList = {
 
   WALL_ENEMY_CLOCKWISE_LEFT: {
     name: 'WALL_ENEMY',
-    texture: '/textures/pixel/enemy_phoenix.gif',
+    texture: [
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+    ],
     explosive: 1,
 
     onLoad({ updateLocal }) {
@@ -311,7 +335,13 @@ const EXPORT: TileList = {
 
   WALL_ENEMY_COUNTERCLOCKWISE_UP: {
     name: 'WALL_ENEMY',
-    texture: '/textures/pixel/enemy_phoenix.gif',
+    texture: [
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+    ],
     symbol: 'W',
     explosive: 1,
 
@@ -334,7 +364,13 @@ const EXPORT: TileList = {
 
   WALL_ENEMY_COUNTERCLOCKWISE_RIGHT: {
     name: 'WALL_ENEMY',
-    texture: '/textures/pixel/enemy_phoenix.gif',
+    texture: [
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+    ],
     explosive: 1,
 
     onLoad({ updateLocal }) {
@@ -356,7 +392,13 @@ const EXPORT: TileList = {
 
   WALL_ENEMY_COUNTERCLOCKWISE_DOWN: {
     name: 'WALL_ENEMY',
-    texture: '/textures/pixel/enemy_phoenix.gif',
+    texture: [
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+    ],
     explosive: 1,
 
     onLoad({ updateLocal }) {
@@ -378,7 +420,13 @@ const EXPORT: TileList = {
 
   WALL_ENEMY_COUNTERCLOCKWISE_LEFT: {
     name: 'WALL_ENEMY',
-    texture: '/textures/pixel/enemy_phoenix.gif',
+    texture: [
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+      '/textures/pixel/enemy_phoenix.gif',
+    ],
     explosive: 1,
 
     onLoad({ updateLocal }) {
