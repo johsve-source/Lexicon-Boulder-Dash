@@ -3,7 +3,13 @@ import { TILES, TileList } from './Tiles'
 const EXPORT: TileList = {
   PLAYER: {
     name: 'PLAYER',
-    texture: '/textures/pixel/player.gif',
+    texture: [
+      '/textures/pixel/player.gif',
+      '/textures/pixel/player.gif',
+      '/textures/pixel/player.gif',
+      '/textures/pixel/player.gif',
+      '/textures/pixel/player.gif',
+    ],
     symbol: 'p',
     frame: 0,
 

@@ -5,7 +5,13 @@ import { explode } from './Explosion'
 const EXPORT: TileList = {
   DIRT_EXPLOSIVE_BARREL: {
     name: 'DIRT_EXPLOSIVE_BARREL',
-    texture: '/textures/pixel/dirt-explosive-barrel.png',
+    texture: [
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+    ],
     symbol: 'E',
     explosive: 1,
 
@@ -30,7 +36,13 @@ const EXPORT: TileList = {
 
   BEDROCK_EXPLOSIVE_BARREL: {
     name: 'BEDROCK_EXPLOSIVE_BARREL',
-    texture: '/textures/pixel/bedrock-explosive-barrel.png',
+    texture: [
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+    ],
     symbol: 'e',
     explosive: 1,
 
@@ -55,7 +67,13 @@ const EXPORT: TileList = {
 
   FALLING_EXPLOSIVE_BARREL: {
     name: 'FALLING_EXPLOSIVE_BARREL',
-    texture: '/textures/pixel/bedrock-explosive-barrel.png',
+    texture: [
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+    ],
     explosive: 1,
 
     onPhysics(params) {
@@ -92,7 +110,13 @@ const EXPORT: TileList = {
 
   CRITICAL_EXPLOSIVE_BARREL: {
     name: 'CRITICAL_EXPLOSIVE_BARREL',
-    texture: '/textures/pixel/bedrock-explosive-barrel.png',
+    texture: [
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+      '/textures/pixel/dirt-explosive-barrel.png',
+    ],
     explosive: 1,
 
     onPhysics(params) {

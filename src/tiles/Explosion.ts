@@ -42,7 +42,13 @@ export function explode(
 const EXPORT: TileList = {
   EXPLOSION: {
     name: 'EXPLOSION',
-    texture: '/textures/pixel/boom.gif',
+    texture: [
+      '/textures/pixel/boom.gif',
+      '/textures/pixel/boom.gif',
+      '/textures/pixel/boom.gif',
+      '/textures/pixel/boom.gif',
+      '/textures/pixel/boom.gif',
+    ],
 
     onPhysics({ local, updateLocal }) {
       local.set(0, 0, TILES.NOTHING)

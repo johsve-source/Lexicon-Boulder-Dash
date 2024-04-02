@@ -3,7 +3,13 @@ import { TILES, TileList } from './Tiles'
 const EXPORT: TileList = {
   DIRT_FINISH: {
     name: 'DIRT_FINISH',
-    texture: '/textures/pixel/dirt-finish.gif',
+    texture: [
+      '/textures/pixel/dirt-finish.gif',
+      '/textures/pixel/dirt-finish.gif',
+      '/textures/pixel/dirt-finish.gif',
+      '/textures/pixel/dirt-finish.gif',
+      '/textures/pixel/dirt-finish.gif',
+    ],
     symbol: 'F',
     indestructible: true,
 
@@ -25,7 +31,13 @@ const EXPORT: TileList = {
 
   BEDROCK_FINISH: {
     name: 'BEDROCK_FINISH',
-    texture: '/textures/pixel/bedrock-finish.gif',
+    texture: [
+      '/textures/pixel/bedrock-finish.gif',
+      '/textures/pixel/bedrock-finish.gif',
+      '/textures/pixel/bedrock-finish.gif',
+      '/textures/pixel/bedrock-finish.gif',
+      '/textures/pixel/bedrock-finish.gif',
+    ],
     symbol: 'f',
     indestructible: true,
 

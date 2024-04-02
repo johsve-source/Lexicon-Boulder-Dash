@@ -217,7 +217,7 @@ export function Game() {
                   key={`${x}, ${y}`}
                   x={grid.y + y}
                   y={grid.x + x}
-                  image={tile.texture}
+                  image={tile.texture[gameState.curentLevel?.theme ?? 0]}
                   animation={tile.animation || 'none'}
                   frame={tile.frame || 0}
                 />
