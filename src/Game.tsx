@@ -205,7 +205,8 @@ export function Game() {
         />
       )}
       {isGameStarted && (
-        <div className="Game" style={{backgroundImage: `url(/maps/${gameState.curentLevel?.background}.webp)`}}>
+        <div className="Game">
+          <div className="background" style={{backgroundImage: `url(/maps/${gameState.curentLevel?.background}.webp)`}}></div>
           <div className="board">
             <ControlsInfo />
 

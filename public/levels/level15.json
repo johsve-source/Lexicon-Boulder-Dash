@@ -1,7 +1,7 @@
 {
     "name": "Level15",
     "nextLevel": "level16",
-    "background": "map1",
+    "background": "map3",
     "theme":2,
     "layout": [
       "#################################",

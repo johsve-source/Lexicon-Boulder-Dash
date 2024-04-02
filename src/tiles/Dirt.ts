@@ -8,7 +8,7 @@ const EXPORT: TileList = {
       '/textures/pixel/dirt.png',
       '/textures/pixel/dirt.png',
       '/textures/pixel/dirt.png',
-      '/textures/pixel/dirt.png',
+      '/textures/pixel/dirt-3.png',
     ],
     symbol: '.',
 
