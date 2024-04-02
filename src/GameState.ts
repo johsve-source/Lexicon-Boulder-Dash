@@ -75,13 +75,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         action.type === ActionEnum.MOVE_DOWN ||
         action.type === ActionEnum.MOVE_LEFT ||
         action.type === ActionEnum.MOVE_RIGHT) {
-          return state.clone().processPlayerMovement(action)
+          return state.processPlayerMovement(action)
     }
 
   // Physics update.
   if (action.type === ActionEnum.TIME_STEP) {
-    if (state.updateCords.size <= 0) return state
-    else return state.clone().processPhysics(action)
+    return state.processPhysics(action)
   }
 
   // Load level.
@@ -158,14 +157,46 @@ export class GameState {
 
   /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
-  /**The current _time_ position. */
+  /**The _finish_ data. */
+  finish = { x: 0, y: 0, tile: TILES.FINISH }
+  /**The number of physics updates that have been preformed. */
+  updateCount = 0
+  /**The current _time_. */
   time = 0
-  /**The current _score_ position. */
+  /**The current _score_. */
   score = 0
+  /**The number of _diamonds_ remaining. */
+  diamondsRemaining = 0
   /**The _LevelData_ current level. */
   curentLevel?: LevelData
-  /**The name of the next level. */
-  nextLevel?: string
+
+  /**Calls the _onLoad_ function on all the tiles. */
+  onLevelLoad() {
+    this.grid.forEach((tile, x, y) => {
+      // Check if the tile has a onLoad function and run it.
+      if (typeof tile.onLoad !== 'undefined') {
+        tile.onLoad({
+          x,
+          y,
+          tile,
+          local: this.subGrid(x, y),
+
+          updateLocal: (
+            rx: number,
+            ry: number,
+            width: number = 1,
+            height: number = 1,
+          ) => {
+            this.updateArea(x + rx, y + ry, width, height)
+          },
+
+          gameState: this,
+        })
+      }
+    })
+
+    return this
+  }
 
   processPlayerMovement(action: GameAction): GameState {
     /**A local grid centered a round the player */
@@ -184,13 +215,16 @@ export class GameState {
     /**The movment **y** component. */
     let directionY = 0
 
-    // updates player coordinates
+    // Updates player coordinates.
     if (action.type === ActionEnum.MOVE_UP) directionY = -1
     else if (action.type === ActionEnum.MOVE_DOWN) directionY = 1
     else if (action.type === ActionEnum.MOVE_LEFT) directionX = -1
     else if (action.type === ActionEnum.MOVE_RIGHT) directionX = 1
 
-    // which sounds that should be played
+    // Create the next gamestate.
+    const nextGameState = this.clone()
+
+    // Which sounds that should be played.
     const soundList: SoundList = {
       diggingDirt: false,
       stoneFalling: false,
@@ -209,7 +243,7 @@ export class GameState {
           x,
           y,
           tile,
-          local: this.subGrid(x, y),
+          local: nextGameState.subGrid(x, y),
 
           updateLocal: (
             rx: number,
@@ -217,10 +251,10 @@ export class GameState {
             width: number = 1,
             height: number = 1,
           ) => {
-            this.updateArea(x + rx, y + ry, width, height)
+            nextGameState.updateArea(x + rx, y + ry, width, height)
           },
 
-          gameState: this,
+          gameState: nextGameState,
           action,
           soundList,
 
@@ -238,9 +272,22 @@ export class GameState {
     // Update the player
     update(this.playerPos.x, this.playerPos.y)
 
+    // Adds the finish tile when all the diamonds are picked up.
+    if (this.diamondsRemaining <= 0) {
+      nextGameState.set(
+        this.finish.x,
+        this.finish.y,
+        [TILES.DIRT, TILES.DIRT_FINISH].includes(
+          nextGameState.get(this.finish.x, this.finish.y),
+        )
+          ? TILES.DIRT_FINISH
+          : TILES.BEDROCK_FINISH,
+      )
+    }
+
     playAudio(action, soundList)
 
-    return this
+    return nextGameState
   }
 
   /**Processes all the game physics. */
@@ -248,6 +295,11 @@ export class GameState {
     if (this.updateCords.size <= 0) return this
 
     console.log(`Physics: ${this.updateCords.size} items. `)
+    //console.log(`${this.diamondsRemaining} diamonds remaining. `)
+
+    // Create the next gamestate.
+    const nextGameState = this.clone()
+    nextGameState.updateCount = this.updateCount + 1
 
     const soundList: SoundList = {
       diggingDirt: false,
@@ -263,39 +315,58 @@ export class GameState {
       return b.x - a.x
     })
     // Clear the updateCords
-    this.updateCords = new Map<string, { x: number; y: number }>()
+    nextGameState.updateCords = new Map<string, { x: number; y: number }>()
 
     // Itterate thru all the tiles in the sorted update list
     sortedUpdates.forEach(({ x, y }) => {
       const tile = this.get(x, y)
 
+      // Check if the tile has been changed.
+      if (tile !== nextGameState.get(x, y)) return
+
+      // Check if the tile is defined.
+      if (typeof tile === 'undefined') return
+
       // Check if the tile has a onPhysics function and run it.
-      if (typeof tile.onPhysics !== 'undefined') {
-        tile.onPhysics({
-          x,
-          y,
-          tile,
-          local: this.subGrid(x, y),
+      if (typeof tile.onPhysics === 'undefined') return
 
-          updateLocal: (
-            rx: number,
-            ry: number,
-            width: number = 1,
-            height: number = 1,
-          ) => {
-            this.updateArea(x + rx, y + ry, width, height)
-          },
+      tile.onPhysics({
+        x,
+        y,
+        tile,
+        local: nextGameState.subGrid(x, y),
 
-          gameState: this,
-          action,
-          soundList,
-        })
-      }
+        updateLocal: (
+          rx: number,
+          ry: number,
+          width: number = 1,
+          height: number = 1,
+        ) => {
+          nextGameState.updateArea(x + rx, y + ry, width, height)
+        },
+
+        gameState: nextGameState,
+        action,
+        soundList,
+      })
     })
+
+    // Adds the finish tile when all the diamonds are picked up.
+    if (this.diamondsRemaining <= 0) {
+      nextGameState.set(
+        this.finish.x,
+        this.finish.y,
+        [TILES.DIRT, TILES.DIRT_FINISH].includes(
+          nextGameState.get(this.finish.x, this.finish.y),
+        )
+          ? TILES.DIRT_FINISH
+          : TILES.BEDROCK_FINISH,
+      )
+    }
 
     playAudio(action, soundList)
 
-    return this
+    return nextGameState
   }
 
   /**A shorthand function for `this.grid.get(x, y)`*/
@@ -329,14 +400,12 @@ export class GameState {
     const clone = new GameState()
 
     clone.grid = Leveldata.grid.clone()
-    clone.updateCords = this.updateCords
-    clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
     clone.time = this.time
     clone.score = this.score
+    clone.diamondsRemaining = 0
     clone.curentLevel = Leveldata
-    clone.nextLevel = Leveldata.nextLevel
 
-    return clone
+    return clone.onLevelLoad()
   }
 
   /**Creates a clone of GameState.
@@ -348,11 +417,13 @@ export class GameState {
 
     clone.grid = this.grid.clone()
     clone.updateCords = this.updateCords
-    clone.playerPos = { x: this.playerPos.x, y: this.playerPos.y }
+    clone.playerPos = { ...this.playerPos }
+    clone.finish = { ...this.finish }
+    clone.updateCount = this.updateCount
     clone.time = this.time
     clone.score = this.score
+    clone.diamondsRemaining = this.diamondsRemaining
     clone.curentLevel = this.curentLevel
-    clone.nextLevel = this.nextLevel
 
     return clone
   }
