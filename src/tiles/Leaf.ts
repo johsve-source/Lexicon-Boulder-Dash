@@ -4,7 +4,7 @@ const EXPORT: TileList = {
   LEAF: {
     name: 'LEAF',
     texture: '/textures/pixel/leaf.png',
-    symbol: 'l',
+    symbol: ':',
 
     onPlayerMove({ local, updateLocal, moveDirection, soundList }) {
       if (local.get(-moveDirection.x, -moveDirection.y) === TILES.PLAYER) {
