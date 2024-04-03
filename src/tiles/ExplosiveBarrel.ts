@@ -139,9 +139,10 @@ const EXPORT: TileList = {
         })
         updateLocal(-1, -1, 3, 4)
         soundList.stoneFalling = true
-      } else {
-        explode(params, 0, 0, 1)
+        return
       }
+
+      explode(params, 0, 0, 1)
     },
   },
 }

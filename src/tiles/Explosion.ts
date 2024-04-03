@@ -21,8 +21,8 @@ export function explode(
       const tile = gameState.get(ix, iy)
 
       // Dig out the dirt diamond.
-      if (tile === TILES.BEDROCK_DIAMOND) {
-        gameState.set(ix, iy, TILES.DIRT_DIAMOND)
+      if (tile === TILES.DIRT_DIAMOND) {
+        gameState.set(ix, iy, TILES.BEDROCK_DIAMOND)
         gameState.updateArea(ix + x, iy + y)
         return
       }

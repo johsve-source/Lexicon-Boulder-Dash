@@ -58,7 +58,7 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
   const [gameState, gameDispatch] = useReducer(gameReducer, new GameState())
 
   useEffect(() => {
-    loadLevel(gameDispatch, 'level6')
+    loadLevel(gameDispatch, 'level14')
   }, [])
 
   return [gameState, gameDispatch]
@@ -341,11 +341,11 @@ export class GameState {
     sortedUpdates.forEach(({ x, y }) => {
       const tile = this.get(x, y)
 
-      // Check if the tile has been changed.
-      if (tile !== nextGameState.get(x, y)) return
-
       // Check if the tile is defined.
       if (typeof tile === 'undefined') return
+
+      // Check if the tile has been changed.
+      if (tile !== nextGameState.get(x, y)) return
 
       // Check if the tile has a onPhysics function and run it.
       if (typeof tile.onPhysics === 'undefined') return
