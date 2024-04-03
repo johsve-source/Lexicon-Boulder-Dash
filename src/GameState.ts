@@ -58,7 +58,7 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
   const [gameState, gameDispatch] = useReducer(gameReducer, new GameState())
 
   useEffect(() => {
-    loadLevel(gameDispatch, 'level20')
+    loadLevel(gameDispatch, 'level1')
   }, [])
 
   return [gameState, gameDispatch]
@@ -101,7 +101,7 @@ function playAudio(action: GameAction, soundList: SoundList) {
   if (soundList.diggingDirt)
     action.soundManager.playInteraction('digging-dirt', {
       id: 1,
-      volume: 0.5,
+      volume: 0.2,
       loop: false,
       trailing: true,
     })
@@ -109,14 +109,14 @@ function playAudio(action: GameAction, soundList: SoundList) {
   if (soundList.diamondPickup)
     action.soundManager.playInteraction('collecting-diamond', {
       id: 2,
-      volume: 0.5,
+      volume: 0.2,
       loop: false,
     })
 
   if (soundList.explosion)
     action.soundManager.playInteraction('stone-explode', {
       id: 3,
-      volume: 0.5,
+      volume: 0.2,
       loop: false,
       trailing: true,
     })
@@ -124,7 +124,7 @@ function playAudio(action: GameAction, soundList: SoundList) {
   if (soundList.stoneFalling)
     action.soundManager.playInteraction('falling-stone', {
       id: 4,
-      volume: 0.2,
+      volume: 0.1,
       loop: false,
       trailing: true,
     })
@@ -132,21 +132,21 @@ function playAudio(action: GameAction, soundList: SoundList) {
   if (soundList.diamondFalling)
     action.soundManager.playInteraction('falling-diamond', {
       id: 5,
-      volume: 0.2,
+      volume: 0.1,
       loop: false,
     })
 
   if (soundList.diamondPickup)
     action.soundManager.playInteraction('collecting-diamond', {
       id: 6,
-      volume: 0.5,
+      volume: 0.2,
       loop: false,
     })
 
     if (soundList.wood)
     action.soundManager.playInteraction('wood', {
       id: 77,
-      volume: 0.1,
+      volume: 0.2,
       loop: false,
       trailing: true,
     })
@@ -154,7 +154,7 @@ function playAudio(action: GameAction, soundList: SoundList) {
     if (soundList.leaf)
     action.soundManager.playInteraction('leaf', {
       id: 99,
-      volume: 0.3,
+      volume: 0.2,
       loop: false,
       trailing: true,
     })
