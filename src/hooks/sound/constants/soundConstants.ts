@@ -15,6 +15,8 @@ export const FALLING_DIAMOND = '/sounds/falling-diamonds.mp3'
 export const STONE_EXPLODE = '/sounds/stone-impact.mp3'
 export const COLLECTING_DIAMOND = '/sounds/collecting-diamonds.mp3'
 export const COLLECTING_POWERUP = '/sounds/collecting-powerups.mp3'
+export const WOOD = '/sounds/wood.mp3'
+export const LEAF = '/sounds/leaf.mp3'
 
 // Change Level sound files
 export const GAME_LEVEL_2 = '/sounds/game-level-2.mp3'
