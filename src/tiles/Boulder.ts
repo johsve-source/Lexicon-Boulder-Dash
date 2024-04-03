@@ -24,6 +24,10 @@ const EXPORT: TileList = {
         params.soundList.stoneFalling = true
     },
 
+    onLoad({ updateLocal }) {
+      updateLocal(0, 0)
+    },
+
     onPhysics(params) {
       const { soundList } = params
 
@@ -46,6 +50,10 @@ const EXPORT: TileList = {
     onPlayerMove(params) {
       if (boulderPush(params, TILES.BEDROCK_BOULDER))
         params.soundList.stoneFalling = true
+    },
+
+    onLoad({ updateLocal }) {
+      updateLocal(0, 0)
     },
 
     onPhysics(params) {

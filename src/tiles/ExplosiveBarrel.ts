@@ -20,6 +20,10 @@ const EXPORT: TileList = {
         params.soundList.stoneFalling = true
     },
 
+    onLoad({ updateLocal }) {
+      updateLocal(0, 0)
+    },
+
     onPhysics(params) {
       const { soundList } = params
 
@@ -51,6 +55,10 @@ const EXPORT: TileList = {
         params.soundList.stoneFalling = true
     },
 
+    onLoad({ updateLocal }) {
+      updateLocal(0, 0)
+    },
+
     onPhysics(params) {
       const { soundList } = params
 
@@ -78,6 +86,7 @@ const EXPORT: TileList = {
 
     onPhysics(params) {
       const { local, soundList } = params
+      params.updateLocal(0,1)
 
       const below = local.get(0, 1)
       // If nothing bellow then become critical.
@@ -121,6 +130,7 @@ const EXPORT: TileList = {
 
     onPhysics(params) {
       const { local, soundList } = params
+      params.updateLocal(0,1)
 
       if (local.get(0, 1) === TILES.NOTHING) {
         local.set(0, 0, TILES.NOTHING)
