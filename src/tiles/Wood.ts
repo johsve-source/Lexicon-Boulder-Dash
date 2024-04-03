@@ -8,7 +8,7 @@ const EXPORT: TileList = {
       '/textures/pixel/wood.png',
       '/textures/pixel/wood.png',
       '/textures/pixel/dark-bricks.png',
-      '/textures/pixel/wood.png',
+      '/textures/pixel/dark-bricks.png',
     ],
     symbol: '$',
 
@@ -16,7 +16,7 @@ const EXPORT: TileList = {
       if (local.get(-moveDirection.x, -moveDirection.y) === TILES.PLAYER) {
         local.set(0, 0, TILES.NOTHING)
         updateLocal(-1, -1, 3, 3)
-        soundList.diggingDirt = true
+        soundList.wood = true
       }
     },
   },

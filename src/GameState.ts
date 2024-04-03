@@ -142,6 +142,22 @@ function playAudio(action: GameAction, soundList: SoundList) {
       volume: 0.5,
       loop: false,
     })
+
+  if (soundList.wood)
+    action.soundManager.playInteraction('wood', {
+      id: 77,
+      volume: 0.1,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.leaf)
+    action.soundManager.playInteraction('leaf', {
+      id: 99,
+      volume: 0.3,
+      loop: false,
+      trailing: true,
+    })
 }
 
 /**A lcass to conatin all the _GameState_ data and logic. */
@@ -231,6 +247,8 @@ export class GameState {
       diamondFalling: false,
       diamondPickup: false,
       explosion: false,
+      wood: false,
+      leaf: false,
     }
 
     /**A shrorthand function to update the grid based on player movement. */
@@ -307,6 +325,8 @@ export class GameState {
       diamondFalling: false,
       diamondPickup: false,
       explosion: false,
+      wood: false,
+      leaf: false,
     }
 
     // Turn all the updateCords in to an array and sort them bottom upp.

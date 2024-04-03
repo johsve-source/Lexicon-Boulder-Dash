@@ -8,6 +8,8 @@ export interface SoundList {
   diamondFalling: boolean
   diamondPickup: boolean
   explosion: boolean
+  wood: boolean
+  leaf: boolean
 }
 
 /**onLoadParams contains all the variables that a tile can access on _onLoad_. */

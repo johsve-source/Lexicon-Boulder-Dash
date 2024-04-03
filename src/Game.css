@@ -22,5 +22,12 @@ body {
     background-repeat: repeat;
     background-size: 32px;
   }
+  .background {
+    position: fixed;
+    height: 100svh;
+    width: 100svw;
+    background-position: center;
+    background-size: cover;
+  }
 
 }

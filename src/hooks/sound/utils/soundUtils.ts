@@ -30,6 +30,10 @@ export const determineSoundFile = (interactionType: string): string => {
       return SoundConstants.GAME_LEVEL_3
     case 'theme':
       return SoundConstants.THEME
+    case 'wood':
+      return SoundConstants.WOOD
+    case 'leaf':
+      return SoundConstants.LEAF
     default:
       throw new Error(`Unknown interaction type: ${interactionType}`)
   }
