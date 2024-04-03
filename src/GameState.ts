@@ -11,8 +11,8 @@ export enum ActionEnum {
   MOVE_LEFT = 'MOVE_LEFT',
   MOVE_RIGHT = 'MOVE_RIGHT',  
   LOAD_LEVEL = 'LOAD_LEVEL',
-  START_TIMER = 'START_TIMER',
   PHYSICS_TICK = 'PHYSICS_TICK',
+  TIME_TICK = 'TIME_TICK',
 }
 
 /**A interface defining _gameReducer_ action params. */
@@ -37,6 +37,8 @@ export interface GameAction {
    * _**NOTE:** is required by the **MOVE_UP**, **MOVE_DOWN**, **MOVE_LEFT**, **MOVE_RIGHT** and **TIME_STEP** action._
    */
   soundManager?: SoundManagerHook
+
+  endTime?: number
 }
 
 /**Loads and sets the gamestate based on provided level name. */
@@ -80,8 +82,8 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     }
 
   // Start timer and update time state.
-  if (action.type === ActionEnum.START_TIMER) {
-    return state.clone().processTime()    
+  if (action.type === ActionEnum.TIME_TICK) {
+    return state.clone().processTime(action)
   }
 
   // Physics update.
@@ -165,7 +167,7 @@ export class GameState {
   /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
   /**The current _time_ position. */
-  time = 20
+  time = 10
   /**The current _score_ position. */
   score = 0
   /**The current state of the game. */
@@ -175,50 +177,39 @@ export class GameState {
   /**The name of the next level. */
   nextLevel?: string
 
-  processTime(): GameState {
-    let interval: number | undefined
-    const endTime = new Date().getTime() + (this.time * 1000)
-  
-    const startTimer = () => {
-      interval = setInterval(updateTimer, 1000)
-      updateTimer()
+  processTime(action: GameAction): GameState {
+    const stopTimer = (message: string) => {
+      console.log(message)
+      this.isGameOver = true
     }
 
     const updateTimer = () => {
+      if (!action.endTime) {
+        console.error('cannot get action.endTime')
+        return this
+      }
+
       const currentTime = new Date().getTime()
       const remainingTime = Math.round(
-        Math.max((endTime - currentTime) / 1000, 0)
+        Math.max((action.endTime - currentTime) / 1000, 0)
       )
       
       this.time = remainingTime
-      console.log('updateTimer - time: ', remainingTime)
+      console.log('new time: ', remainingTime)
       
       if (remainingTime <= 0) {
         stopTimer('time out')  
       }
-      // console.log('updateTimer - this.time: ', this.time)
       return this.time
     }
 
-    const stopTimer = (message: string) => {
-      clearInterval(interval)
-      console.log('timer stopped: ', message)
-      return {
-        ...this,
-        isGameOver: true
-      }
-    }
-
     if (!this.isGameOver) {
-      startTimer()
+      updateTimer()
     } else if (this.isGameOver) {
       stopTimer('game over')
     }
 
-    return {
-      ...this,
-      time: this.time
-    }
+    return this
   }
 
   processPlayerMovement(action: GameAction): GameState {

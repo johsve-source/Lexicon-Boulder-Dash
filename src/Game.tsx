@@ -72,11 +72,18 @@ export function Game() {
   // set time
   useEffect(() => {
     if (!isStartMenuVisible && isGameStarted) {
-      console.log('set time triggered')
-      gameDispatch({ type: ActionEnum.START_TIMER })
+      const endTime = new Date().getTime() + (gameState.time * 1000)
+      
+      const intervalId = setInterval(() => {
+        gameDispatch({ type: ActionEnum.TIME_TICK, endTime })
+      }, 1000)
+
+      if (gameState.isGameOver) clearInterval(intervalId)
+      
+      return () => clearInterval(intervalId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStartMenuVisible, isGameStarted])
+  }, [isStartMenuVisible, isGameStarted, gameState.isGameOver])
 
   // get time
   useEffect(() => {
