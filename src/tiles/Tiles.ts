@@ -205,6 +205,9 @@ addTiles(Leaf)
 import Lava from './Lava'
 addTiles(Lava)
 
+import Centaur from './Centaur'
+addTiles(Centaur)
+
 // Freeze the definitions.
 Object.freeze(TILES)
 Object.freeze(symbolToTile)
