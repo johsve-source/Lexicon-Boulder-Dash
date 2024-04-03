@@ -14,8 +14,9 @@ const EXPORT: TileList = {
     symbol: 'D',
     indestructible: true,
 
-    onLoad({ gameState }) {
+    onLoad({ gameState, updateLocal }) {
       gameState.diamondsRemaining++
+      updateLocal(0,0)
     },
 
     onPlayerMove({ local, updateLocal, moveDirection, gameState, soundList }) {
@@ -56,8 +57,9 @@ const EXPORT: TileList = {
     symbol: 'd',
     indestructible: true,
 
-    onLoad({ gameState }) {
+    onLoad({ gameState, updateLocal }) {
       gameState.diamondsRemaining++
+      updateLocal(0,0)
     },
 
     onPlayerMove({ local, updateLocal, moveDirection, gameState, soundList }) {
