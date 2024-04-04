@@ -168,7 +168,7 @@ export class GameState {
   /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
   /**The current _time_ position. */
-  time = 13
+  time = 120
   /**The current _score_ position. */
   score = 0
   /**The current state of the game. */
@@ -205,7 +205,7 @@ export class GameState {
           volume: 0.1,
           loop: false,
           trailing: false,
-          duration: 10000
+          duration: 10000,
         })
       }
 
@@ -261,7 +261,7 @@ export class GameState {
             volume: 0.5,
             loop: false,
             trailing: true,
-        })
+          })
         }
       }
       return this.time
@@ -288,8 +288,16 @@ export class GameState {
     // Check if the player is alive
     this.isGameOver = playerTile !== TILES.PLAYER
     if (this.isGameOver) {
-      if (typeof this.curentLevel !== 'undefined')
+      if (typeof this.curentLevel !== 'undefined') {
+        action.soundManager?.playInteraction('start-game', {
+          id: 1234312,
+          volume: 0.2,
+          loop: false,
+          trailing: true,
+        })
+        
         return this.applyLevelData(this.curentLevel) // restart
+      } 
       else return this
     }
 
@@ -452,7 +460,7 @@ export class GameState {
     clone.grid = Leveldata.grid.clone()
     clone.updateCords = this.updateCords
     clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
-    clone.time = 13
+    clone.time = 120
     clone.score = this.score
     clone.curentLevel = Leveldata
     clone.nextLevel = Leveldata.nextLevel
