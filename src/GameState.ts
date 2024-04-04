@@ -2,6 +2,7 @@ import { useEffect, useReducer } from 'react'
 import { SoundManagerHook } from './hooks/sound/useSoundManagerLogic'
 import { loadLevelData, LevelData } from './LevelLoader'
 import { TILES, Tile, SoundList } from './tiles/Tiles'
+import { explode } from './tiles/Explosion'
 import Grid from './Grid'
 
 /**A list of supported _gameReducer_ actions. */
@@ -9,7 +10,7 @@ export enum ActionEnum {
   MOVE_UP = 'MOVE_UP',
   MOVE_DOWN = 'MOVE_DOWN',
   MOVE_LEFT = 'MOVE_LEFT',
-  MOVE_RIGHT = 'MOVE_RIGHT',  
+  MOVE_RIGHT = 'MOVE_RIGHT',
   LOAD_LEVEL = 'LOAD_LEVEL',
   PHYSICS_TICK = 'PHYSICS_TICK',
   TIME_TICK = 'TIME_TICK',
@@ -191,17 +192,67 @@ export class GameState {
 
       const currentTime = new Date().getTime()
       const remainingTime = Math.round(
-        Math.max((action.endTime - currentTime) / 1000, 0)
+        Math.max((action.endTime - currentTime) / 1000, 0),
       )
-      
+
       this.time = remainingTime
       console.log('new time: ', remainingTime)
-      
+
+      console.log(action.endTime)
+
       if (remainingTime <= 0) {
-        stopTimer('time out')  
+        stopTimer('time out')
+
+        if (this.get(this.playerPos.x, this.playerPos.y) === TILES.PLAYER) {
+          // which sounds that should be played
+          const soundList: SoundList = {
+            diggingDirt: false,
+            stoneFalling: false,
+            diamondFalling: false,
+            diamondPickup: false,
+            explosion: false,
+          }
+
+          soundList.explosion = true
+
+          explode(
+            {
+              x: this.playerPos.x,
+              y: this.playerPos.y,
+              tile: this.get(this.playerPos.x, this.playerPos.y),
+              local: this.subGrid(this.playerPos.x, this.playerPos.y),
+
+              updateLocal: (
+                rx: number,
+                ry: number,
+                width: number = 1,
+                height: number = 1,
+              ) => {
+                this.updateArea(
+                  this.playerPos.x + rx,
+                  this.playerPos.y + ry,
+                  width,
+                  height,
+                )
+              },
+
+              gameState: this,
+              action,
+              soundList,
+            },
+            0,
+            0,
+          )
+
+          playAudio(action, soundList)
+        }
       }
       return this.time
     }
+
+    // Check if the player is alive
+    this.isGameOver =
+      this.get(this.playerPos.x, this.playerPos.y) !== TILES.PLAYER
 
     if (!this.isGameOver) {
       updateTimer()
@@ -218,7 +269,8 @@ export class GameState {
     const playerTile = localGrid.get(0, 0)
 
     // Check if the player is alive
-    if (playerTile !== TILES.PLAYER) {
+    this.isGameOver = playerTile !== TILES.PLAYER
+    if (this.isGameOver) {
       if (typeof this.curentLevel !== 'undefined')
         return this.applyLevelData(this.curentLevel) // restart
       else return this
@@ -285,6 +337,9 @@ export class GameState {
 
     playAudio(action, soundList)
 
+    // Check if the player is alive
+    this.isGameOver = playerTile !== TILES.PLAYER
+
     return this
   }
 
@@ -339,6 +394,10 @@ export class GameState {
     })
 
     playAudio(action, soundList)
+
+    // Check if the player is alive
+    this.isGameOver =
+      this.get(this.playerPos.x, this.playerPos.y) !== TILES.PLAYER
 
     return this
   }
@@ -402,4 +461,3 @@ export class GameState {
     return clone
   }
 }
-

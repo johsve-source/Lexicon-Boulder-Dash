@@ -72,14 +72,14 @@ export function Game() {
   // set time
   useEffect(() => {
     if (!isStartMenuVisible && isGameStarted) {
-      const endTime = new Date().getTime() + (gameState.time * 1000)
-      
+      const endTime = new Date().getTime() + gameState.time * 1000
+
       const intervalId = setInterval(() => {
-        gameDispatch({ type: ActionEnum.TIME_TICK, endTime })
+        gameDispatch({ type: ActionEnum.TIME_TICK, endTime, soundManager })
       }, 1000)
 
       if (gameState.isGameOver) clearInterval(intervalId)
-      
+
       return () => clearInterval(intervalId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,7 +90,7 @@ export function Game() {
     if (isGameStarted) {
       setTime(gameState.time)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGameStarted, gameState.time])
 
   useEffect(() => {
@@ -232,7 +232,7 @@ export function Game() {
       )}
       {isGameStarted && (
         <>
-        <GameInfo timeRemaining={time} score={gameState.score} />
+          <GameInfo timeRemaining={time} score={gameState.score} />
           <div className="Game">
             <ControlsInfo />
 
