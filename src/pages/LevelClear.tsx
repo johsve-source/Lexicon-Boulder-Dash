@@ -23,11 +23,12 @@ const LevelClear = () => {
         setScore(currentScore)
       }
     }, 15)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <div className="level-clear">
-      <h1>Level Clear !</h1>
+      <h1>YOU WIN!</h1>
       <div className="score-box">
         <p className="score">
           Score: <span className="result">{score}</span>
@@ -36,7 +37,7 @@ const LevelClear = () => {
           Time: <span className="result">00:58</span>
         </p>
       </div>
-      <button className='next-btn'>Next level</button>
+      <button className='next-btn'>Return to menu</button>
     </div>
   )
 }
