@@ -168,7 +168,7 @@ export class GameState {
   /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
   /**The current _time_ position. */
-  time = 10
+  time = 120
   /**The current _score_ position. */
   score = 0
   /**The current state of the game. */
@@ -435,7 +435,7 @@ export class GameState {
     clone.grid = Leveldata.grid.clone()
     clone.updateCords = this.updateCords
     clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
-    clone.time = this.time
+    clone.time = 120
     clone.score = this.score
     clone.curentLevel = Leveldata
     clone.nextLevel = Leveldata.nextLevel
