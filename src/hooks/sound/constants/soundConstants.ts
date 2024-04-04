@@ -9,6 +9,9 @@ export const UI_INTERACTION = '/sounds/ui-interaction.mp3'
 
 // Game sound files
 export const AMBIANCE = '/sounds/ambiance.mp3'
+export const AMBIANCE_FOREST = '/sounds/ambiance-forest.mp3'
+export const AMBIANCE_DARK = '/sounds/ambiance-dark.mp3'
+export const AMBIANCE_FIRE = '/sounds/ambiance-fire.mp3'
 export const DIGGING_DIRT = '/sounds/digging.mp3'
 export const FALLING_STONE = '/sounds/falling-stones.mp3'
 export const FALLING_DIAMOND = '/sounds/falling-diamonds.mp3'
