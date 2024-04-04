@@ -187,7 +187,7 @@ export class GameState {
   /**The number of physics updates that have been preformed. */
   updateCount = 0
   /**The current _time_. */
-  time = 12
+  time = 120
   /**The current _score_. */
   score = 0
   /**The number of _diamonds_ remaining. */
@@ -553,7 +553,7 @@ export class GameState {
     const clone = new GameState()
 
     clone.grid = Leveldata.grid.clone()
-    clone.time = 12
+    clone.time = 120
     clone.score = this.score
     clone.diamondsRemaining = 0
     clone.curentLevel = Leveldata
