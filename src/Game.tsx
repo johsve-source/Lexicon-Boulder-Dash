@@ -63,6 +63,10 @@ export function Game() {
             trailing: true,
           })
           break
+          case 'win':
+            soundManager.cleanupAllSounds()
+            navigate('/levelclear')
+            break
         default:
           soundManager.cleanupAllSounds()
       }
