@@ -39,6 +39,7 @@ body, #root {
   display: grid;
   min-width: 100svw;
   min-height: 100svh;
+  background-color: rgb(25, 29, 36);
 }
 
 h1 {

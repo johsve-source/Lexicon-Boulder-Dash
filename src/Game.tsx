@@ -8,17 +8,18 @@ import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
 import { highscoreTestData } from './assets/highscoreData'
 import { useNavigate } from 'react-router-dom'
+import { GameInfo } from './components/GameInfo'
 
 export const PlayerContext = createContext<number[]>([])
 
 export function Game() {
   const navigate = useNavigate()
+  const [gameState, gameDispatch] = GetGameReducer()
   const [isStartMenuVisible, setStartMenuVisible] = useState<boolean>(true)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isGameStarted, setIsGameStarted] = useState<boolean>(false)
+  const [time, setTime] = useState<number>(gameState.time)
 
   const soundManager = useSoundManagerLogic()
-  const [gameState, gameDispatch] = GetGameReducer()
 
   // play theme on start
   useEffect(() => {
@@ -89,31 +90,67 @@ export function Game() {
   }
 
   function handlePlayClick() {
+    setStartMenuVisible(false)
+    setIsGameStarted(true)
+
     // silence
     soundManager.cleanupAllSounds()
 
+    soundManager.playInteraction('start-game', {
+      id: 13213321,
+      volume: 0.2,
+      loop: false,
+      trailing: true,
+    })
+
+    // soundManager.playInteraction('ambiance', {
+    //   id: 7,
+    //   volume: 0.2,
+    //   loop: true,
+    //   trailing: true,
+    // })
+  }
+
+  const loadLevelCallback = (path: string) => {
+    console.log('loadlevelcallback')
     soundManager.playInteraction('start-game', {
       id: 13213123,
       volume: 0.2,
       loop: false,
       trailing: true,
     })
-    setStartMenuVisible(false)
-    setIsGameStarted(true)
-    // add "isGameStarted" state update, ie. start timer, score count etc.
 
-    // Play ambiance when I press play
-    soundManager.playInteraction('ambiance-forest', {
-      id: 7,
-      volume: 0.2,
-      loop: true,
-      trailing: true,
-    })
-  }
-
-  const loadLevelCallback = (path: string) => {
     loadLevel(gameDispatch, path)
   }
+
+  // set time
+  useEffect(() => {
+    if (!isStartMenuVisible && isGameStarted) {
+      const endTime = new Date().getTime() + gameState.time * 1000
+
+      const intervalId = setInterval(() => {
+        gameDispatch({ type: ActionEnum.TIME_TICK, endTime, soundManager })
+      }, 1000)
+
+      if (gameState.isGameOver) clearInterval(intervalId)
+
+      return () => clearInterval(intervalId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isStartMenuVisible,
+    isGameStarted,
+    gameState.isGameOver,
+    gameState.curentLevel,
+  ])
+
+  // get time
+  useEffect(() => {
+    if (isGameStarted) {
+      setTime(gameState.time)
+    }
+  }, [isGameStarted, gameState.time])
+
   useEffect(() => {
     const keyPress = (e: KeyboardEvent) => {
       if (e.code === 'ArrowUp' || e.code === 'KeyW') {
@@ -165,7 +202,7 @@ export function Game() {
         setTimeout(() => {
           gravityQueued.current = false
           if (storedGrid.current !== gameState.grid) {
-            gameDispatch({ type: ActionEnum.TIME_STEP, soundManager })
+            gameDispatch({ type: ActionEnum.PHYSICS_TICK, soundManager })
             storedGrid.current = gameState.grid
           }
         }, 200)
@@ -182,7 +219,7 @@ export function Game() {
       x: number | undefined = mouseDirection.current.x,
       y: number | undefined = mouseDirection.current.y,
     ) => {
-      console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
+      // console.log(x, y, gameState.playerPos.x, gameState.playerPos.y)
       if (x === undefined || y === undefined) return // when not clicking on tile
       if (y < gameState.playerPos.y) {
         gameDispatch({
@@ -252,31 +289,34 @@ export function Game() {
         />
       )}
       {isGameStarted && (
-        <div className="Game">
-          <div
-            className="background"
-            style={{
-              backgroundImage: `url(/maps/${gameState.curentLevel?.background}.webp)`,
-            }}
-          ></div>
-          <div className="board">
-            <ControlsInfo />
+        <>
+          <GameInfo timeRemaining={time} score={gameState.score} />
+          <div className="Game">
+            <div
+              className="background"
+              style={{
+                backgroundImage: `url(/maps/${gameState.curentLevel?.background}.webp)`,
+              }}
+            ></div>
+            <div className="board">
+              <ControlsInfo />
 
-            {gameState.grid
-              .subGridViewFromGameState(gameState)
-              .toItterArray()
-              .map(([tile, x, y, grid]) => (
-                <Block
-                  key={`${x}, ${y}`}
-                  x={grid.y + y}
-                  y={grid.x + x}
-                  image={tile.texture[gameState.curentLevel?.theme ?? 0]}
-                  animation={tile.animation || 'none'}
-                  frame={tile.frame || 0}
-                />
-              ))}
+              {gameState.grid
+                .subGridViewFromGameState(gameState)
+                .toItterArray()
+                .map(([tile, x, y, grid]) => (
+                  <Block
+                    key={`${x}, ${y}`}
+                    x={grid.y + y}
+                    y={grid.x + x}
+                    image={tile.texture[gameState.curentLevel?.theme ?? 0]}
+                    animation={tile.animation || 'none'}
+                    frame={tile.frame || 0}
+                  />
+                ))}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </>
   )
