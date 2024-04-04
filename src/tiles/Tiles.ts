@@ -160,6 +160,9 @@ addTiles(Nothing)
 import Bedrock from './Bedrock'
 addTiles(Bedrock)
 
+import Steel from './Steel'
+addTiles(Steel)
+
 import Dirt from './Dirt'
 addTiles(Dirt)
 

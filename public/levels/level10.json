@@ -1,22 +1,24 @@
 {
-    "name": "Level10",
-    "nextLevel": "level11",
-    "background": "map1",
-    "theme":1,
-    "layout": [
-      "##########################",
-      "#                        #",
-      "#                  l     #",
-      "#                 lll    #",
-      "#                 lll    #",
-      "#                  $     #",
-      "#  p               $     #",
-      "#gggggggggggggggggggggggg#",
-      "#....................f...#",
-      "#........................#",
-      "#........................#",
-      "#........................#",
-      "##########################"
-    ]
-  }
-  
+  "name": "Level10",
+  "nextLevel": "level11",
+  "background": "map2",
+  "theme": 1,
+  "layout": [
+    "#####SSSSSS#####",
+    "#O...Sp..FSO...#",
+    "#..O.S....S.  .#",
+    "#.O..S....S.ggO#",
+    "#..O.S....S....#",
+    "SSSSSS....SSSSSS",
+    "S              S",
+    "S              S",
+    "Sd            dS",
+    "SggggggggggggggS",
+    "SSSSSS....SSSSSS",
+    "#.O..S....S.O. #",
+    "# .O.S.  .S...g#",
+    "#g...S. B.S..O.#",
+    "#O...S..D.S....#",
+    "#####SSSSSS#####"
+  ]
+}

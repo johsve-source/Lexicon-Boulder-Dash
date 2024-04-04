@@ -143,7 +143,7 @@ function playAudio(action: GameAction, soundList: SoundList) {
       loop: false,
     })
 
-    if (soundList.wood)
+  if (soundList.wood)
     action.soundManager.playInteraction('wood', {
       id: 77,
       volume: 0.2,
@@ -151,7 +151,7 @@ function playAudio(action: GameAction, soundList: SoundList) {
       trailing: true,
     })
 
-    if (soundList.leaf)
+  if (soundList.leaf)
     action.soundManager.playInteraction('leaf', {
       id: 99,
       volume: 0.2,
@@ -341,11 +341,11 @@ export class GameState {
     sortedUpdates.forEach(({ x, y }) => {
       const tile = this.get(x, y)
 
-      // Check if the tile has been changed.
-      if (tile !== nextGameState.get(x, y)) return
-
       // Check if the tile is defined.
       if (typeof tile === 'undefined') return
+
+      // Check if the tile has been changed.
+      if (tile !== nextGameState.get(x, y)) return
 
       // Check if the tile has a onPhysics function and run it.
       if (typeof tile.onPhysics === 'undefined') return

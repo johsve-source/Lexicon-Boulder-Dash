@@ -85,8 +85,7 @@ const EXPORT: TileList = {
     explosive: 1,
 
     onPhysics(params) {
-      const { local, soundList } = params
-      params.updateLocal(0,1)
+      const { local, updateLocal, soundList } = params
 
       const below = local.get(0, 1)
       // If nothing bellow then become critical.
@@ -96,6 +95,7 @@ const EXPORT: TileList = {
           ...TILES.CRITICAL_EXPLOSIVE_BARREL,
           animation: 'move-down',
         })
+        updateLocal(-1, -1, 3, 4)
         soundList.stoneFalling = true
         return
       }
@@ -129,8 +129,7 @@ const EXPORT: TileList = {
     explosive: 1,
 
     onPhysics(params) {
-      const { local, soundList } = params
-      params.updateLocal(0,1)
+      const { local, updateLocal, soundList } = params
 
       if (local.get(0, 1) === TILES.NOTHING) {
         local.set(0, 0, TILES.NOTHING)
@@ -138,10 +137,12 @@ const EXPORT: TileList = {
           ...TILES.CRITICAL_EXPLOSIVE_BARREL,
           animation: 'move-down',
         })
+        updateLocal(-1, -1, 3, 4)
         soundList.stoneFalling = true
-      } else {
-        explode(params, 0, 0, 1)
+        return
       }
+
+      explode(params, 0, 0, 1)
     },
   },
 }
