@@ -168,7 +168,7 @@ export class GameState {
   /**The current _player_ position. */
   playerPos = { x: 0, y: 0 }
   /**The current _time_ position. */
-  time = 120
+  time = 13
   /**The current _score_ position. */
   score = 0
   /**The current state of the game. */
@@ -196,9 +196,18 @@ export class GameState {
       )
 
       this.time = remainingTime
-      console.log('new time: ', remainingTime)
 
-      console.log(action.endTime)
+      if (remainingTime <= 10) {
+        if (typeof action.soundManager === 'undefined') return
+
+        action.soundManager.playInteraction('timer-ending', {
+          id: 9823,
+          volume: 0.1,
+          loop: false,
+          trailing: false,
+          duration: 10000
+        })
+      }
 
       if (remainingTime <= 0) {
         stopTimer('time out')
@@ -245,6 +254,14 @@ export class GameState {
           )
 
           playAudio(action, soundList)
+
+          if (typeof action.soundManager === 'undefined') return
+          action.soundManager.playInteraction('game-over', {
+            id: 8723,
+            volume: 0.5,
+            loop: false,
+            trailing: true,
+        })
         }
       }
       return this.time
@@ -435,7 +452,7 @@ export class GameState {
     clone.grid = Leveldata.grid.clone()
     clone.updateCords = this.updateCords
     clone.playerPos = { x: Leveldata.playerPos.x, y: Leveldata.playerPos.y }
-    clone.time = 120
+    clone.time = 13
     clone.score = this.score
     clone.curentLevel = Leveldata
     clone.nextLevel = Leveldata.nextLevel
