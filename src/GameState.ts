@@ -187,7 +187,7 @@ export class GameState {
   /**The number of physics updates that have been preformed. */
   updateCount = 0
   /**The current _time_. */
-  time = 120
+  time = 12
   /**The current _score_. */
   score = 0
   /**The number of _diamonds_ remaining. */
@@ -244,7 +244,7 @@ export class GameState {
 
       this.time = remainingTime
 
-      if (remainingTime <= 10) {
+      if (remainingTime <= 10 && !this.isGameOver) {
         if (typeof action.soundManager === 'undefined') return
 
         action.soundManager.playInteraction('timer-ending', {
@@ -252,7 +252,6 @@ export class GameState {
           volume: 0.1,
           loop: false,
           trailing: false,
-          duration: 10000,
         })
       }
 
@@ -554,7 +553,7 @@ export class GameState {
     const clone = new GameState()
 
     clone.grid = Leveldata.grid.clone()
-    clone.time = 120
+    clone.time = 12
     clone.score = this.score
     clone.diamondsRemaining = 0
     clone.curentLevel = Leveldata
