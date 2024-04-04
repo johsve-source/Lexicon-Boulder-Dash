@@ -8,6 +8,8 @@ export interface SoundList {
   diamondFalling: boolean
   diamondPickup: boolean
   explosion: boolean
+  wood: boolean
+  leaf: boolean
 }
 
 /**onLoadParams contains all the variables that a tile can access on _onLoad_. */
@@ -81,7 +83,7 @@ export interface Tile {
   name: string
 
   /**The url path to the tile texture. */
-  texture: string
+  texture: string[]
   /**Optional character symbol that represents the tile in level files. */
   symbol?: string
   /**Optional animation string. */
@@ -158,6 +160,9 @@ addTiles(Nothing)
 import Bedrock from './Bedrock'
 addTiles(Bedrock)
 
+import Steel from './Steel'
+addTiles(Steel)
+
 import Dirt from './Dirt'
 addTiles(Dirt)
 
@@ -190,6 +195,21 @@ addTiles(StalkerEnemy)
 
 import Boss from './Boss'
 addTiles(Boss)
+
+import Wood from './Wood'
+addTiles(Wood)
+
+import Grass from './Grass'
+addTiles(Grass)
+
+import Leaf from './Leaf'
+addTiles(Leaf)
+
+import Lava from './Lava'
+addTiles(Lava)
+
+import Centaur from './Centaur'
+addTiles(Centaur)
 
 // Freeze the definitions.
 Object.freeze(TILES)

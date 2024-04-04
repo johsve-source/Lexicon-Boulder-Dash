@@ -4,12 +4,19 @@ import { boulderPhysics } from './Boulder'
 const EXPORT: TileList = {
   DIRT_DIAMOND: {
     name: 'DIRT_DIAMOND',
-    texture: '/textures/pixel/dirt-diamond.png',
+    texture: [
+      '/textures/pixel/dirt-diamond.png',
+      '/textures/pixel/dirt-diamond.png',
+      '/textures/pixel/dirt-diamond.png',
+      '/textures/pixel/dirt-diamond.png',
+      '/textures/pixel/dirt-diamond.png',
+    ],
     symbol: 'D',
     indestructible: true,
 
-    onLoad({ gameState }) {
+    onLoad({ gameState, updateLocal }) {
       gameState.diamondsRemaining++
+      updateLocal(0,0)
     },
 
     onPlayerMove({ local, updateLocal, moveDirection, gameState, soundList }) {
@@ -40,12 +47,19 @@ const EXPORT: TileList = {
 
   BEDROCK_DIAMOND: {
     name: 'BEDROCK_DIAMOND',
-    texture: '/textures/pixel/bedrock-diamond.png',
+    texture: [
+      '/textures/pixel/bedrock-diamond.png',
+      '/textures/pixel/bedrock-diamond.png',
+      '/textures/pixel/bedrock-diamond.png',
+      '/textures/pixel/bedrock-diamond.png',
+      '/textures/pixel/bedrock-diamond.png',
+    ],
     symbol: 'd',
     indestructible: true,
 
-    onLoad({ gameState }) {
+    onLoad({ gameState, updateLocal }) {
       gameState.diamondsRemaining++
+      updateLocal(0,0)
     },
 
     onPlayerMove({ local, updateLocal, moveDirection, gameState, soundList }) {

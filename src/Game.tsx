@@ -206,21 +206,24 @@ export function Game() {
       )}
       {isGameStarted && (
         <div className="Game">
-          <ControlsInfo />
+          <div className="background" style={{backgroundImage: `url(/maps/${gameState.curentLevel?.background}.webp)`}}></div>
+          <div className="board">
+            <ControlsInfo />
 
-          {gameState.grid
-            .subGridViewFromGameState(gameState)
-            .toItterArray()
-            .map(([tile, x, y, grid]) => (
-              <Block
-                key={`${x}, ${y}`}
-                x={grid.y + y}
-                y={grid.x + x}
-                image={tile.texture}
-                animation={tile.animation || 'none'}
-                frame={tile.frame || 0}
-              />
-            ))}
+            {gameState.grid
+              .subGridViewFromGameState(gameState)
+              .toItterArray()
+              .map(([tile, x, y, grid]) => (
+                <Block
+                  key={`${x}, ${y}`}
+                  x={grid.y + y}
+                  y={grid.x + x}
+                  image={tile.texture[gameState.curentLevel?.theme ?? 0]}
+                  animation={tile.animation || 'none'}
+                  frame={tile.frame || 0}
+                />
+              ))}
+          </div>
         </div>
       )}
     </>

@@ -1,0 +1,22 @@
+{
+    "name": "Level14",
+    "nextLevel": "level15",
+    "background": "map3",
+    "theme":3,
+    "layout": [
+      "##########################",
+      "#DEDEDEDEDEDEDEDEDEDEDEDE#",
+      "##########################",
+      "#EEEEEEEEEEEEEEEEEEEEEEEE#",
+      "#EEEEEEEE#EEEEEEEEEEEEEEE#",
+      "#EEEE#EEEEEEEEEEEEEEEE#EE#",
+      "#EEEEEEEEEEEEEEEEEEEEEEEE#",
+      "#gggggggggggggggggggggggg#",
+      "#...E..E....E........F...#",
+      "#....E.........E...E.....#",
+      "#..E..E......p......E....#",
+      "#................E.......#",
+      "##########################"
+    ]
+  }
+  

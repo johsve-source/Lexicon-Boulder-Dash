@@ -58,7 +58,7 @@ export function GetGameReducer(): [GameState, React.Dispatch<GameAction>] {
   const [gameState, gameDispatch] = useReducer(gameReducer, new GameState())
 
   useEffect(() => {
-    loadLevel(gameDispatch, 'level1')
+    loadLevel(gameDispatch, 'level14')
   }, [])
 
   return [gameState, gameDispatch]
@@ -141,6 +141,22 @@ function playAudio(action: GameAction, soundList: SoundList) {
       id: 6,
       volume: 0.5,
       loop: false,
+    })
+
+  if (soundList.wood)
+    action.soundManager.playInteraction('wood', {
+      id: 77,
+      volume: 0.1,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.leaf)
+    action.soundManager.playInteraction('leaf', {
+      id: 99,
+      volume: 0.3,
+      loop: false,
+      trailing: true,
     })
 }
 
@@ -231,6 +247,8 @@ export class GameState {
       diamondFalling: false,
       diamondPickup: false,
       explosion: false,
+      wood: false,
+      leaf: false,
     }
 
     /**A shrorthand function to update the grid based on player movement. */
@@ -307,6 +325,8 @@ export class GameState {
       diamondFalling: false,
       diamondPickup: false,
       explosion: false,
+      wood: false,
+      leaf: false,
     }
 
     // Turn all the updateCords in to an array and sort them bottom upp.
@@ -321,11 +341,11 @@ export class GameState {
     sortedUpdates.forEach(({ x, y }) => {
       const tile = this.get(x, y)
 
-      // Check if the tile has been changed.
-      if (tile !== nextGameState.get(x, y)) return
-
       // Check if the tile is defined.
       if (typeof tile === 'undefined') return
+
+      // Check if the tile has been changed.
+      if (tile !== nextGameState.get(x, y)) return
 
       // Check if the tile has a onPhysics function and run it.
       if (typeof tile.onPhysics === 'undefined') return
