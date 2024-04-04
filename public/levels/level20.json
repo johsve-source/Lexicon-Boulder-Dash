@@ -1,6 +1,6 @@
 {
     "name": "Level20",
-    "nextLevel": "level1",
+    "nextLevel": "win",
     "background": "map4",
     "theme":3,
     "layout": [
