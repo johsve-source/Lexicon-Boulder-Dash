@@ -2,10 +2,7 @@ import './Game.css'
 import { createContext, useState, useEffect, useRef } from 'react'
 import Block from './components/Generic'
 import ControlsInfo from './components/ControlsInfo'
-import {
-  SoundManagerHook,
-  useSoundManagerLogic,
-} from './hooks/sound/useSoundManagerLogic'
+import { useSoundManagerLogic } from './hooks/sound/useSoundManagerLogic'
 import { GetGameReducer, ActionEnum, loadLevel } from './GameState'
 import { StartMenu } from './components/StartMenu'
 // remove import after highscore caching is finished
@@ -26,18 +23,63 @@ export function Game() {
 
   // play theme on start
   useEffect(() => {
-    const closure = (manager: SoundManagerHook) => {
-      manager.playInteraction('theme', {
-        id: 15132,
-        volume: 0.15,
+    console.log('Playing...', gameState.curentLevel?.background)
+    function playAmbianceBasedOnMap() {
+      console.log(gameState.curentLevel?.background)
+      switch (gameState.curentLevel?.background) {
+        case 'map1':
+          soundManager.cleanupAllSounds()
+          soundManager.playInteraction('ambiance-forest', {
+            id: Math.random() * 1000,
+            volume: 0.2,
+            loop: true,
+            trailing: true,
+          })
+          break
+        case 'map2':
+          soundManager.cleanupAllSounds()
+          soundManager.playInteraction('ambiance', {
+            id: Math.random() * 1000,
+            volume: 0.1,
+            loop: true,
+            trailing: true,
+          })
+          break
+        case 'map3':
+          soundManager.cleanupAllSounds()
+          soundManager.playInteraction('ambiance-fire', {
+            id: Math.random() * 1000,
+            volume: 0.2,
+            loop: true,
+            trailing: true,
+          })
+          break
+        case 'map4':
+          soundManager.cleanupAllSounds()
+          soundManager.playInteraction('ambiance-dark', {
+            id: Math.random() * 1000,
+            volume: 0.2,
+            loop: true,
+            trailing: true,
+          })
+          break
+        default:
+          soundManager.cleanupAllSounds()
+      }
+    }
+    if (isGameStarted) {
+      playAmbianceBasedOnMap()
+    } else {
+      soundManager.cleanupAllSounds()
+      soundManager.playInteraction('theme', {
+        id: Math.random() * 1000,
+        volume: 0.2,
         loop: true,
         trailing: true,
       })
     }
-
-    closure(soundManager)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [gameState.curentLevel?.background])
 
   function handleEnterNameClick() {
     navigate('/name')
@@ -57,7 +99,8 @@ export function Game() {
       trailing: true,
     })
 
-    soundManager.playInteraction('ambiance', {
+    // Play ambiance when I press play
+    soundManager.playInteraction('ambiance-forest', {
       id: 7,
       volume: 0.2,
       loop: true,
@@ -83,7 +126,12 @@ export function Game() {
       return () => clearInterval(intervalId)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isStartMenuVisible, isGameStarted, gameState.isGameOver])
+  }, [
+    isStartMenuVisible,
+    isGameStarted,
+    gameState.isGameOver,
+    gameState.curentLevel,
+  ])
 
   // get time
   useEffect(() => {
@@ -234,21 +282,29 @@ export function Game() {
         <>
           <GameInfo timeRemaining={time} score={gameState.score} />
           <div className="Game">
-            <ControlsInfo />
+            <div
+              className="background"
+              style={{
+                backgroundImage: `url(/maps/${gameState.curentLevel?.background}.webp)`,
+              }}
+            ></div>
+            <div className="board">
+              <ControlsInfo />
 
-            {gameState.grid
-              .subGridViewFromGameState(gameState)
-              .toItterArray()
-              .map(([tile, x, y, grid]) => (
-                <Block
-                  key={`${x}, ${y}`}
-                  x={grid.y + y}
-                  y={grid.x + x}
-                  image={tile.texture}
-                  animation={tile.animation || 'none'}
-                  frame={tile.frame || 0}
-                />
-              ))}
+              {gameState.grid
+                .subGridViewFromGameState(gameState)
+                .toItterArray()
+                .map(([tile, x, y, grid]) => (
+                  <Block
+                    key={`${x}, ${y}`}
+                    x={grid.y + y}
+                    y={grid.x + x}
+                    image={tile.texture[gameState.curentLevel?.theme ?? 0]}
+                    animation={tile.animation || 'none'}
+                    frame={tile.frame || 0}
+                  />
+                ))}
+            </div>
           </div>
         </>
       )}

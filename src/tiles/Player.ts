@@ -3,9 +3,22 @@ import { TILES, TileList } from './Tiles'
 const EXPORT: TileList = {
   PLAYER: {
     name: 'PLAYER',
-    texture: '/textures/pixel/player.gif',
+    texture: [
+      '/textures/pixel/player.gif',
+      '/textures/pixel/player.gif',
+      '/textures/pixel/player.gif',
+      '/textures/pixel/player.gif',
+      '/textures/pixel/player.gif',
+    ],
     symbol: 'p',
     frame: 0,
+
+    explosive: 1,
+
+    onLoad({ x, y, gameState }) {
+      gameState.playerPos.x = x
+      gameState.playerPos.y = y
+    },
 
     onPlayerMove({ tile, local, updateLocal, moveDirection, gameState }) {
       if (local.get(moveDirection.x, moveDirection.y) === TILES.NOTHING) {

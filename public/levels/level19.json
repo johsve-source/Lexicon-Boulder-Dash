@@ -1,0 +1,23 @@
+{
+    "name": "Level19",
+    "nextLevel": "level20",
+    "background": "map4",
+    "theme":3,
+    "layout": [
+      "###########################",
+      "#                         #",
+      "#                         #",
+      "#                         #",
+      "#                         #",
+      "#p                       f#",
+      "#ggggggggggggggggggggggggg#",
+      "#$$$$$$$$$$$$$$$$$$$$$$$$$#",
+      "#$ $   l     l     l   $ $#",
+      "#$$  l         l        $$#",
+      "#$ l       l     l   l   $#",
+      "#         l           l   #",
+      "#ddddddddddddddddddddddddd#",
+      "###########################"
+    ]
+  }
+  

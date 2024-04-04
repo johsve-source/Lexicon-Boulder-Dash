@@ -10,14 +10,25 @@ import { explode } from './Explosion'
 const EXPORT: TileList = {
   DIRT_BOULDER: {
     name: 'DIRT_BOULDER',
-    texture: '/textures/pixel/dirt-boulder.png',
+    texture: [
+      '/textures/pixel/dirt-boulder.png',
+      '/textures/pixel/dirt-boulder.png',
+      '/textures/pixel/dirt-boulder.png',
+      '/textures/pixel/dirt-boulder.png',
+      '/textures/pixel/dirt-boulder.png',
+    ],
     symbol: 'O',
 
     onPlayerMove(params) {
-      boulderPush(params, TILES.BEDROCK_BOULDER)
+      if (boulderPush(params, TILES.BEDROCK_BOULDER))
+        params.soundList.stoneFalling = true
     },
 
-    onPhysics: (params) => {
+    onLoad({ updateLocal }) {
+      updateLocal(0, 0)
+    },
+
+    onPhysics(params) {
       const { soundList } = params
 
       if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.DIRT_BOULDER))
@@ -27,14 +38,25 @@ const EXPORT: TileList = {
 
   BEDROCK_BOULDER: {
     name: 'BEDROCK_BOULDER',
-    texture: '/textures/pixel/bedrock-boulder.png',
+    texture: [
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+    ],
     symbol: 'o',
 
     onPlayerMove(params) {
-      boulderPush(params, TILES.BEDROCK_BOULDER)
+      if (boulderPush(params, TILES.BEDROCK_BOULDER))
+        params.soundList.stoneFalling = true
     },
 
-    onPhysics: (params) => {
+    onLoad({ updateLocal }) {
+      updateLocal(0, 0)
+    },
+
+    onPhysics(params) {
       const { soundList } = params
 
       if (boulderPhysics(params, TILES.FALLING_BOULDER, TILES.BEDROCK_BOULDER))
@@ -44,15 +66,21 @@ const EXPORT: TileList = {
 
   FALLING_BOULDER: {
     name: 'FALLING_BOULDER',
-    texture: '/textures/pixel/bedrock-boulder.png',
+    texture: [
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+      '/textures/pixel/bedrock-boulder.png',
+    ],
 
-    onPhysics: (params) => {
+    onPhysics(params) {
       const { local, soundList } = params
 
-      // If the player is bellow then explode.
-      if (local.get(0, 1) === TILES.PLAYER) {
-        explode(params, 0, 1)
-        soundList.explosion = true
+      // If something explosive bellow then detonate.
+      const below = local.get(0, 1)
+      if (below.explosive) {
+        explode(params, 0, 1, below.explosive)
         return
       }
 
@@ -77,7 +105,10 @@ export function boulderPush(
     local.get(moveDirection.x, 0) === TILES.NOTHING
   ) {
     local.set(0, 0, TILES.NOTHING)
-    local.set(moveDirection.x, 0, pushVariant)
+    local.set(moveDirection.x, 0, {
+      ...pushVariant,
+      animation: moveDirection.x > 0 ? 'move-right-b' : 'move-left-b',
+    })
     return true
   }
 

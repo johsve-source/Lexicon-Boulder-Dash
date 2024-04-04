@@ -8,10 +8,12 @@ export interface SoundList {
   diamondFalling: boolean
   diamondPickup: boolean
   explosion: boolean
+  wood: boolean
+  leaf: boolean
 }
 
-/**onPhysicsParams contains all the variables that a tile can access on _onPhysics_. */
-export interface onPhysicsParams {
+/**onLoadParams contains all the variables that a tile can access on _onLoad_. */
+export interface onLoadParams {
   /**The tile _globa position_ x. */
   x: number
   /**The tile _globa position_ y. */
@@ -40,7 +42,10 @@ export interface onPhysicsParams {
    * Can be mutated in order to change the gamestate.
    */
   gameState: GameState
+}
 
+/**onPhysicsParams contains all the variables that a tile can access on _onPhysics_. */
+export interface onPhysicsParams extends onLoadParams {
   /**The GameAction passed for the uppdate incase external dependencies are needed. */
   action: GameAction
 
@@ -78,13 +83,21 @@ export interface Tile {
   name: string
 
   /**The url path to the tile texture. */
-  texture: string
+  texture: string[]
   /**Optional character symbol that represents the tile in level files. */
   symbol?: string
   /**Optional animation string. */
   animation?: string
   /**Optional animation frame. */
   frame?: number
+
+  /**Optional explotion radius if defined. */
+  explosive?: number
+  /**Optional indestructible if set to true. */
+  indestructible?: boolean
+
+  /**Optional function that is called on the tile when the level is loaded. */
+  onLoad?: (params: onLoadParams) => void
 
   /**Optional function that is called when the player moves nearby. */
   onPlayerMove?: (params: onPlayerMoveParams) => void
@@ -147,6 +160,9 @@ addTiles(Nothing)
 import Bedrock from './Bedrock'
 addTiles(Bedrock)
 
+import Steel from './Steel'
+addTiles(Steel)
+
 import Dirt from './Dirt'
 addTiles(Dirt)
 
@@ -159,23 +175,41 @@ addTiles(Diamond)
 import Explosion from './Explosion'
 addTiles(Explosion)
 
+import ExplosiveBarrel from './ExplosiveBarrel'
+addTiles(ExplosiveBarrel)
+
 import Player from './Player'
 addTiles(Player)
 
 import Finish from './Finish'
 addTiles(Finish)
 
-import Phoenix from './Phoenix'
-addTiles(Phoenix)
+import LineEnemy from './LineEnemy'
+addTiles(LineEnemy)
 
-import Unicorn from './Unicorn'
-addTiles(Unicorn)
+import WallEnemy from './WallEnemy'
+addTiles(WallEnemy)
+
+import StalkerEnemy from './StalkerEnemy'
+addTiles(StalkerEnemy)
+
+import Boss from './Boss'
+addTiles(Boss)
+
+import Wood from './Wood'
+addTiles(Wood)
+
+import Grass from './Grass'
+addTiles(Grass)
+
+import Leaf from './Leaf'
+addTiles(Leaf)
+
+import Lava from './Lava'
+addTiles(Lava)
 
 import Centaur from './Centaur'
 addTiles(Centaur)
-
-import Dragon from './Dragon'
-addTiles(Dragon)
 
 // Freeze the definitions.
 Object.freeze(TILES)
