@@ -243,9 +243,18 @@ export class GameState {
       )
 
       this.time = remainingTime
-      console.log('new time: ', remainingTime)
 
-      console.log(action.endTime)
+      if (remainingTime <= 10) {
+        if (typeof action.soundManager === 'undefined') return
+
+        action.soundManager.playInteraction('timer-ending', {
+          id: 9823,
+          volume: 0.1,
+          loop: false,
+          trailing: false,
+          duration: 10000,
+        })
+      }
 
       if (remainingTime <= 0) {
         stopTimer('time out')
@@ -294,6 +303,14 @@ export class GameState {
           )
 
           playAudio(action, soundList)
+
+          if (typeof action.soundManager === 'undefined') return
+          action.soundManager.playInteraction('game-over', {
+            id: 8723,
+            volume: 0.5,
+            loop: false,
+            trailing: true,
+          })
         }
       }
       return this.time
@@ -320,8 +337,16 @@ export class GameState {
     // Check if the player is alive
     this.isGameOver = playerTile !== TILES.PLAYER
     if (this.isGameOver) {
-      if (typeof this.curentLevel !== 'undefined')
+      if (typeof this.curentLevel !== 'undefined') {
+        action.soundManager?.playInteraction('start-game', {
+          id: 1234312,
+          volume: 0.2,
+          loop: false,
+          trailing: true,
+        })
+        
         return this.applyLevelData(this.curentLevel) // restart
+      } 
       else return this
     }
 

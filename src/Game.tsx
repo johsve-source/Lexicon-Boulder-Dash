@@ -93,22 +93,29 @@ export function Game() {
     soundManager.cleanupAllSounds()
 
     soundManager.playInteraction('start-game', {
+      id: 13213321,
+      volume: 0.2,
+      loop: false,
+      trailing: true,
+    })
+
+    // soundManager.playInteraction('ambiance', {
+    //   id: 7,
+    //   volume: 0.2,
+    //   loop: true,
+    //   trailing: true,
+    // })
+  }
+
+  const loadLevelCallback = (path: string) => {
+    console.log('loadlevelcallback')
+    soundManager.playInteraction('start-game', {
       id: 13213123,
       volume: 0.2,
       loop: false,
       trailing: true,
     })
 
-    // Play ambiance when I press play
-    soundManager.playInteraction('ambiance-forest', {
-      id: 7,
-      volume: 0.2,
-      loop: true,
-      trailing: true,
-    })
-  }
-
-  const loadLevelCallback = (path: string) => {
     loadLevel(gameDispatch, path)
   }
 
@@ -138,7 +145,6 @@ export function Game() {
     if (isGameStarted) {
       setTime(gameState.time)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGameStarted, gameState.time])
 
   useEffect(() => {
