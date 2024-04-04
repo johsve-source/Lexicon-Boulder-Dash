@@ -21,8 +21,8 @@ export function explode(
       const tile = gameState.get(ix, iy)
 
       // Dig out the dirt diamond.
-      if (tile === TILES.BEDROCK_DIAMOND) {
-        gameState.set(ix, iy, TILES.DIRT_DIAMOND)
+      if (tile === TILES.DIRT_DIAMOND) {
+        gameState.set(ix, iy, TILES.BEDROCK_DIAMOND)
         gameState.updateArea(ix + x, iy + y)
         return
       }
@@ -42,7 +42,13 @@ export function explode(
 const EXPORT: TileList = {
   EXPLOSION: {
     name: 'EXPLOSION',
-    texture: '/textures/pixel/boom.gif',
+    texture: [
+      '/textures/pixel/boom.gif',
+      '/textures/pixel/boom.gif',
+      '/textures/pixel/boom.gif',
+      '/textures/pixel/boom.gif',
+      '/textures/pixel/boom.gif',
+    ],
 
     onPhysics({ local, updateLocal }) {
       local.set(0, 0, TILES.NOTHING)

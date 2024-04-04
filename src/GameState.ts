@@ -101,7 +101,7 @@ function playAudio(action: GameAction, soundList: SoundList) {
   if (soundList.diggingDirt)
     action.soundManager.playInteraction('digging-dirt', {
       id: 1,
-      volume: 0.5,
+      volume: 0.2,
       loop: false,
       trailing: true,
     })
@@ -109,14 +109,14 @@ function playAudio(action: GameAction, soundList: SoundList) {
   if (soundList.diamondPickup)
     action.soundManager.playInteraction('collecting-diamond', {
       id: 2,
-      volume: 0.5,
+      volume: 0.2,
       loop: false,
     })
 
   if (soundList.explosion)
     action.soundManager.playInteraction('stone-explode', {
       id: 3,
-      volume: 0.5,
+      volume: 0.2,
       loop: false,
       trailing: true,
     })
@@ -124,7 +124,7 @@ function playAudio(action: GameAction, soundList: SoundList) {
   if (soundList.stoneFalling)
     action.soundManager.playInteraction('falling-stone', {
       id: 4,
-      volume: 0.2,
+      volume: 0.1,
       loop: false,
       trailing: true,
     })
@@ -132,15 +132,31 @@ function playAudio(action: GameAction, soundList: SoundList) {
   if (soundList.diamondFalling)
     action.soundManager.playInteraction('falling-diamond', {
       id: 5,
-      volume: 0.2,
+      volume: 0.1,
       loop: false,
     })
 
   if (soundList.diamondPickup)
     action.soundManager.playInteraction('collecting-diamond', {
       id: 6,
-      volume: 0.5,
+      volume: 0.2,
       loop: false,
+    })
+
+  if (soundList.wood)
+    action.soundManager.playInteraction('wood', {
+      id: 77,
+      volume: 0.2,
+      loop: false,
+      trailing: true,
+    })
+
+  if (soundList.leaf)
+    action.soundManager.playInteraction('leaf', {
+      id: 99,
+      volume: 0.2,
+      loop: false,
+      trailing: true,
     })
 }
 
@@ -231,6 +247,8 @@ export class GameState {
       diamondFalling: false,
       diamondPickup: false,
       explosion: false,
+      wood: false,
+      leaf: false,
     }
 
     /**A shrorthand function to update the grid based on player movement. */
@@ -307,6 +325,8 @@ export class GameState {
       diamondFalling: false,
       diamondPickup: false,
       explosion: false,
+      wood: false,
+      leaf: false,
     }
 
     // Turn all the updateCords in to an array and sort them bottom upp.
@@ -321,11 +341,11 @@ export class GameState {
     sortedUpdates.forEach(({ x, y }) => {
       const tile = this.get(x, y)
 
-      // Check if the tile has been changed.
-      if (tile !== nextGameState.get(x, y)) return
-
       // Check if the tile is defined.
       if (typeof tile === 'undefined') return
+
+      // Check if the tile has been changed.
+      if (tile !== nextGameState.get(x, y)) return
 
       // Check if the tile has a onPhysics function and run it.
       if (typeof tile.onPhysics === 'undefined') return

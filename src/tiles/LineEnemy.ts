@@ -88,7 +88,13 @@ function lineEnemyLogic(
 const EXPORT: TileList = {
   LINE_ENEMY_RIGHT: {
     name: 'LINE_ENEMY',
-    texture: '/textures/pixel/enemy_centaur.gif',
+    texture: [
+      '/textures/pixel/enemy_centaur.gif',
+      '/textures/pixel/enemy_centaur.gif',
+      '/textures/pixel/enemy_centaur.gif',
+      '/textures/pixel/enemy_centaur.gif',
+      '/textures/pixel/enemy_centaur.gif',
+    ],
     symbol: 'L',
     explosive: 1,
 
@@ -109,7 +115,13 @@ const EXPORT: TileList = {
 
   LINE_ENEMY_LEFT: {
     name: 'LINE_ENEMY',
-    texture: '/textures/pixel/enemy_centaur.gif',
+    texture: [
+      '/textures/pixel/enemy_centaur.gif',
+      '/textures/pixel/enemy_centaur.gif',
+      '/textures/pixel/enemy_centaur.gif',
+      '/textures/pixel/enemy_centaur.gif',
+      '/textures/pixel/enemy_centaur.gif',
+    ],
     explosive: 1,
 
     onLoad({ updateLocal }) {
@@ -129,7 +141,13 @@ const EXPORT: TileList = {
 
   LINE_ENEMY_UP: {
     name: 'LINE_ENEMY',
-    texture: '/textures/pixel/enemy_unicorn.gif',
+    texture: [
+      '/textures/pixel/enemy_unicorn.gif',
+      '/textures/pixel/enemy_unicorn.gif',
+      '/textures/pixel/enemy_unicorn.gif',
+      '/textures/pixel/enemy_unicorn.gif',
+      '/textures/pixel/enemy_unicorn.gif',
+    ],
     symbol: 'l',
     explosive: 1,
 
@@ -144,7 +162,13 @@ const EXPORT: TileList = {
 
   LINE_ENEMY_DOWN: {
     name: 'LINE_ENEMY',
-    texture: '/textures/pixel/enemy_unicorn.gif',
+    texture: [
+      '/textures/pixel/enemy_unicorn.gif',
+      '/textures/pixel/enemy_unicorn.gif',
+      '/textures/pixel/enemy_unicorn.gif',
+      '/textures/pixel/enemy_unicorn.gif',
+      '/textures/pixel/enemy_unicorn.gif',
+    ],
     explosive: 1,
 
     onLoad({ updateLocal }) {
