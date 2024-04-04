@@ -4,4 +4,10 @@ Welcome to the Boulder Dash React game! This game is a modern adaptation of the 
 
 Experience the thrill of exploration and strategy in this exciting game!
 
-Play the game here: [Boulder Dash React Game](https://lexicon-boulder-dash-two.vercel.app/)
+Play the game here: [Boulder Dash React Game](https://singular-lamington-9a3db4.netlify.app/)
+
+## Credits
+
+Player sprite - https://timbojay.itch.io/lil-guy-base
+
+
